@@ -16,10 +16,6 @@ class TestMacro {
 		};
 	}
 	
-	macro public static function extraCall(call: MacroCall, a: Expr, b: Expr) {
-		
-	}
-	
 	macro public static function template(e: Expr) {
 		trace(Std.string(e));
 		return macro null;

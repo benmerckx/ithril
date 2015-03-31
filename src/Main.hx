@@ -55,9 +55,10 @@ class Main implements View {
 						(div.components)
 				(div.tab.meta)
 					(div.components)
+					(([for (item in items) (view)(li)(a, { href:'blabla' }, item.title)]))
 				(div.tab.settings)
 					(div.components)
-					(a.move-to, language.move_entry_to)
+					(a.move-to)
 				(aside)
 		;
 		/*return (view)

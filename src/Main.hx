@@ -71,6 +71,7 @@ class Main implements View {
 		
 		return (view)
 			(ul)
+				(a.test, {}, 'info')
 				(([for (item in list) (view)(li)
 					(h1)
 						((item.title))(span, {}, 'ok')

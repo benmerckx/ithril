@@ -131,9 +131,10 @@ class ViewBuilder {
 		var fields: Array<ObjField> = [];
 		
 		if (data.attributes != null) {
-			switch (data.attributes.expr) {
-				case ExprDef.EObjectDecl(f):
+			switch (data.attributes) {
+				case _.expr => ExprDef.EObjectDecl(f):
 					fields = f;
+				case macro {}:
 				default:
 					// concat objects
 					var attrs: Array<Expr> = [];
@@ -146,12 +147,13 @@ class ViewBuilder {
 						attrs.push(macro Reflect.setField(t, $v{key}, ${attr.value}));
 					}
 					if (attrs.length > 0)
-					return macro {
-						var t = ${data.attributes};
-						$b{attrs};
-						t;
-					};
-						else return macro { };
+						return macro {
+							var t = ${data.attributes};
+							$b{attrs};
+							t;
+						};
+					else 
+						return macro { };
 			}
 		}
 		

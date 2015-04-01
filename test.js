@@ -11,7 +11,7 @@ Main.main = function() {
 Main.prototype = {
 	view: function() {
 		var list = [{ title : "Item 1", body : "Body text"},{ title : "Item 2", body : "Body text 2"}];
-		return [{ tag : "ul", attrs : { }, children : [(function($this) {
+		return [{ tag : "ul", attrs : { }, children : [{ tag : "a", attrs : { 'class' : "test"}, children : ["info",(function($this) {
 			var $r;
 			var _g = [];
 			{
@@ -24,7 +24,7 @@ Main.prototype = {
 			}
 			$r = _g;
 			return $r;
-		}(this)),{ tag : "li", attrs : { }, children : ["ok"]}]}];
+		}(this))]},{ tag : "li", attrs : { }, children : ["ok"]}]}];
 	}
 };
 Main.main();

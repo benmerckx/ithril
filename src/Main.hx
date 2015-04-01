@@ -5,81 +5,41 @@ class Main implements View {
 	}
 	
 	public function new() {
-		trace(view());
 		untyped m.render(Browser.document.getElementById('main'), view());
 	}
-	/*
-	 (nav.breadcrumbs)
-			(div.form)
-				(h1+id, entry.language.title)
-				(nav)
-					(a.active, {'data-tab': 'main'})
-					(a, {'data-tab': 'meta'}, language.entry_nav_doc)
-					(a, {'data-tab': 'settings'}, language.entry_nav_doc)
-				(div.edit-status[placeholder='abc'], {style: {display: none}})
-				(div.tab.open.main)
-					(form)
-						(div.components)
-				(div.tab.meta)
-					(div.components)
-				(div.tab.settings)
-					(div.components)
-					(a.move-to, language.move_entry_to)
-				(aside)
-				(div.language)
-					(h1, language.languages)
-					(ul)
-						(for (item in items) template(li)(a, { href:'blabla' }, item.title))
-						(items.map(function(item)
-							_(li)(a, { href:'blabla' }, item.title)
-						))
-						(li.last)
-					(div.activity)
-	 */
-					
-	 /*(view)
-			(ul)
-				(li)(li)
-			(div)
-				(("Hello"))(b, {}, "world")(("!"))
-			(nav.breadcrumbs)
-			(div.form)
-				(h1+id, entry.language.title)
-				(nav)
-					(a.active, {id: 'id', id: 'id2'})
-				(div.edit-status, {style: {display: none}})
-				(div.tab.open.main)
-					(form)
-						(div.components)
-				(div.tab.meta)
-					(div.components)
-					((textNode))
-				(div.tab.settings)
-					(div.components)
-					(a.move-to)
-				(aside)
-		;
-		*/
+
 	public function view() {
-		var list = [{
-			title: 'Item 1',
-			body: 'Body text'
+		var menu = [{
+			title: 'link1',
+			href: '/'
 		}, {
-			title: 'Item 2',
-			body: 'Body text 2'
+			title: 'link2',
+			href: '/link2'
 		}];
 		
 		return (view)
-			(ul)
-				(a.test, {}, 'info')
-				(([for (item in list) (view)(li)
-					(h1)
-						((item.title))(span, {}, 'ok')
-					(p)
-						((item.body))
-				]))
-				(li)
-					(('ok'))
+			(div.test)
+				(h1, {}, 'Test template')
+				
+				(nav.main-nav)
+					(ul)
+						(([for (item in menu) (view)
+							(li)
+								(a, {href: item.href}, item.title)
+						]))
+						(li)
+							(a, { href: '/' }, 'Home')
+				
+				(div.form)
+					(form, {method: 'post', action: '/'})
+						(label.field)
+							(('Your name: '))(input[type="text"], {name: "name"})
+						(label.field)
+							(('Your e-mail: '))(input[type="email"], {name: "mail"})
+						(button+submit, {}, "Submit form")
+					
+				(footer.few.more.classes+id)
+					(('Footer text'))
 		;
 	}
 

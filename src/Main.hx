@@ -1,16 +1,12 @@
-typedef Template = {
-	tag: String,
-	attrs: Dynamic,
-	children: Array<Template>
-}
-
+import js.Browser;
 class Main implements View {
 	public static function main() {
 		new Main();
 	}
 	
 	public function new() {
-		//trace(view());
+		trace(view());
+		untyped m.render(Browser.document.getElementById('main'), view());
 	}
 	/*
 	 (nav.breadcrumbs)
@@ -40,34 +36,50 @@ class Main implements View {
 						(li.last)
 					(div.activity)
 	 */
-	public function view() { 
-		(view)
+					
+	 /*(view)
+			(ul)
+				(li)(li)
+			(div)
+				(("Hello"))(b, {}, "world")(("!"))
 			(nav.breadcrumbs)
 			(div.form)
 				(h1+id, entry.language.title)
 				(nav)
-					(a.active, {'data-tab': 'main'})
-					(a, {'data-tab': 'meta'}, language.entry_nav_doc)
-					(a, {'data-tab': 'settings'}, language.entry_nav_doc)
+					(a.active, {id: 'id', id: 'id2'})
 				(div.edit-status, {style: {display: none}})
 				(div.tab.open.main)
 					(form)
 						(div.components)
 				(div.tab.meta)
 					(div.components)
-					(([for (item in items) (view)(li)(a, { href:'blabla' }, item.title)]))
+					((textNode))
 				(div.tab.settings)
 					(div.components)
 					(a.move-to)
 				(aside)
 		;
-		/*return (view)
-			(div)
-				(ul)
-					(li)
-					(li)
-					(li)
-		;*/
+		*/
+	public function view() {
+		var list = [{
+			title: 'Item 1',
+			body: 'Body text'
+		}, {
+			title: 'Item 2',
+			body: 'Body text 2'
+		}];
+		
+		return (view)
+			(ul)
+				(([for (item in list) (view)(li)
+					(h1)
+						((item.title))(span, {}, 'ok')
+					(p)
+						((item.body))
+				]))
+				(li)
+					(('ok'))
+		;
 	}
 
 }

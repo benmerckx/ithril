@@ -1,0 +1,3 @@
+-main Example
+-cp ../src
+-js main.js

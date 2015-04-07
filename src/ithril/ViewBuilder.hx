@@ -1,3 +1,6 @@
+package ithril;
+
+#if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
 
@@ -56,9 +59,18 @@ typedef InlineAttribute = {
 typedef ObjField = {field : String, expr : Expr};
 
 typedef Lines = Map<Int, Int>;
+#end
 
 class ViewBuilder {
+	macro public static function setStartIdentifier(e: Expr) {
+		#if macro
+		identifier = e;
+		return macro null;
+		#end
+	}
 	
+	#if macro
+	static var identifier: Expr = macro (view);
 	static var lines: Lines;
 	
 	macro static public function build(): Array<Field> {
@@ -76,8 +88,9 @@ class ViewBuilder {
 	}
 	
 	static function parseBlock(e: Expr) {
+		
 		switch (e.expr) {
-			case ExprDef.ECall(_, _):			
+			case ExprDef.ECall(_, _):
 				parseCalls(e, {
 					expr: e,
 					blocks: []
@@ -95,10 +108,22 @@ class ViewBuilder {
 					ctx.blocks.push(block);
 					parseCalls(callExpr, ctx);
 				}
-			case macro (view):
+			case _.expr => ExprDef.EArray(e1, e2):
+				var block = Block.ExprBlock(preprocess(e2), posInfo(e2));
+				ctx.blocks.push(block);
+				parseCalls(e1, ctx);
+			case identifier:
 				ctx.expr.expr = createExpr(orderBlocks(ctx)).expr;
 			default:
 		}
+	}
+	
+	static function preprocess(e: Expr) return switch e {
+		case macro for($head) $body: 
+			macro @:pos(e.pos) ([for ($head) $body]);
+		case macro while($head) $body: 
+			macro @:pos(e.pos) ([while ($head) $body]);
+		default: e;
 	}
 	
 	static function createExpr(list: Array<BlockWithChildren>, ?prepend: Expr): ExprOf<Array<Dynamic>> {
@@ -108,7 +133,6 @@ class ViewBuilder {
 			switch (item.block) {
 				case Block.ElementBlock(data, _):
 					var tag = Context.makeExpr(data.selector.tag, Context.currentPos());
-					//var attributes = createAttrsExpr(data);
 					exprList.push(macro {
 						tag: ${tag},
 						attrs: ${createAttrsExpr(data)},
@@ -116,7 +140,6 @@ class ViewBuilder {
 					});
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
-					//trace('Children in expr: '+item.children.length);
 				default:
 			}
 		}
@@ -153,7 +176,7 @@ class ViewBuilder {
 							t;
 						};
 					else 
-						return macro { };
+						return data.attributes;
 			}
 		}
 		
@@ -199,9 +222,6 @@ class ViewBuilder {
 			
 			if (addTo != null) {
 				if (indent == current.indent) {
-					/*if (current.line == line)
-						addTo = current;
-					else*/
 						addTo = current.parent;
 				} else if (indent < current.indent) {
 					var parent = current.parent;
@@ -246,16 +266,7 @@ class ViewBuilder {
 	static function chainElement(params: Array<Expr>, callExpr: Expr): Null<Block> {
 		if (params.length == 0 || params.length > 3) 
 			return null;
-		
-		if (params.length == 1) {
-			var e = params[0];
-			switch (e.expr) {
-				case ExprDef.EParenthesis(expr):
-					return Block.ExprBlock(expr, posInfo(e));
-				default:
-			}
-		}
-				
+						
 		var element = element();
 		var e = params[0];
 		switch (e.expr) {
@@ -266,7 +277,6 @@ class ViewBuilder {
 					default: return null;
 				}
 			case ExprDef.EField(_, _) | ExprDef.EBinop(_, _, _) | ExprDef.EArray(_, _):
-				// get all attributes
 				callExpr.iter(getAttr.bind(_, element.inlineAttributes));
 				element.selector = parseSelector(e.toString().replace(' ', ''));
 			default: return null;
@@ -323,7 +333,6 @@ class ViewBuilder {
 		};
 	}
 	
-	//#pos(src/Main.hx:71: lines 71-73)
 	static function posInfo(e: Expr): PosInfo {
 		var pos = e.pos;
 		var info = Std.string(pos);
@@ -356,5 +365,5 @@ class ViewBuilder {
 			end: end
 		};
 	}
-	
+	#end
 }

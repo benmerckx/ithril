@@ -3,6 +3,7 @@ package ithril;
 #if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.Type;
 
 using StringTools;
 using haxe.macro.ExprTools;
@@ -282,9 +283,19 @@ class ViewBuilder {
 			default: return null;
 		}
 		
-		if (params.length > 1)
-			element.attributes = params[1];
-		
+		if (params.length > 1) {
+			if (params.length == 2) {
+				var type = Context.typeof(params[1]);
+				switch (type) {
+					case Type.TInst(_.get().name => 'String', _):
+						element.content = params[1];
+					default:
+						element.attributes = params[1];
+				}
+			} else {
+				element.attributes = params[1];
+			}
+		}
 		if (params.length > 2)
 			element.content = params[2];
 			

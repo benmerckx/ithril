@@ -1,4 +1,5 @@
 import ithril.View;
+import mithril.M;
 import js.Browser;
 
 class Example implements ithril.View {
@@ -7,7 +8,7 @@ class Example implements ithril.View {
 	}
 	
 	public function new() {
-		untyped m.render(Browser.document.getElementById('main'), view());
+		M.render(Browser.document.getElementById('main'), view());
 	}
 
 	public function view() {
@@ -19,7 +20,7 @@ class Example implements ithril.View {
 			href: '/link2'
 		}];
 		
-		return (view)
+		return untyped (view)
 			(html, {xlmns: 'http://www.w3.org/1999/xhtml', lang: 'en', 'xml:lang': 'en'})
 				(head)
 					(title, 'BoBlog')
@@ -31,7 +32,7 @@ class Example implements ithril.View {
 						(h2, "Bob's Blog")
 					(nav)
 						(ul)
-							[for (item in menu) (view)(li, item.title)]
+							[for (item in menu) (view)(li, {}, item.title)]
 					(div+footer)
 						(p, 'All content &copy; Bob')
 		;

@@ -16,7 +16,7 @@ typedef ViewContext = {
 typedef Cell = {
 	tag: String,
 	attrs: Dynamic,
-	children: Array<Dynamic>
+	children: Dynamic//Array<Dynamic>
 }
 
 enum Block {
@@ -127,7 +127,7 @@ class ViewBuilder {
 		default: e;
 	}
 	
-	static function createExpr(list: Array<BlockWithChildren>, ?prepend: Expr): ExprOf<Array<Dynamic>> {
+	static function createExpr(list: Array<BlockWithChildren>, ?prepend: Expr): ExprOf<Array<{tag: String,attrs: Dynamic,children: Dynamic}>> {
 		var exprList: Array<Expr> = [];
 		if (prepend != null) exprList.push(prepend);
 		for (item in list) {
@@ -137,14 +137,14 @@ class ViewBuilder {
 					exprList.push(macro {
 						tag: ${tag},
 						attrs: ${createAttrsExpr(data)},
-						children: (${createExpr(item.children, data.content)}: Array<Dynamic>)
+						children: (${createExpr(item.children, data.content)}: Dynamic)
 					});
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
 				default:
 			}
 		}
-		return macro ($a{exprList}: Array<Dynamic>);
+		return macro $a{exprList};
 	}
 	
 	static function createAttrsExpr(data: Element): Expr {

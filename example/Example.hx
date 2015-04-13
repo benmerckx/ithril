@@ -20,7 +20,7 @@ class Example implements ithril.View {
 			href: '/link2'
 		}];
 		
-		return untyped (view)
+		return (view)
 			(html, {xlmns: 'http://www.w3.org/1999/xhtml', lang: 'en', 'xml:lang': 'en'})
 				(head)
 					(title, 'BoBlog')

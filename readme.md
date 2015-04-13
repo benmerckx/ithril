@@ -2,7 +2,7 @@
 
 Simple template syntax for mithril views.
 It's aware of indentation so you don't have to close tags. 
-You can use the same kind of selectors as in mithril, except for ids (since using # would not be valid haxe syntax, these are replace with +):
+You can use the same kind of selectors as in mithril, except for ids (since using # would not be valid haxe syntax, these are replaced with +):
 Normal expressions can be used in attribute values and inline by using brackets. Inline for and while loops only need one set of brackets.
 
 ## Example

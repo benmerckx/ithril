@@ -63,15 +63,7 @@ typedef Lines = Map<Int, Int>;
 #end
 
 class ViewBuilder {
-	macro public static function setStartIdentifier(e: Expr) {
-		#if macro
-		identifier = e;
-		return macro null;
-		#end
-	}
-	
 	#if macro
-	static var identifier: Expr = macro (view);
 	static var lines: Lines;
 	
 	macro static public function build(): Array<Field> {
@@ -113,7 +105,7 @@ class ViewBuilder {
 				var block = Block.ExprBlock(preprocess(e2), posInfo(e2));
 				ctx.blocks.push(block);
 				parseCalls(e1, ctx);
-			case identifier:
+			case macro (view):
 				ctx.expr.expr = createExpr(orderBlocks(ctx)).expr;
 			default:
 		}

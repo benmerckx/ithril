@@ -31,3 +31,12 @@ function () {
 	;
 }
 ```
+
+##Output
+
+Everything gets compiled to simple objects, using [this notation](http://lhorie.github.io/mithril/optimizing-performance.html#compiling-templates) so it can be used with mithril, but might also be used to turn that into html or even react templates in the future.
+
+## Todo
+
+- Debug
+- Renaming of the View interface because it might interfere with the mithril extern View interface

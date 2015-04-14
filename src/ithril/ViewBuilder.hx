@@ -91,7 +91,7 @@ class ViewBuilder {
 	static function parseBlock(e: Expr) {
 		
 		switch (e.expr) {
-			case ExprDef.ECall(_, _):
+			case ExprDef.ECall(_, _) | ExprDef.EArray(_, _):
 				parseCalls(e, {
 					expr: e,
 					blocks: []

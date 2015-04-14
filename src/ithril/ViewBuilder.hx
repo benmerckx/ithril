@@ -278,7 +278,7 @@ class ViewBuilder {
 					default: return null;
 				}
 			case ExprDef.EField(_, _) | ExprDef.EBinop(_, _, _) | ExprDef.EArray(_, _):
-				callExpr.iter(getAttr.bind(_, element.inlineAttributes));
+				getAttr(e, element.inlineAttributes);
 				element.selector = parseSelector(e.toString().replace(' ', ''));
 			default: return null;
 		}

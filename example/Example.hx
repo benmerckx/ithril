@@ -21,20 +21,15 @@ class Example implements ithril.View {
 		}];
 		
 		return (view)
-			(html, {xlmns: 'http://www.w3.org/1999/xhtml', lang: 'en', 'xml:lang': 'en'})
-				(head)
-					(title, 'BoBlog')
-					(meta, {'http-equiv': 'Content-Type', content: 'text/html; charset=utf-8'})
-					(link, {rel: 'stylesheet', href: 'main.css', type: 'text/css'})
-				(body)
-					(div+header)
-						(h1, 'BoBlog')
-						(h2, "Bob's Blog")
-					(nav)
-						(ul)
-							[for (item in menu) (view)(li, {}, item.title)]
-					(div+footer)
-						(p, 'All content &copy; Bob')
+			(div)
+				(div+header)
+					(h1[style="color:red"].test, 'Heading')
+					(h2, "Subheader")
+				(nav)
+					(ul)
+						[for (item in menu) (view)(li, {}, item.title)]
+				(div+footer)
+					(p, 'Footer text')
 		;
 	}
 

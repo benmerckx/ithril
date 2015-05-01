@@ -311,7 +311,7 @@ class ViewBuilder {
 	}
 	
 	static function parseSelector(selector: String): Selector {
-		var attr = ~/\[(.*?)\]/g;
+		var attr = ~/\[[^\]]+\]/g;
 		selector = attr.replace(selector, '');
 		selector = selector.replace('.', ',.').replace('+', ',+');
 		var parts: Array<String> = selector.split(',');

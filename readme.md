@@ -7,27 +7,24 @@ Normal expressions can be used in attribute values and inline by using brackets.
 
 ## Example
 
-You need to implement `ithril.View` for the macros to do their work.
+You need to implement `ithril.Ithril` for the macros to do their work.
 
 ```haxe
 function () {
 	return (view)
-		(head)
-			(meta[charset="utf-8"])
-		(body)
-			(div.class-name)
-				['Any expression can be used here']
-			(div+id)
-				(ul)
-					(li, 'Some')
-					(li, 'List items')
-				(ul.another-list)
-					[for (item in list) (view)(li, item.title)]
-				(form)
-					(input[type="text"], {value: "Text value"})
-					(input[type="checkbox"], {checked: true})
-			(footer)
-				['More information will be following']
+		(div.class-name)
+			['Any expression can be used here']
+		(div+id)
+			(ul)
+				(li, 'Some')
+				(li, 'List items')
+			(ul.another-list)
+				[for (item in list) (view)(li, item.title)]
+			(form)
+				(input[type="text"], {value: "Text value"})
+				(input[type="checkbox"], {checked: true})
+		(footer)
+			['More information will be following']
 	;
 }
 ```
@@ -39,4 +36,3 @@ Everything gets compiled to simple objects, using [this notation](http://lhorie.
 ## Todo
 
 - Debug
-- Renaming of the View interface because it might interfere with the mithril extern View interface

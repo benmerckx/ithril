@@ -62,7 +62,7 @@ typedef ObjField = {field : String, expr : Expr};
 typedef Lines = Map<Int, Int>;
 #end
 
-class ViewBuilder {
+class IthrilBuilder {
 	#if macro
 	static var lines: Lines;
 	
@@ -277,12 +277,16 @@ class ViewBuilder {
 		
 		if (params.length > 1) {
 			if (params.length == 2) {
-				var type = Context.typeof(params[1]);
-				switch (type) {
-					case Type.TInst(_.get().name => 'String', _):
-						element.content = params[1];
-					default:
-						element.attributes = params[1];
+				try {
+					var type = Context.typeof(params[1]);
+					switch (type) {
+						case Type.TInst(_.get().name => 'String', _):
+							element.content = params[1];
+						default:
+							element.attributes = params[1];
+					}
+				} catch (e: Dynamic) {
+					element.attributes = params[1];
 				}
 			} else {
 				element.attributes = params[1];

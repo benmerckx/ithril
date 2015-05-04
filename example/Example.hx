@@ -1,8 +1,8 @@
-import ithril.View;
+import ithril.Ithril;
 import mithril.M;
 import js.Browser;
 
-class Example implements ithril.View {
+class Example implements ithril.Ithril {
 	public static function main() {
 		new Example();
 	}

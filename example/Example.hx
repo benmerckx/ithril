@@ -20,14 +20,14 @@ class Example implements ithril.Ithril {
 			href: '/link2'
 		}];
 		
-		return (view)
+		return ithril
 			(div)
 				(div+header)
 					(h1[style="color:red"].test, 'Heading')
 					(h2, "Subheader")
 				(nav)
 					(ul)
-						[for (item in menu) (view)(li, {}, item.title)]
+						[for (item in menu) ithril(li, {}, item.title)]
 				(div+footer)
 					(p, 'Footer text')
 		;

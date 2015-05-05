@@ -11,7 +11,7 @@ You need to implement `ithril.Ithril` for the macros to do their work.
 
 ```haxe
 function () {
-	return (view)
+	return ithril
 		(div.class-name)
 			['Any expression can be used here']
 		(div+id)

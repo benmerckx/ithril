@@ -105,7 +105,7 @@ class IthrilBuilder {
 				var block = Block.ExprBlock(preprocess(e2), posInfo(e2));
 				ctx.blocks.push(block);
 				parseCalls(e1, ctx);
-			case macro (view):
+			case macro ithril:
 				ctx.expr.expr = createExpr(orderBlocks(ctx)).expr;
 			default:
 		}

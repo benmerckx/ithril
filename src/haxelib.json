@@ -4,8 +4,8 @@
   "license": "MIT",
   "tags": ["js", "html", "template", "web"],
   "description": "Simple template syntax for mithril views.",
-  "version": "0.0.3",
-  "releasenote": "Renamed to ithril.Ithril to avoid confusion with mithril externs View interface",
+  "version": "0.0.4",
+  "releasenote": "Renamed (view) to simply ithril",
   "contributors": ["benmerckx"],
   "dependencies": {}
 }

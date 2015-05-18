@@ -136,7 +136,7 @@ class IthrilBuilder {
 				default:
 			}
 		}
-		return macro $a{exprList};
+		return macro ($a{exprList}: Dynamic);
 	}
 	
 	static function createAttrsExpr(data: Element): Expr {

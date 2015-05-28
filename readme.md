@@ -19,7 +19,7 @@ function () {
 				(li, 'Some')
 				(li, 'List items')
 			(ul.another-list)
-				[for (item in list) (view)(li, item.title)]
+				[for (item in list) ithril(li, item.title)]
 			(form)
 				(input[type="text"], {value: "Text value"})
 				(input[type="checkbox"], {checked: true})

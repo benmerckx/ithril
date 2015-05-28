@@ -286,6 +286,7 @@ class IthrilBuilder {
 							element.attributes = params[1];
 					}
 				} catch (e: Dynamic) {
+					//if (
 					element.attributes = params[1];
 				}
 			} else {
@@ -306,6 +307,15 @@ class IthrilBuilder {
 						attributes.push({
 							attr: s,
 							value: b
+						});
+					default:
+				}
+			case ExprDef.EArray(prev, _ => macro $a):
+				switch (a.expr) {
+					case ExprDef.EConst(_ => Constant.CIdent(s)):
+						attributes.push({
+							attr: s,
+							value: macro true
 						});
 					default:
 				}

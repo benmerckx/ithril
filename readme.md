@@ -16,10 +16,10 @@ function () {
 			['Any expression can be used here']
 		(div+id)
 			(ul)
-				(li, 'Some')
-				(li, 'List items')
+				(li, {}, 'Some')
+				(li, {}, 'List items')
 			(ul.another-list)
-				[for (item in list) ithril(li, item.title)]
+				[for (item in list) ithril(li, {}, item.title)]
 			(form)
 				(input[type="text"], {value: "Text value"})
 				(input[type="checkbox"], {checked: true})
@@ -32,7 +32,3 @@ function () {
 ##Output
 
 Everything gets compiled to simple objects, using [this notation](http://lhorie.github.io/mithril/optimizing-performance.html#compiling-templates) so it can be used with mithril, but might also be used to turn that into html or even react templates in the future.
-
-## Todo
-
-- Debug

@@ -23,13 +23,13 @@ class Example implements ithril.Ithril {
 		return ithril
 			(div)
 				(div+header)
-					(h1[style="color:red"].test, 'Heading')
-					(h2, "Subheader")
+					(h1[style="color:red"].test, {}, 'Heading')
+					(h2, {}, "Subheader")
 				(nav)
 					(ul)
 						[for (item in menu) ithril(li, {}, item.title)]
 				(div+footer)
-					(p, 'Footer text')
+					(p, {}, 'Footer text')
 		;
 	}
 

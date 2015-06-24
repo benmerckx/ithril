@@ -4,8 +4,8 @@
   "license": "MIT",
   "tags": ["js", "html", "template", "web"],
   "description": "Simple template syntax for mithril views.",
-  "version": "0.0.6",
-  "releasenote": "Adds support for constant attribute without assignment",
+  "version": "0.0.7",
+  "releasenote": "No more type check on second argument",
   "contributors": ["benmerckx"],
   "dependencies": {}
 }

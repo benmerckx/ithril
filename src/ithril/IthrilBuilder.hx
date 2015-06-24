@@ -277,18 +277,21 @@ class IthrilBuilder {
 		
 		if (params.length > 1) {
 			if (params.length == 2) {
-				try {
-					var type = Context.typeof(params[1]);
+				//try {
+					/*var type = Context.typeof(params[1]);
 					switch (type) {
 						case Type.TInst(_.get().name => 'String', _):
 							element.content = params[1];
-						default:
+						default:*/
 							element.attributes = params[1];
+					//}
+				/*} catch (e: Error) {
+					if (e.message.startsWith('Unknown identifier') || e.message.endsWith('is not a value')) {
+						element.attributes = params[1];
+					} else {
+						throw e;
 					}
-				} catch (e: Dynamic) {
-					//if (
-					element.attributes = params[1];
-				}
+				}*/
 			} else {
 				element.attributes = params[1];
 			}

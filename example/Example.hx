@@ -25,6 +25,10 @@ class Example implements ithril.Ithril {
 				(div+header)
 					(h1[style="color:red"].test, {}, 'Heading')
 					(h2, {}, "Subheader")
+				(form[method="post"][action="/"])
+					(label)
+						(input[type="checkbox"])
+						['Check this box']
 				(nav)
 					(ul)
 						[for (item in menu) ithril(li, {}, item.title)]

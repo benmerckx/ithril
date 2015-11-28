@@ -1,6 +1,5 @@
 package ithril;
 
-#if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
@@ -61,10 +60,9 @@ typedef InlineAttribute = {
 typedef ObjField = {field : String, expr : Expr};
 
 typedef Lines = Map<Int, Int>;
-#end
 
 class IthrilBuilder {
-	#if macro
+
 	static var lines: Lines;
 	
 	macro static public function build(): Array<Field> {
@@ -387,5 +385,4 @@ class IthrilBuilder {
 			end: end
 		};
 	}
-	#end
 }

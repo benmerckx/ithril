@@ -3,6 +3,16 @@ import haxe.unit.TestRunner;
 import ithril.Ithril;
 import haxe.Json;
 
+class CustomElement implements Ithril {
+	public function new() {
+	}
+	
+	public function view(?attr) {
+		if (attr == null) attr = {};
+		return ithril(div, attr);
+	}
+}
+
 class TestIthil extends TestCase implements Ithril {
 	
 	public function testBasic() {
@@ -116,6 +126,12 @@ class TestIthil extends TestCase implements Ithril {
 				[for (i in items) i]
 				(div)
 		);
+	}
+	
+	public function testCustomElement() {
+		assert([[{tag: 'div', attrs: {}, children: []}]], ithril(CustomElement));
+		assert([[{tag: 'div', attrs: {attr: 'test'}, children: []}]], ithril(CustomElement, {attr: 'test'}));
+		// todo: pass children to custom elements
 	}
 	
 	inline function assert<T>(o1: T, o2: T) {

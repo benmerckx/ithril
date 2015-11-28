@@ -22,6 +22,7 @@ typedef Cell = {
 enum Block {
 	ElementBlock(data: Element, pos: PosInfo);
 	ExprBlock(e: Expr, pos: PosInfo);
+	CustomElement(type: String, arguments: Array<Expr>, pos: PosInfo);
 }
 
 typedef BlockWithChildren = {
@@ -133,7 +134,13 @@ class IthrilBuilder {
 					});
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
-				default:
+				case Block.CustomElement(name, arguments, _):
+					var t = {
+						sub: null, params: null, pack: [], name: name
+					};
+					exprList.push(macro {
+						(new $t()).view($a{arguments});
+					});
 			}
 		}
 		return macro ($a{exprList}: Dynamic);
@@ -207,7 +214,7 @@ class IthrilBuilder {
 		var current: BlockWithChildren = null;
 		for (block in ctx.blocks) {
 			var line = switch (block) {
-				case Block.ElementBlock(_, pos) | Block.ExprBlock(_, pos):
+				case Block.ElementBlock(_, pos) | Block.ExprBlock(_, pos) | Block.CustomElement(_, _, pos):
 					pos.line;
 			}
 			var indent = lines.get(line);
@@ -266,7 +273,12 @@ class IthrilBuilder {
 			case ExprDef.EConst(c):
 				switch (c) {
 					case Constant.CIdent(s):
-						element.selector.tag = s;
+						if (s.charAt(0) == s.charAt(0).toUpperCase()) {
+							// Custom element
+							return Block.CustomElement(s, params.slice(1), posInfo(e));
+						} else {
+							element.selector.tag = s;
+						}
 					default: return null;
 				}
 			case ExprDef.EField(_, _) | ExprDef.EBinop(_, _, _) | ExprDef.EArray(_, _):
@@ -276,27 +288,8 @@ class IthrilBuilder {
 			default: return null;
 		}
 		
-		if (params.length > 1) {
-			if (params.length == 2) {
-				//try {
-					/*var type = Context.typeof(params[1]);
-					switch (type) {
-						case Type.TInst(_.get().name => 'String', _):
-							element.content = params[1];
-						default:*/
-							element.attributes = params[1];
-					//}
-				/*} catch (e: Error) {
-					if (e.message.startsWith('Unknown identifier') || e.message.endsWith('is not a value')) {
-						element.attributes = params[1];
-					} else {
-						throw e;
-					}
-				}*/
-			} else {
-				element.attributes = params[1];
-			}
-		}
+		if (params.length > 1)
+			element.attributes = params[1];
 		if (params.length > 2)
 			element.content = params[2];
 			

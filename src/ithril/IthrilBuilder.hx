@@ -271,6 +271,7 @@ class IthrilBuilder {
 				}
 			case ExprDef.EField(_, _) | ExprDef.EBinop(_, _, _) | ExprDef.EArray(_, _):
 				getAttr(e, element.inlineAttributes);
+				removeAttr(e);
 				element.selector = parseSelector(e.toString().replace(' ', ''));
 			default: return null;
 		}
@@ -302,6 +303,16 @@ class IthrilBuilder {
 		return Block.ElementBlock(element, posInfo(e));
 	}
 	
+	static function removeAttr(e: Expr) {
+		switch (e.expr) {
+			case ExprDef.EArray(e1, _):
+				removeAttr(e1);
+				e.expr = e1.expr;
+			default:
+		}
+		e.iter(removeAttr);
+	}
+	
 	static function getAttr(e: Expr, attributes: Array<InlineAttribute>) {
 		switch (e.expr) {
 			case ExprDef.EArray(prev, _ => macro $a=$b):
@@ -328,8 +339,6 @@ class IthrilBuilder {
 	}
 	
 	static function parseSelector(selector: String): Selector {
-		var attr = ~/\[.*\]/g;
-		selector = attr.replace(selector, '');
 		selector = selector.replace('.', ',.').replace('+', ',+');
 		var parts: Array<String> = selector.split(',');
 		

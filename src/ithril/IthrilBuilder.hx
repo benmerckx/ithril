@@ -15,7 +15,7 @@ typedef ViewContext = {
 typedef Cell = {
 	tag: String,
 	attrs: Dynamic,
-	children: Dynamic//Array<Dynamic>
+	children: Dynamic
 }
 
 enum Block {

@@ -1,6 +1,7 @@
 import haxe.unit.TestCase;
 import haxe.unit.TestRunner;
 import ithril.Ithril;
+import ithril.HTMLRenderer;
 import haxe.Json;
 
 class CustomElement implements Ithril {
@@ -10,6 +11,40 @@ class CustomElement implements Ithril {
 	public function view(?attr) {
 		if (attr == null) attr = {};
 		return ithril(div, attr);
+	}
+}
+
+class TestHTMLRenderer extends TestCase implements Ithril {
+	
+	public function testBasic() {
+		assertEquals('<div></div>', HTMLRenderer.render(ithril(div)));
+	}
+	
+	public function testAttributes() {
+		assertEquals('<div attr="test"></div>', HTMLRenderer.render(ithril(div, {attr: 'test'})));
+	}
+	
+	public function testStyleAttribute() {
+		assertEquals('<div style="param2:test;param:value"></div>', HTMLRenderer.render(ithril(div, {style: {param: 'value', param2: 'test'}})));
+		assertEquals('<div style="param:value"></div>', HTMLRenderer.render(ithril(div, {style: 'param:value'})));
+		assertEquals('<div style="background-color:white"></div>', HTMLRenderer.render(ithril(div, {style: {backgroundColor: 'white'}})));
+	}
+	
+	public function testChildren() {
+		assertEquals('<div><div></div><div><div></div></div></div>', HTMLRenderer.render(ithril
+			(div)
+				(div)
+				(div)
+					(div)
+		));
+	}
+	
+	public function testTextnode() {
+		assertEquals('<div>Test</div>', HTMLRenderer.render(ithril(div, {}, 'Test')));
+	}
+	
+	public function testEscape() {
+		assertEquals('<div attr="&lt;" style="param:&lt;">&lt;</div>', HTMLRenderer.render(ithril(div, {attr: '<', style: {param: '<'}}, '<')));
 	}
 }
 
@@ -144,6 +179,7 @@ class Tests {
 	public static function main() {
 		var runner = new TestRunner();
 		runner.add(new TestIthil());
+		runner.add(new TestHTMLRenderer());
 		runner.run();
 	}
 }

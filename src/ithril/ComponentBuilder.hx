@@ -5,6 +5,8 @@ import haxe.macro.Expr;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
 
+using Lambda;
+
 @:access(haxe.macro.TypeTools)
 class ComponentBuilder {
   static var params: Array<Type>;
@@ -36,7 +38,11 @@ class ComponentBuilder {
         fields.push({
           pos: Context.currentPos(),
           name: 'setState',
-          meta: null,
+          meta: [{
+            pos: Context.currentPos(),
+            params: null,
+            name: ':keep'
+          }],
           kind: FFun({
             ret: TPath({sub: null, name: "Void", pack:[], params:[]}),
             params: null,
@@ -61,6 +67,32 @@ class ComponentBuilder {
     var fields = Context.getBuildFields();
     if (params.length == 1) {
       fields = fields.concat(buildFields(Context.follow(params[0])));
+    }
+    fields.map(function(field) {
+      if (field.name == 'view' || field.name == 'controller') {
+        field.meta = field.meta == null ? [] : field.meta;
+        field.meta.push({
+          pos: Context.currentPos(),
+          params: null,
+          name: ':keep'
+        });
+      }
+    });
+    if (!fields.exists(function(field) return field.name == 'children')) {
+      fields.push({
+        pos: Context.currentPos(),
+        name: 'children',
+        meta: null,
+        kind: FVar(macro : Array<ithril.VirtualElement>)
+      });
+    }
+    if (!fields.exists(function(field) return field.name == 'parent')) {
+      fields.push({
+        pos: Context.currentPos(),
+        name: 'parent',
+        meta: null,
+        kind: FVar(macro : ithril.VirtualElement)
+      });
     }
     return fields;
   }

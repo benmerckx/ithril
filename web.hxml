@@ -5,6 +5,10 @@
 -D js-flatten
 -D js-es5
 -D analyzer
+-dce full
+#-lib closure
+#-D closure_overwrite
+#-D closure_advanced
 -js web/public/main.js
 --next
 --interp

@@ -5,63 +5,37 @@ function $extend(from, fields) {
 	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
 	return proto;
 }
+var HxOverrides = function() { };
+HxOverrides.__name__ = true;
+HxOverrides.iter = function(a) {
+	return { cur : 0, arr : a, hasNext : function() {
+		return this.cur < this.arr.length;
+	}, next : function() {
+		return this.arr[this.cur++];
+	}};
+};
 Math.__name__ = true;
 var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
 };
-var Type = function() { };
-Type.__name__ = true;
-Type.createInstance = function(cl,args) {
-	var _g = args.length;
-	switch(_g) {
-	case 0:
-		return new cl();
-	case 1:
-		return new cl(args[0]);
-	case 2:
-		return new cl(args[0],args[1]);
-	case 3:
-		return new cl(args[0],args[1],args[2]);
-	case 4:
-		return new cl(args[0],args[1],args[2],args[3]);
-	case 5:
-		return new cl(args[0],args[1],args[2],args[3],args[4]);
-	case 6:
-		return new cl(args[0],args[1],args[2],args[3],args[4],args[5]);
-	case 7:
-		return new cl(args[0],args[1],args[2],args[3],args[4],args[5],args[6]);
-	case 8:
-		return new cl(args[0],args[1],args[2],args[3],args[4],args[5],args[6],args[7]);
-	default:
-		throw new js__$Boot_HaxeError("Too many arguments");
-	}
-	return null;
-};
-var ithril_Ithril = function() { };
-ithril_Ithril.__name__ = true;
 var ithril_ComponentAbstract = function() {
-	this.parent = null;
-	this.children = [];
 };
 ithril_ComponentAbstract.__name__ = true;
 ithril_ComponentAbstract.prototype = {
 	setChildren: function(children) {
+		var _g = this;
 		if(children.length == 1 && ((children instanceof Array) && children.__enum__ == null)) children = children[0];
 		this.children = children;
-		if((children instanceof Array) && children.__enum__ == null) {
-			var _g = 0;
-			while(_g < children.length) {
-				var child = children[_g];
-				++_g;
-				if(js_Boot.__instanceof(child,ithril_ComponentAbstract)) child.parent = this;
-			}
-		}
+		if((children instanceof Array) && children.__enum__ == null) children.map(function(child) {
+			if(js_Boot.__instanceof(child,ithril_ComponentAbstract)) child.parent = _g;
+		});
 	}
 	,__class__: ithril_ComponentAbstract
 };
 var Web = function() {
+	this.inputValue = "Hello";
 	this.tabs = [1,2,3,4,5];
 	ithril_ComponentAbstract.call(this);
 };
@@ -71,10 +45,10 @@ Web.main = function() {
 };
 Web.__super__ = ithril_ComponentAbstract;
 Web.prototype = $extend(ithril_ComponentAbstract.prototype,{
-	wrap: function() {
-		return [{ tag : "!doctype", attrs : { html : true}, children : []},{ tag : "meta", attrs : { charset : "utf-8"}, children : []},{ tag : "link", attrs : { rel : "stylesheet", href : "layout.css"}, children : []},{ tag : "body", attrs : { }, children : [this.view()]},{ tag : "script", attrs : { src : "https://cdnjs.cloudflare.com/ajax/libs/mithril/0.2.0/mithril.min.js"}, children : []},{ tag : "script", attrs : { src : "main.js"}, children : []}];
+	view: function() {
+		return this.body();
 	}
-	,view: function() {
+	,body: function() {
 		var _g = this;
 		var tmp;
 		var _g1 = [];
@@ -83,12 +57,14 @@ Web.prototype = $extend(ithril_ComponentAbstract.prototype,{
 		while(_g11 < _g2.length) {
 			var i = _g2[_g11];
 			++_g11;
-			_g1.push(ithril_ComponentCache.getComponent("ae6a6d0f2502d556900ae244abd50ece",ithril_components_Tab,["Content " + i],["Label " + i]));
+			_g1.push(ithril_ComponentCache.getComponent_ithril_components_Tab("783661ea916915e4d74e3bed2b74c5cd",ithril_components_Tab,["Content " + i],["Label " + i]));
 		}
 		tmp = _g1;
-		return { tag : "div", attrs : { 'class' : "tabs-example"}, children : [ithril_ComponentCache.getComponent("b019272020bfc25b6bae861f9f18cc08",ithril_components_Tabs,[ithril_ComponentCache.getComponent("b2eff295ab0469f9b00d54a84b23ff79",ithril_components_Tab,["Tab 1"],["Tab label"]),ithril_ComponentCache.getComponent("dbf701f0ffae5a17dcd06054818cf1ad",ithril_components_Tab,["Tab 2"],["Tab label 2"])],[]),ithril_ComponentCache.getComponent("4d7bc5ea769112b163cf993e4b800760",ithril_components_Tabs,[tmp],[]),{ tag : "a", attrs : { onclick : function() {
-			_g.tabs.push(1);
-		}}, children : ["Add tab"]}]};
+		return { tag : "div", attrs : { 'class' : "tabs-example"}, children : [ithril_ComponentCache.getComponent_ithril_components_Tabs("4d7bc5ea769112b163cf993e4b800760",ithril_components_Tabs,[ithril_ComponentCache.getComponent_ithril_components_Tab("3163797cd1a883be8b028398c5d766ea",ithril_components_Tab,["Tab 1"],["Tab label"]),ithril_ComponentCache.getComponent_ithril_components_Tab("166108404fc1c94e3c2fd220e2655f34",ithril_components_Tab,["Tab 2"],["Tab label 2"])],[]),ithril_ComponentCache.getComponent_ithril_components_Tabs("3c7a243d6c544b44ad3c2352dd22e859",ithril_components_Tabs,[tmp],[]),{ tag : "a", attrs : { onclick : function() {
+			_g.tabs.push(_g.tabs.length + 1);
+		}}, children : ["Add tab"]},{ tag : "div", attrs : { }, children : [{ tag : "h1", attrs : { }, children : [this.inputValue]},ithril_ComponentCache.getComponent_ithril_components_Text("9415d667520a84163177afa56760e83b",ithril_components_Text,[],[{ oninput : function(e) {
+			_g.inputValue = e.target.value;
+		}, value : this.inputValue, multiline : true}])]}]};
 	}
 	,__class__: Web
 });
@@ -113,52 +89,86 @@ haxe_ds_StringMap.prototype = {
 	}
 	,__class__: haxe_ds_StringMap
 };
-var ithril_Component = function() { };
-ithril_Component.__name__ = true;
 var ithril_ComponentCache = function() { };
 ithril_ComponentCache.__name__ = true;
-ithril_ComponentCache.getComponent = function(key,type,children,state) {
+ithril_ComponentCache.getComponent_ithril_components_Text = function(key,type,children,state) {
+	key = ithril_ComponentCache.createKey(key,state);
+	var tmp;
+	var _this = ithril_ComponentCache.componentInstances;
+	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
+	if(!tmp) {
+		var value = new ithril_components_Text();
+		var _this1 = ithril_ComponentCache.componentInstances;
+		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
+	}
+	var tmp1;
+	var _this2 = ithril_ComponentCache.componentInstances;
+	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
+	var instance = tmp1;
+	ithril_ComponentCache.setProps(instance,children,state);
+	return instance;
+};
+ithril_ComponentCache.getComponent_ithril_components_Tabs = function(key,type,children,state) {
+	key = ithril_ComponentCache.createKey(key,state);
+	var tmp;
+	var _this = ithril_ComponentCache.componentInstances;
+	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
+	if(!tmp) {
+		var value = new ithril_components_Tabs();
+		var _this1 = ithril_ComponentCache.componentInstances;
+		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
+	}
+	var tmp1;
+	var _this2 = ithril_ComponentCache.componentInstances;
+	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
+	var instance = tmp1;
+	ithril_ComponentCache.setProps(instance,children,state);
+	return instance;
+};
+ithril_ComponentCache.getComponent_ithril_components_Tab = function(key,type,children,state) {
+	key = ithril_ComponentCache.createKey(key,state);
+	var tmp;
+	var _this = ithril_ComponentCache.componentInstances;
+	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
+	if(!tmp) {
+		var value = new ithril_components_Tab();
+		var _this1 = ithril_ComponentCache.componentInstances;
+		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
+	}
+	var tmp1;
+	var _this2 = ithril_ComponentCache.componentInstances;
+	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
+	var instance = tmp1;
+	ithril_ComponentCache.setProps(instance,children,state);
+	return instance;
+};
+ithril_ComponentCache.createKey = function(key,state) {
 	var id = "";
 	if(state.length > 0 && Object.prototype.hasOwnProperty.call(state[0],"key")) id = "__key__" + Std.string(state[0].key); else {
-		var count = (function($this) {
-			var $r;
+		var tmp;
+		var _this = ithril_ComponentCache.componentCount;
+		if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
+		var tmp1;
+		if(tmp) {
+			var tmp2;
 			var _this1 = ithril_ComponentCache.componentCount;
-			$r = __map_reserved[key] != null?_this1.existsReserved(key):_this1.h.hasOwnProperty(key);
-			return $r;
-		}(this))?(function($this) {
-			var $r;
-			var _this2 = ithril_ComponentCache.componentCount;
-			$r = __map_reserved[key] != null?_this2.getReserved(key):_this2.h[key];
-			return $r;
-		}(this)):0;
-		var _this3 = ithril_ComponentCache.componentCount;
+			if(__map_reserved[key] != null) tmp2 = _this1.getReserved(key); else tmp2 = _this1.h[key];
+			tmp1 = tmp2;
+		} else tmp1 = 0;
+		var count = tmp1;
+		var _this2 = ithril_ComponentCache.componentCount;
 		var value = count + 1;
-		if(__map_reserved[key] != null) _this3.setReserved(key,value); else _this3.h[key] = value;
+		if(__map_reserved[key] != null) _this2.setReserved(key,value); else _this2.h[key] = value;
 		id = count == null?"null":"" + count;
 		window.setTimeout(function() {
 			ithril_ComponentCache.componentCount = new haxe_ds_StringMap();
 		},0);
 	}
-	key += id;
-	if(!(function($this) {
-		var $r;
-		var _this4 = ithril_ComponentCache.componentInstances;
-		$r = __map_reserved[key] != null?_this4.existsReserved(key):_this4.h.hasOwnProperty(key);
-		return $r;
-	}(this))) {
-		var value1 = Type.createInstance(type,[]);
-		var _this5 = ithril_ComponentCache.componentInstances;
-		if(__map_reserved[key] != null) _this5.setReserved(key,value1); else _this5.h[key] = value1;
-	}
-	var instance = (function($this) {
-		var $r;
-		var _this = ithril_ComponentCache.componentInstances;
-		$r = __map_reserved[key] != null?_this.getReserved(key):_this.h[key];
-		return $r;
-	}(this));
+	return key + id;
+};
+ithril_ComponentCache.setProps = function(instance,children,state) {
 	instance.setChildren(children);
 	instance.setState.apply(instance,state);
-	return instance;
 };
 var ithril_components_Tab = function() {
 	ithril_ComponentAbstract.call(this);
@@ -168,10 +178,9 @@ ithril_components_Tab.__super__ = ithril_ComponentAbstract;
 ithril_components_Tab.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	labelView: function() {
 		var _g = this;
-		var tabs = js_Boot.__cast(this.parent , ithril_components_Tabs);
 		return { tag : "a", attrs : { onclick : function() {
-			tabs.setSelected(_g);
-		}, 'class' : tabs.isSelected(this)?"active":""}, children : [this.label]};
+			_g.parent.setSelected(_g);
+		}, 'class' : this.parent.isSelected(this)?"active":""}, children : [this.label]};
 	}
 	,view: function() {
 		return { tag : "div", attrs : { 'class' : "tab"}, children : [this.children]};
@@ -217,16 +226,26 @@ ithril_components_Tabs.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	}
 	,__class__: ithril_components_Tabs
 });
-var js__$Boot_HaxeError = function(val) {
-	Error.call(this);
-	this.val = val;
-	this.message = String(val);
-	if(Error.captureStackTrace) Error.captureStackTrace(this,js__$Boot_HaxeError);
+var ithril_components_Text = function() {
+	this.data = "";
+	ithril_ComponentAbstract.call(this);
 };
-js__$Boot_HaxeError.__name__ = true;
-js__$Boot_HaxeError.__super__ = Error;
-js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
-	__class__: js__$Boot_HaxeError
+ithril_components_Text.__name__ = true;
+ithril_components_Text.__super__ = ithril_ComponentAbstract;
+ithril_components_Text.prototype = $extend(ithril_ComponentAbstract.prototype,{
+	textarea: function() {
+		return { tag : "div", attrs : { }, children : [{ tag : "textarea", attrs : { }, children : []},{ tag : "div", attrs : { 'class' : "mirror"}, children : [this.data]}]};
+	}
+	,input: function() {
+		return { tag : "input", attrs : { type : "text"}, children : []};
+	}
+	,view: function() {
+		return this.options.multiline?this.textarea():this.input();
+	}
+	,setState: function(options) {
+		this.options = options;
+	}
+	,__class__: ithril_components_Text
 });
 var js_Boot = function() { };
 js_Boot.__name__ = true;
@@ -275,7 +294,6 @@ js_Boot.__string_rec = function(o,s) {
 		try {
 			tostr = o.toString;
 		} catch( e ) {
-			if (e instanceof js__$Boot_HaxeError) e = e.val;
 			return "???";
 		}
 		if(tostr != null && tostr != Object.toString && typeof(tostr) == "function") {
@@ -350,9 +368,6 @@ js_Boot.__instanceof = function(o,cl) {
 		if(cl == Enum && o.__ename__ != null) return true;
 		return o.__enum__ == cl;
 	}
-};
-js_Boot.__cast = function(o,t) {
-	if(js_Boot.__instanceof(o,t)) return o; else throw new js__$Boot_HaxeError("Cannot cast " + Std.string(o) + " to " + Std.string(t));
 };
 js_Boot.__nativeClassName = function(o) {
 	var name = js_Boot.__toStr.call(o).slice(8,-1);

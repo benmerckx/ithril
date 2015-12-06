@@ -3,10 +3,11 @@ package ithril.components;
 import ithril.Component;
 
 class Tab extends Component<{label: String}> {
+	var parent: Tabs;
+	
 	public function labelView() {
-		var tabs = cast(parent, Tabs);
 		return ithril
-			(a, {onclick: function() tabs.setSelected(this), 'class': tabs.isSelected(this)?'active':''}, label)
+			(a, {onclick: function() parent.setSelected(this), 'class': parent.isSelected(this)?'active':''}, label)
 		;
 	}
 
@@ -20,6 +21,7 @@ class Tab extends Component<{label: String}> {
 
 class Tabs extends Component<{?attrs: Dynamic}> {
 	var selected = 0;
+	var children: Array<Tab>;
 
 	public function setSelected(tab: Tab) {
 		selected = children.indexOf(tab);

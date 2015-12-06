@@ -3,6 +3,7 @@ package ithril;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
+import haxe.crypto.Md5;
 
 using StringTools;
 using haxe.macro.ExprTools;
@@ -105,7 +106,7 @@ class IthrilBuilder {
 				ctx.blocks.push(block);
 				parseCalls(e1, ctx);
 			case macro ithril:
-				ctx.expr.expr = createExpr(orderBlocks(ctx)).expr;
+				ctx.expr.expr = createExpr(orderBlocks(ctx), true).expr;
 			default:
 		}
 	}
@@ -118,7 +119,7 @@ class IthrilBuilder {
 		default: e;
 	}
 	
-	static function createExpr(list: Array<BlockWithChildren>, ?prepend: Expr): ExprOf<Array<{tag: String,attrs: Dynamic,children: Dynamic}>> {
+	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
 		var exprList: Array<Expr> = [];
 		if (prepend != null) exprList.push(prepend);
 		for (item in list) {
@@ -128,18 +129,26 @@ class IthrilBuilder {
 					exprList.push(macro {
 						tag: ${tag},
 						attrs: ${createAttrsExpr(data)},
-						children: (${createExpr(item.children, data.content)}: Dynamic)
+						children: (${createExpr(item.children, false, data.content)}: Dynamic)
 					});
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
-				case Block.CustomElement(name, arguments, _):
+				case Block.CustomElement(name, arguments, pos):
 					var t = {
 						sub: null, params: null, pack: [], name: name
 					};
+					//arguments.push(createExpr(item.children));
+					var key = Md5.encode(Std.string(pos));
 					exprList.push(macro {
-						(new $t()).view($a{arguments});
+						getComponent($v{key}, $i{name})
+							.setChildren(${createExpr(item.children)})
+							.setAttributes([$a{arguments}]);
+						//(new $t($a{arguments}));
 					});
 			}
+		}
+		if (root && exprList.length == 1) {
+			return macro (${exprList[0]}: Dynamic);
 		}
 		return macro ($a{exprList}: Dynamic);
 	}
@@ -267,8 +276,11 @@ class IthrilBuilder {
 						
 		var element = element();
 		var e = params[0];
-		switch (e.expr) {
-			case ExprDef.EConst(c):
+		switch (e) {
+			case macro !doctype:
+				element.selector.tag = '!doctype';
+				element.attributes = macro {html: true};
+			case _.expr => ExprDef.EConst(c):
 				switch (c) {
 					case Constant.CIdent(s):
 						if (s.charAt(0) == s.charAt(0).toUpperCase()) {
@@ -279,7 +291,7 @@ class IthrilBuilder {
 						}
 					default: return null;
 				}
-			case ExprDef.EField(_, _) | ExprDef.EBinop(_, _, _) | ExprDef.EArray(_, _):
+			case _.expr => ExprDef.EField(_, _) | ExprDef.EBinop(_, _, _) | ExprDef.EArray(_, _):
 				getAttr(e, element.inlineAttributes);
 				removeAttr(e);
 				element.selector = parseSelector(e.toString().replace(' ', ''));

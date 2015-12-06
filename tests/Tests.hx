@@ -1,15 +1,18 @@
 import haxe.unit.TestCase;
 import haxe.unit.TestRunner;
+import ithril.Component;
 import ithril.Ithril;
 import ithril.HTMLRenderer;
 import haxe.Json;
 
-class CustomElement implements Ithril {
-	public function new() {
+class CustomElement extends Component {
+	var attr: Dynamic;
+	
+	function attributes(attr) {
+		this.attr = attr == null ? {} : attr;
 	}
 	
-	public function view(?attr) {
-		if (attr == null) attr = {};
+	public function view() {
 		return ithril(div, attr);
 	}
 }
@@ -51,14 +54,14 @@ class TestHTMLRenderer extends TestCase implements Ithril {
 class TestIthil extends TestCase implements Ithril {
 	
 	public function testBasic() {
-		assert([{tag: 'div', attrs: {}, children: []}], ithril(div));
+		assert({tag: 'div', attrs: {}, children: []}, ithril(div));
 	}
 	
 	public function testClassname() {
-		assert([{tag: 'div', attrs: {'class': 'test'}, children: []}], ithril(div.test));
-		assert([{tag: 'div', attrs: {'class': 'test second'}, children: []}], ithril(div.test.second));
-		assert([{tag: 'div', attrs: {'class': 'test-with-hyphen'}, children: []}], ithril(div.test-with-hyphen));
-		assert([{tag: 'div', attrs: {'class': ['c1', 'c2']}, children: []}], ithril(div, {'class': ['c1', 'c2']}));
+		assert({tag: 'div', attrs: {'class': 'test'}, children: []}, ithril(div.test));
+		assert({tag: 'div', attrs: {'class': 'test second'}, children: []}, ithril(div.test.second));
+		assert({tag: 'div', attrs: {'class': 'test-with-hyphen'}, children: []}, ithril(div.test-with-hyphen));
+		assert({tag: 'div', attrs: {'class': ['c1', 'c2']}, children: []}, ithril(div, {'class': ['c1', 'c2']}));
 		
 		/**
 		 * To fix
@@ -71,34 +74,34 @@ class TestIthil extends TestCase implements Ithril {
 	}
 	
 	public function testId() {
-		assert([{tag: 'div', attrs: {'id': 'test'}, children: []}], ithril(div+test));
-		assert([{tag: 'div', attrs: {'id': 'test-with-hyphen'}, children: []}], ithril(div+test-with-hyphen));
+		assert({tag: 'div', attrs: {'id': 'test'}, children: []}, ithril(div+test));
+		assert({tag: 'div', attrs: {'id': 'test-with-hyphen'}, children: []}, ithril(div+test-with-hyphen));
 	}
 	
 	public function testChildren() {
-		assert([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}], ithril
+		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}, ithril
 			(div)
 				(div)
 		);
 		
-		assert([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}]}], ithril
+		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}]}, ithril
 			(div)
 				(div)
 					(div)
 		);
 		
-		assert([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}], ithril
+		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}, ithril
 			(div)
 				(div)(div)
 		);
 		
-		assert([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}], ithril
+		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}, ithril
 			(div)
 				(div)
 				(div)
 		);
 		
-		assert([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}, {tag: 'div', attrs: {}, children: []}], ithril
+		assert(([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}, {tag: 'div', attrs: {}, children: []}]: Dynamic), ithril
 			(div)
 				(div)
 			(div)
@@ -113,25 +116,25 @@ class TestIthil extends TestCase implements Ithril {
 	}
 	
 	public function testAttribute() {
-		assert([{tag: 'div', attrs: {attr: 'test'}, children: []}], ithril(div[attr='test']));
-		assert([{tag: 'div', attrs: {attr: 'test', second: 'test'}, children: []}], ithril(div[attr='test'][second='test']));
+		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, ithril(div[attr='test']));
+		assert({tag: 'div', attrs: {attr: 'test', second: 'test'}, children: []}, ithril(div[attr='test'][second='test']));
 	}
 	
 	public function testCombination() {
-		assert([{tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: []}], ithril(div[attr='test'].test+test));
-		assert([{tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}, children: []}], ithril(div[attr='test'].test+test[attr2='test']));
+		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: []}, ithril(div[attr='test'].test+test));
+		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}, children: []}, ithril(div[attr='test'].test+test[attr2='test']));
 	}
 	
 	public function testTextnode() {
-		assert([{tag: 'div', attrs: {}, children: ['Test']}], ithril(div, {}, 'Test'));
-		assert([{tag: 'div', attrs: {}, children: (['Test', {tag: 'div', attrs: {}, children: []}]: Array<Dynamic>)}], ithril
+		assert({tag: 'div', attrs: {}, children: ['Test']}, ithril(div, {}, 'Test'));
+		/*assert({tag: 'div', attrs: {}, children: (['Test', {tag: 'div', attrs: {}, children: []}, Array<Dynamic>)}, ithril
 			(div, {}, 'Test')
 				(div)
-		);
+		);*/
 	}
 	
 	public function testAddToExistingAttributes() {
-		var expected = [{tag: 'div', attrs: {attr: 'test', id: 'test', 'class': 'test'}, children: []}];
+		var expected = {tag: 'div', attrs: {attr: 'test', id: 'test', 'class': 'test'}, children: []};
 		assert(expected, ithril(div.test+test, {attr: 'test'}));
 		assert(expected, ithril(div.test+test, 
 			(function(): Dynamic {
@@ -143,7 +146,7 @@ class TestIthil extends TestCase implements Ithril {
 	}
 	
 	public function testInlineExpression() {
-		assert([{tag: 'div', attrs: {}, children: ['Test']}], ithril
+		assert({tag: 'div', attrs: {}, children: ['Test']}, ithril
 			(div)
 				['Test']
 		);
@@ -151,23 +154,25 @@ class TestIthil extends TestCase implements Ithril {
 	
 	public function testInlineLoops() {
 		var items = ['a', 'b', 'c'];
-		// Should this create an additional array or not?
-		assert([{tag: 'div', attrs: {}, children: [items]}], ithril
+		assert({tag: 'div', attrs: {}, children: [items]}, ithril
 			(div)
 				[for (i in items) i]
 		);
-		assert([{tag: 'div', attrs: {}, children: ([items, {tag: 'div', attrs: {}, children: []}]: Array<Dynamic>)}], ithril
+		assert({tag: 'div', attrs: {}, children: ([items, {tag: 'div', attrs: {}, children: []}]: Array<Dynamic>)}, ithril
 			(div)
 				[for (i in items) i]
 				(div)
 		);
 	}
 	
-	public function testCustomElement() {
-		assert([[{tag: 'div', attrs: {}, children: []}]], ithril(CustomElement));
-		assert([[{tag: 'div', attrs: {attr: 'test'}, children: []}]], ithril(CustomElement, {attr: 'test'}));
-		// todo: pass children to custom elements
-	}
+	/*public function testCustomElement() {
+		assert({tag: 'div', attrs: {}, children: []}, 
+			(ithril(CustomElement)).view()
+		);
+		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, 
+			(ithril(CustomElement, {attr: 'test'})).view()
+		);
+	}*/
 	
 	inline function assert<T>(o1: T, o2: T) {
 		assertEquals(Json.stringify(o1, null, ' '), Json.stringify(o2, null, ' '));

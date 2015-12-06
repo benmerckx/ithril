@@ -1,6 +1,7 @@
 package ithril;
 
 using Reflect;
+using Lambda;
 
 class HTMLRenderer {
 	
@@ -90,12 +91,18 @@ class HTMLRenderer {
 			return (view: Array<Dynamic>).map(renderView).join('');
 		}
 		
-		if (view.hasField('view')) {
-			var scope = view.hasField('controller') ? view.controller : {};
-			var result = renderView(view.view(scope));
-			if (scope.hasField('onunload'))
-				untyped scope.onunload();
-			return result;
+		if (Reflect.isObject(view)) {
+			var type = Type.getClass(view);
+			if (type != null) {
+				var fields = Type.getInstanceFields(type);
+				if (fields.has('view')) {
+					var scope = fields.has('controller') ? view.controller() : {};
+					var result = renderView(view.view());
+					if (scope.hasField('onunload'))
+						untyped scope.onunload();
+					return result;
+				}
+			}
 		}
 		
 		// TODO: check for other targets
@@ -103,10 +110,11 @@ class HTMLRenderer {
 			return Std.string(view);
 		}
 		
-		var children = createChildrenContent(view);
-		if (children == '' && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
+		if (VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
 			return '<' + view.tag + createAttrString(view.attrs) + '>';
 		}
+		
+		var children = createChildrenContent(view);
 		
 		return [
 			'<', view.tag, createAttrString(view.attrs), '>',

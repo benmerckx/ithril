@@ -1,0 +1,71 @@
+body 
+{
+    background: #eee;
+}
+
+a {
+	cursor: pointer;
+}
+
+.tabs {
+  margin: 10px;
+  margin-top: 20px;
+  position: relative;
+}
+.tabs.disabled {
+  pointer-events: none;
+}
+.tabs.disabled:before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: red;
+  z-index: 1;
+  opacity: .4;
+  background: #f1f2f5;
+}
+.tabs nav {
+  margin-top: 10px;
+}
+.tabs nav a {
+  display: inline-block;
+  vertical-align: top;
+  font-size: 14px;
+  margin-right: 6px;
+  padding: 8px 15px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  background: #ebecf1;
+}
+.tabs nav a.active {
+  background: #dcdfe6;
+  color: #676e76;
+}
+.tabs .tab {
+  display: block;
+  width: 100%;
+  background: #dcdfe6;
+  padding: 5px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  border-top-right-radius: 3px;
+}
+.tabs .tabs {
+  position: relative;
+}
+.tabs .tabs nav a.active {
+  background: #f1f2f5;
+}
+.tabs .tabs .tab {
+  background: #f1f2f5;
+}
+.tabs .tabs .tabs nav a.active {
+  background: #dcdfe6;
+}
+.tabs .tabs .tabs .tab {
+  background: #dcdfe6;
+}

@@ -1,0 +1,10 @@
+-cp src
+-cp web
+-main Web
+--each
+#-D js-flatten
+#-D js-es5
+#-D analyzer
+-js web/public/main.js 
+--next
+--interp

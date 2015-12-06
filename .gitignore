@@ -1,3 +1,6 @@
 *.hxproj
 example/main.js
 *.zip
+.*
+!/.gitignore
+!/.travis.yml

@@ -14,9 +14,8 @@ class Web extends Component {
 			(script[src="main.js"])
 		;
 	}
-	
+
 	public function view() {
-		componentCount = 0;
 		return ithril
 			(div.tabs-example)
 				(Tabs)
@@ -32,7 +31,7 @@ class Web extends Component {
 				(a, {onclick: function() tabs.push(1)}, 'Add tab')
 		;
 	}
-	
+
 	public static function main() {
 		#if !js
 		sys.io.File.saveContent('web/public/index.html', ithril.HTMLRenderer.render(new Web().wrap()));

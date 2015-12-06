@@ -55,15 +55,13 @@ Type.createInstance = function(cl,args) {
 };
 var ithril_Ithril = function() { };
 ithril_Ithril.__name__ = true;
-var ithril_Component = function(parent) {
-	this.componentCount = 0;
-	this.parent = parent;
-	this.componentInstances = new haxe_ds_StringMap();
+var ithril_ComponentAbstract = function() {
+	this.parent = null;
+	this.children = [];
 };
-ithril_Component.__name__ = true;
-ithril_Component.prototype = {
+ithril_ComponentAbstract.__name__ = true;
+ithril_ComponentAbstract.prototype = {
 	setChildren: function(children) {
-		this.componentCount = 0;
 		if(children.length == 1 && ((children instanceof Array) && children.__enum__ == null)) children = children[0];
 		this.children = children;
 		if((children instanceof Array) && children.__enum__ == null) {
@@ -71,47 +69,28 @@ ithril_Component.prototype = {
 			while(_g < children.length) {
 				var child = children[_g];
 				++_g;
-				if(js_Boot.__instanceof(child,ithril_Component)) child.parent = this;
+				if(js_Boot.__instanceof(child,ithril_ComponentAbstract)) child.parent = this;
 			}
 		}
-		return this;
 	}
-	,setAttributes: function(attrs) {
-		try {
-			this.attributes.apply(this,attrs);
-		} catch( e ) {
-			if (e instanceof js__$Boot_HaxeError) e = e.val;
-		}
-		return this;
-	}
-	,getComponent: function(key,type) {
-		key = key + this.componentCount;
-		this.componentCount++;
-		if(!this.componentInstances.exists(key)) {
-			var value = Type.createInstance(type,[this]);
-			this.componentInstances.set(key,value);
-		}
-		return this.componentInstances.get(key);
-	}
-	,__class__: ithril_Component
+	,__class__: ithril_ComponentAbstract
 };
-var Web = function(parent) {
+var Web = function() {
 	this.tabs = [1,2,3,4,5];
-	ithril_Component.call(this,parent);
+	ithril_ComponentAbstract.call(this);
 };
 Web.__name__ = true;
 Web.main = function() {
 	m.mount(window.document.body,new Web());
 };
-Web.__super__ = ithril_Component;
-Web.prototype = $extend(ithril_Component.prototype,{
+Web.__super__ = ithril_ComponentAbstract;
+Web.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	wrap: function() {
 		return [{ tag : "!doctype", attrs : { html : true}, children : []},{ tag : "meta", attrs : { charset : "utf-8"}, children : []},{ tag : "link", attrs : { rel : "stylesheet", href : "layout.css"}, children : []},{ tag : "body", attrs : { }, children : [this.view()]},{ tag : "script", attrs : { src : "https://cdnjs.cloudflare.com/ajax/libs/mithril/0.2.0/mithril.min.js"}, children : []},{ tag : "script", attrs : { src : "main.js"}, children : []}];
 	}
 	,view: function() {
 		var _g = this;
-		this.componentCount = 0;
-		return { tag : "div", attrs : { 'class' : "tabs-example"}, children : [this.getComponent("84a1b32d6bc8cecd034d263ad258c2df",ithril_components_Tabs).setChildren([this.getComponent("1bc9312e1079a59530c5fe84bf982262",ithril_components_Tab).setChildren(["Tab 1"]).setAttributes(["Tab label"]),this.getComponent("ff99da5ed9fa7d08cd49c1b55bc7e3bd",ithril_components_Tab).setChildren(["Tab 2"]).setAttributes(["Tab label 2"])]).setAttributes([]),this.getComponent("342e14b4a85c774ca3152dde5389686a",ithril_components_Tabs).setChildren([(function($this) {
+		return { tag : "div", attrs : { 'class' : "tabs-example"}, children : [ithril_ComponentCache.getComponent("b019272020bfc25b6bae861f9f18cc08",ithril_components_Tabs,[ithril_ComponentCache.getComponent("b2eff295ab0469f9b00d54a84b23ff79",ithril_components_Tab,["Tab 1"],["Tab label"]),ithril_ComponentCache.getComponent("dbf701f0ffae5a17dcd06054818cf1ad",ithril_components_Tab,["Tab 2"],["Tab label 2"])],[]),ithril_ComponentCache.getComponent("4d7bc5ea769112b163cf993e4b800760",ithril_components_Tabs,[(function($this) {
 			var $r;
 			var _g1 = [];
 			{
@@ -120,12 +99,12 @@ Web.prototype = $extend(ithril_Component.prototype,{
 				while(_g11 < _g2.length) {
 					var i = _g2[_g11];
 					++_g11;
-					_g1.push($this.getComponent("4c06af6c146acee604fd177e3b338930",ithril_components_Tab).setChildren(["Content " + i]).setAttributes(["Label " + i]));
+					_g1.push(ithril_ComponentCache.getComponent("ae6a6d0f2502d556900ae244abd50ece",ithril_components_Tab,["Content " + i],["Label " + i]));
 				}
 			}
 			$r = _g1;
 			return $r;
-		}(this))]).setAttributes([]),{ tag : "a", attrs : { onclick : function() {
+		}(this))],[]),{ tag : "a", attrs : { onclick : function() {
 			_g.tabs.push(1);
 		}}, children : ["Add tab"]}]};
 	}
@@ -163,16 +142,38 @@ haxe_ds_StringMap.prototype = {
 	}
 	,__class__: haxe_ds_StringMap
 };
-var ithril_components_Tab = function(parent) {
-	ithril_Component.call(this,parent);
+var ithril_Component = function() { };
+ithril_Component.__name__ = true;
+var ithril_ComponentCache = function() { };
+ithril_ComponentCache.__name__ = true;
+ithril_ComponentCache.getComponent = function(key,type,children,state) {
+	var id = "";
+	if(state.length > 0 && Object.prototype.hasOwnProperty.call(state[0],"key")) id = "__key__" + Std.string(state[0].key); else {
+		var count;
+		if(ithril_ComponentCache.componentCount.exists(key)) count = ithril_ComponentCache.componentCount.get(key); else count = 0;
+		ithril_ComponentCache.componentCount.set(key,count + 1);
+		if(count == null) id = "null"; else id = "" + count;
+		window.setTimeout(function() {
+			ithril_ComponentCache.componentCount = new haxe_ds_StringMap();
+		},0);
+	}
+	key += id;
+	if(!ithril_ComponentCache.componentInstances.exists(key)) {
+		var value = Type.createInstance(type,[]);
+		ithril_ComponentCache.componentInstances.set(key,value);
+	}
+	var instance = ithril_ComponentCache.componentInstances.get(key);
+	instance.setChildren(children);
+	instance.setState.apply(instance,state);
+	return instance;
+};
+var ithril_components_Tab = function() {
+	ithril_ComponentAbstract.call(this);
 };
 ithril_components_Tab.__name__ = true;
-ithril_components_Tab.__super__ = ithril_Component;
-ithril_components_Tab.prototype = $extend(ithril_Component.prototype,{
-	attributes: function(label) {
-		this.label = label;
-	}
-	,labelView: function() {
+ithril_components_Tab.__super__ = ithril_ComponentAbstract;
+ithril_components_Tab.prototype = $extend(ithril_ComponentAbstract.prototype,{
+	labelView: function() {
 		var _g = this;
 		var tabs;
 		tabs = js_Boot.__cast(this.parent , ithril_components_Tabs);
@@ -183,15 +184,18 @@ ithril_components_Tab.prototype = $extend(ithril_Component.prototype,{
 	,view: function() {
 		return { tag : "div", attrs : { 'class' : "tab"}, children : [this.children]};
 	}
+	,setState: function(label) {
+		this.label = label;
+	}
 	,__class__: ithril_components_Tab
 });
-var ithril_components_Tabs = function(parent) {
+var ithril_components_Tabs = function() {
 	this.selected = 0;
-	ithril_Component.call(this,parent);
+	ithril_ComponentAbstract.call(this);
 };
 ithril_components_Tabs.__name__ = true;
-ithril_components_Tabs.__super__ = ithril_Component;
-ithril_components_Tabs.prototype = $extend(ithril_Component.prototype,{
+ithril_components_Tabs.__super__ = ithril_ComponentAbstract;
+ithril_components_Tabs.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	setSelected: function(tab) {
 		this.selected = HxOverrides.indexOf(this.children,tab,0);
 	}
@@ -199,7 +203,14 @@ ithril_components_Tabs.prototype = $extend(ithril_Component.prototype,{
 		return HxOverrides.indexOf(this.children,tab,0) == this.selected;
 	}
 	,view: function() {
-		return { tag : "div", attrs : { 'class' : "tabs"}, children : [{ tag : "nav", attrs : { }, children : [(function($this) {
+		if(this.attrs == null) this.attrs = { };
+		return { tag : "div", attrs : (function($this) {
+			var $r;
+			var t = $this.attrs;
+			t["class"] = "tabs";
+			$r = t;
+			return $r;
+		}(this)), children : [{ tag : "nav", attrs : { }, children : [(function($this) {
 			var $r;
 			var _g = [];
 			{
@@ -214,6 +225,9 @@ ithril_components_Tabs.prototype = $extend(ithril_Component.prototype,{
 			$r = _g;
 			return $r;
 		}(this))]},this.children[this.selected]]};
+	}
+	,setState: function(attrs) {
+		this.attrs = attrs;
 	}
 	,__class__: ithril_components_Tabs
 });
@@ -380,6 +394,8 @@ Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
 var __map_reserved = {}
+ithril_ComponentCache.componentInstances = new haxe_ds_StringMap();
+ithril_ComponentCache.componentCount = new haxe_ds_StringMap();
 js_Boot.__toStr = {}.toString;
 Web.main();
 })(typeof console != "undefined" ? console : {log:function(){}}, typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);

@@ -8,6 +8,6 @@ matrix:
   allow_failures:
     - haxe: development
 hxml:
-  - build.hxml
+  - tests.hxml
 script:
-  - haxe build.hxml
+  - haxe tests.hxml

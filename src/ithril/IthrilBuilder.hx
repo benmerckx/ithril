@@ -27,7 +27,7 @@ enum Block {
 
 typedef BlockWithChildren = {
 	block: Block,
-	children: Array<BlockWithChildren>, 
+	children: Array<BlockWithChildren>,
 	indent: Int,
 	line: Int,
 	parent: BlockWithChildren
@@ -65,11 +65,11 @@ typedef Lines = Map<Int, Int>;
 class IthrilBuilder {
 
 	static var lines: Lines;
-	
+
 	macro static public function build(): Array<Field> {
 		return Context.getBuildFields().map(inlineView);
 	}
-	
+
 	static function inlineView(field: Field) {
 		return switch (field.kind) {
 			case FieldType.FFun(func):
@@ -79,9 +79,9 @@ class IthrilBuilder {
 			default: field;
 		}
 	}
-	
+
 	static function parseBlock(e: Expr) {
-		
+
 		switch (e.expr) {
 			case ExprDef.ECall(_, _) | ExprDef.EArray(_, _):
 				parseCalls(e, {
@@ -92,7 +92,7 @@ class IthrilBuilder {
 		}
 		e.iter(parseBlock);
 	}
-	
+
 	static function parseCalls(e: Expr, ctx: ViewContext) {
 		switch (e) {
 			case _.expr => ExprDef.ECall(callExpr, params):
@@ -110,15 +110,15 @@ class IthrilBuilder {
 			default:
 		}
 	}
-	
+
 	static function preprocess(e: Expr) return switch e {
-		case macro for($head) $body: 
+		case macro for($head) $body:
 			macro @:pos(e.pos) ([for ($head) $body]);
-		case macro while($head) $body: 
+		case macro while($head) $body:
 			macro @:pos(e.pos) ([while ($head) $body]);
 		default: e;
 	}
-	
+
 	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
 		var exprList: Array<Expr> = [];
 		if (prepend != null) exprList.push(prepend);
@@ -134,16 +134,9 @@ class IthrilBuilder {
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
 				case Block.CustomElement(name, arguments, pos):
-					var t = {
-						sub: null, params: null, pack: [], name: name
-					};
-					//arguments.push(createExpr(item.children));
 					var key = Md5.encode(Std.string(pos));
 					exprList.push(macro {
-						getComponent($v{key}, $i{name})
-							.setChildren(${createExpr(item.children)})
-							.setAttributes([$a{arguments}]);
-						//(new $t($a{arguments}));
+						ithril.ComponentCache.getComponent($v{key}, $i{name}, ${createExpr(item.children)}, [$a{arguments}]);
 					});
 			}
 		}
@@ -152,14 +145,14 @@ class IthrilBuilder {
 		}
 		return macro ($a{exprList}: Dynamic);
 	}
-	
+
 	static function createAttrsExpr(data: Element): Expr {
 		var e: Expr;
 		var id = data.selector.id;
 		var className = data.selector.classes.join(' ');
-		
+
 		var fields: Array<ObjField> = [];
-		
+
 		if (data.attributes != null) {
 			switch (data.attributes) {
 				case _.expr => ExprDef.EObjectDecl(f):
@@ -182,11 +175,11 @@ class IthrilBuilder {
 							$b{attrs};
 							t;
 						};
-					else 
+					else
 						return data.attributes;
 			}
 		}
-		
+
 		if (id != '')
 			addToObjFields(fields, 'id', macro $v{id});
 		if (className != '')
@@ -198,7 +191,7 @@ class IthrilBuilder {
 			expr: ExprDef.EObjectDecl(fields), pos: Context.currentPos()
 		};
 	}
-	
+
 	static function addToObjFields(fields: Array<ObjField>, key: String, expr: Expr) {
 		var exists = false;
 		fields.map(function(field: ObjField) {
@@ -214,7 +207,7 @@ class IthrilBuilder {
 			});
 		}
 	}
-	
+
 	static function orderBlocks(ctx: ViewContext) {
 		ctx.blocks.reverse();
 		var list: Array<BlockWithChildren> = [];
@@ -226,7 +219,7 @@ class IthrilBuilder {
 			}
 			var indent = lines.get(line);
 			var addTo: BlockWithChildren = current;
-			
+
 			if (addTo != null) {
 				if (indent == current.indent) {
 						addTo = current.parent;
@@ -238,7 +231,7 @@ class IthrilBuilder {
 					addTo = parent;
 				}
 			}
-			
+
 			var positionedBlock = {
 				block: block,
 				children: [],
@@ -246,9 +239,9 @@ class IthrilBuilder {
 				line: line,
 				parent: addTo
 			};
-			
+
 			current = positionedBlock;
-			
+
 			if (addTo != null)
 				addTo.children.push(positionedBlock);
 			else
@@ -256,7 +249,7 @@ class IthrilBuilder {
 		}
 		return list;
 	}
-	
+
 	static function element(): Element {
 		return {
 			selector: {
@@ -269,11 +262,11 @@ class IthrilBuilder {
 			content: null
 		};
 	}
-	
+
 	static function chainElement(params: Array<Expr>, callExpr: Expr): Null<Block> {
-		if (params.length == 0 || params.length > 3) 
+		if (params.length == 0 || params.length > 3)
 			return null;
-						
+
 		var element = element();
 		var e = params[0];
 		switch (e) {
@@ -297,15 +290,15 @@ class IthrilBuilder {
 				element.selector = parseSelector(e.toString().replace(' ', ''));
 			default: return null;
 		}
-		
+
 		if (params.length > 1)
 			element.attributes = params[1];
 		if (params.length > 2)
 			element.content = params[2];
-			
+
 		return Block.ElementBlock(element, posInfo(e));
 	}
-	
+
 	static function removeAttr(e: Expr) {
 		switch (e.expr) {
 			case ExprDef.EArray(e1, _):
@@ -315,7 +308,7 @@ class IthrilBuilder {
 		}
 		e.iter(removeAttr);
 	}
-	
+
 	static function getAttr(e: Expr, attributes: Array<InlineAttribute>) {
 		switch (e.expr) {
 			case ExprDef.EArray(prev, _ => macro $a=$b):
@@ -340,15 +333,15 @@ class IthrilBuilder {
 		}
 		e.iter(getAttr.bind(_, attributes));
 	}
-	
+
 	static function parseSelector(selector: String): Selector {
 		selector = selector.replace('.', ',.').replace('+', ',+');
 		var parts: Array<String> = selector.split(',');
-		
+
 		var tag = '';
 		var id = '';
 		var classes: Array<String> = [];
-		
+
 		for (part in parts) {
 			var value = part.substr(1);
 			switch (part.charAt(0)) {
@@ -357,14 +350,14 @@ class IthrilBuilder {
 				default: tag = part;
 			}
 		}
-		
+
 		return {
-			tag: tag, 
+			tag: tag,
 			classes: classes,
 			id: id
 		};
 	}
-	
+
 	static function posInfo(e: Expr): PosInfo {
 		var pos = e.pos;
 		var info = Std.string(pos);
@@ -389,7 +382,7 @@ class IthrilBuilder {
 
 		if (!lines.exists(line) || lines.get(line) > start)
 			lines.set(line, start);
-		
+
 		return {
 			file: Context.getPosInfos(pos).file,
 			line: line,

@@ -9,7 +9,7 @@ typedef Constructible = {
 class ComponentCache {
   static var componentInstances: Map<String, ComponentAbstract> = new Map();
   static var componentCount: Map<String, Int> = new Map();
-  static var timeout: Int;
+  static var timeout: Null<Int> = null;
 
   static function createKey(key: String, state: Array<Dynamic>) {
     var id = '';
@@ -20,10 +20,11 @@ class ComponentCache {
       componentCount.set(key, count+1);
       id = Std.string(count);
       #if js
-      js.Browser.window.clearTimeout(timeout);
-      timeout = js.Browser.window.setTimeout(function()
-        componentCount = new Map()
-      , 0);
+      if (timeout == null)
+        timeout = js.Browser.window.setTimeout(function() {
+          componentCount = new Map();
+          timeout = null;
+        }, 0);
       #end
     }
     return key + id;

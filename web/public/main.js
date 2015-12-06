@@ -160,9 +160,9 @@ ithril_ComponentCache.createKey = function(key,state) {
 		var value = count + 1;
 		if(__map_reserved[key] != null) _this2.setReserved(key,value); else _this2.h[key] = value;
 		id = count == null?"null":"" + count;
-		window.clearTimeout(ithril_ComponentCache.timeout);
-		ithril_ComponentCache.timeout = window.setTimeout(function() {
+		if(ithril_ComponentCache.timeout == null) ithril_ComponentCache.timeout = window.setTimeout(function() {
 			ithril_ComponentCache.componentCount = new haxe_ds_StringMap();
+			ithril_ComponentCache.timeout = null;
 		},0);
 	}
 	return key + id;

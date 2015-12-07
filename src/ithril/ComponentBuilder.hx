@@ -66,10 +66,16 @@ class ComponentBuilder {
   static public function build() {
     var fields = Context.getBuildFields();
     if (params.length == 1) {
-      fields = fields.concat(buildFields(Context.follow(params[0])));
+	  var extra = buildFields(Context.follow(params[0]));
+	  extra.map(function(field) {
+		if (!fields.exists(function(f) return f.name == field.name)) {
+		  fields.push(field);
+		}
+	  });
+      //fields = fields.concat(buildFields(Context.follow(params[0])));
     }
     fields.map(function(field) {
-      if (field.name == 'view' || field.name == 'controller') {
+      if (field.name == 'view' || field.name == 'controller' || field.name == 'setState' || field.name == 'setChildren') {
         field.meta = field.meta == null ? [] : field.meta;
         field.meta.push({
           pos: Context.currentPos(),

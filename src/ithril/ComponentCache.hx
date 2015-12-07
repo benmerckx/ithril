@@ -32,7 +32,7 @@ class ComponentCache {
 
   static function setProps(instance: ComponentAbstract, children: Array<VirtualElement>, state: Array<Dynamic>) {
     instance.setChildren(children);
-    Reflect.callMethod(instance, untyped instance.setState, state);
+    Reflect.callMethod(instance, (cast instance).setState, state);
   }
 
   @:generic

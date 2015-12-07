@@ -12,24 +12,34 @@ typedef InputAttributes = {
 }
 
 typedef TextOptions = {
-  >InputAttributes,
-  ?multiline: Bool
+	>InputAttributes,
+	?multiline: Bool,
+	?value: String
 }
 
 class Text extends Component<{?options: TextOptions}> {
-  var data: String = '';
+  var value: String = '';
+  
+  public function setState(options: TextOptions) {
+	//if (options.value != null) value = options.value;
+	this.options = options;
+  }
+  
+  function setupMirror(el, isInitialized, ctx) {
+	//el.style = untyped getComputedStyle(el.previousSibling);
+  }
 
   function textarea() {
     return ithril
       (div)
-        (textarea)
-        (div.mirror, {}, data)
+        (textarea, {oninput: function(e) value = e.target.value}, value)
+        (div.mirror, {config: setupMirror}, value.split("\n").join('<br>'))
     ;
   }
 
   function input() {
     return ithril
-      (input[type='text'])
+      (input[type='text'], {oninput: function(e) value = e.target.value, value: value})
     ;
   }
 

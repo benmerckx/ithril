@@ -228,23 +228,31 @@ ithril_components_Tabs.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	,__class__: ithril_components_Tabs
 });
 var ithril_components_Text = function() {
-	this.data = "";
+	this.value = "";
 	ithril_ComponentAbstract.call(this);
 };
 ithril_components_Text.__name__ = true;
 ithril_components_Text.__super__ = ithril_ComponentAbstract;
 ithril_components_Text.prototype = $extend(ithril_ComponentAbstract.prototype,{
-	textarea: function() {
-		return { tag : "div", attrs : { }, children : [{ tag : "textarea", attrs : { }, children : []},{ tag : "div", attrs : { 'class' : "mirror"}, children : [this.data]}]};
+	setState: function(options) {
+		this.options = options;
+	}
+	,setupMirror: function(el,isInitialized,ctx) {
+	}
+	,textarea: function() {
+		var _g = this;
+		return { tag : "div", attrs : { }, children : [{ tag : "textarea", attrs : { oninput : function(e) {
+			_g.value = e.target.value;
+		}}, children : [this.value]},{ tag : "div", attrs : { config : $bind(this,this.setupMirror), 'class' : "mirror"}, children : [this.value.split("\n").join("<br>")]}]};
 	}
 	,input: function() {
-		return { tag : "input", attrs : { type : "text"}, children : []};
+		var _g = this;
+		return { tag : "input", attrs : { oninput : function(e) {
+			_g.value = e.target.value;
+		}, value : this.value, type : "text"}, children : []};
 	}
 	,view: function() {
 		return this.options.multiline?this.textarea():this.input();
-	}
-	,setState: function(options) {
-		this.options = options;
 	}
 	,__class__: ithril_components_Text
 });
@@ -381,6 +389,8 @@ js_Boot.__isNativeObj = function(o) {
 js_Boot.__resolveNativeClass = function(name) {
 	return $global[name];
 };
+var $_, $fid = 0;
+function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
 String.prototype.__class__ = String;
 String.__name__ = true;
 Array.__name__ = true;

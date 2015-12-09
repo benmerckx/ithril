@@ -3,6 +3,7 @@ package ithril;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
+import haxe.crypto.Md5;
 
 using StringTools;
 using haxe.macro.ExprTools;
@@ -21,12 +22,11 @@ typedef Cell = {
 enum Block {
 	ElementBlock(data: Element, pos: PosInfo);
 	ExprBlock(e: Expr, pos: PosInfo);
-	CustomElement(type: String, arguments: Array<Expr>, pos: PosInfo);
 }
 
 typedef BlockWithChildren = {
 	block: Block,
-	children: Array<BlockWithChildren>, 
+	children: Array<BlockWithChildren>,
 	indent: Int,
 	line: Int,
 	parent: BlockWithChildren
@@ -64,11 +64,11 @@ typedef Lines = Map<Int, Int>;
 class IthrilBuilder {
 
 	static var lines: Lines;
-	
+
 	macro static public function build(): Array<Field> {
 		return Context.getBuildFields().map(inlineView);
 	}
-	
+
 	static function inlineView(field: Field) {
 		return switch (field.kind) {
 			case FieldType.FFun(func):
@@ -78,9 +78,9 @@ class IthrilBuilder {
 			default: field;
 		}
 	}
-	
+
 	static function parseBlock(e: Expr) {
-		
+
 		switch (e.expr) {
 			case ExprDef.ECall(_, _) | ExprDef.EArray(_, _):
 				parseCalls(e, {
@@ -91,7 +91,7 @@ class IthrilBuilder {
 		}
 		e.iter(parseBlock);
 	}
-	
+
 	static function parseCalls(e: Expr, ctx: ViewContext) {
 		switch (e) {
 			case _.expr => ExprDef.ECall(callExpr, params):
@@ -105,20 +105,20 @@ class IthrilBuilder {
 				ctx.blocks.push(block);
 				parseCalls(e1, ctx);
 			case macro ithril:
-				ctx.expr.expr = createExpr(orderBlocks(ctx)).expr;
+				ctx.expr.expr = createExpr(orderBlocks(ctx), true).expr;
 			default:
 		}
 	}
-	
+
 	static function preprocess(e: Expr) return switch e {
-		case macro for($head) $body: 
+		case macro for($head) $body:
 			macro @:pos(e.pos) ([for ($head) $body]);
-		case macro while($head) $body: 
+		case macro while($head) $body:
 			macro @:pos(e.pos) ([while ($head) $body]);
 		default: e;
 	}
-	
-	static function createExpr(list: Array<BlockWithChildren>, ?prepend: Expr): ExprOf<Array<{tag: String,attrs: Dynamic,children: Dynamic}>> {
+
+	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
 		var exprList: Array<Expr> = [];
 		if (prepend != null) exprList.push(prepend);
 		for (item in list) {
@@ -128,29 +128,25 @@ class IthrilBuilder {
 					exprList.push(macro {
 						tag: ${tag},
 						attrs: ${createAttrsExpr(data)},
-						children: (${createExpr(item.children, data.content)}: Dynamic)
+						children: (${createExpr(item.children, false, data.content)}: Dynamic)
 					});
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
-				case Block.CustomElement(name, arguments, _):
-					var t = {
-						sub: null, params: null, pack: [], name: name
-					};
-					exprList.push(macro {
-						(new $t()).view($a{arguments});
-					});
 			}
+		}
+		if (root && exprList.length == 1) {
+			return macro (${exprList[0]}: Dynamic);
 		}
 		return macro ($a{exprList}: Dynamic);
 	}
-	
+
 	static function createAttrsExpr(data: Element): Expr {
 		var e: Expr;
 		var id = data.selector.id;
 		var className = data.selector.classes.join(' ');
-		
+
 		var fields: Array<ObjField> = [];
-		
+
 		if (data.attributes != null) {
 			switch (data.attributes) {
 				case _.expr => ExprDef.EObjectDecl(f):
@@ -173,11 +169,11 @@ class IthrilBuilder {
 							$b{attrs};
 							t;
 						};
-					else 
+					else
 						return data.attributes;
 			}
 		}
-		
+
 		if (id != '')
 			addToObjFields(fields, 'id', macro $v{id});
 		if (className != '')
@@ -189,7 +185,7 @@ class IthrilBuilder {
 			expr: ExprDef.EObjectDecl(fields), pos: Context.currentPos()
 		};
 	}
-	
+
 	static function addToObjFields(fields: Array<ObjField>, key: String, expr: Expr) {
 		var exists = false;
 		fields.map(function(field: ObjField) {
@@ -205,19 +201,19 @@ class IthrilBuilder {
 			});
 		}
 	}
-	
+
 	static function orderBlocks(ctx: ViewContext) {
 		ctx.blocks.reverse();
 		var list: Array<BlockWithChildren> = [];
 		var current: BlockWithChildren = null;
 		for (block in ctx.blocks) {
 			var line = switch (block) {
-				case Block.ElementBlock(_, pos) | Block.ExprBlock(_, pos) | Block.CustomElement(_, _, pos):
+				case Block.ElementBlock(_, pos) | Block.ExprBlock(_, pos):
 					pos.line;
 			}
 			var indent = lines.get(line);
 			var addTo: BlockWithChildren = current;
-			
+
 			if (addTo != null) {
 				if (indent == current.indent) {
 						addTo = current.parent;
@@ -229,7 +225,7 @@ class IthrilBuilder {
 					addTo = parent;
 				}
 			}
-			
+
 			var positionedBlock = {
 				block: block,
 				children: [],
@@ -237,9 +233,9 @@ class IthrilBuilder {
 				line: line,
 				parent: addTo
 			};
-			
+
 			current = positionedBlock;
-			
+
 			if (addTo != null)
 				addTo.children.push(positionedBlock);
 			else
@@ -247,7 +243,7 @@ class IthrilBuilder {
 		}
 		return list;
 	}
-	
+
 	static function element(): Element {
 		return {
 			selector: {
@@ -260,40 +256,38 @@ class IthrilBuilder {
 			content: null
 		};
 	}
-	
+
 	static function chainElement(params: Array<Expr>, callExpr: Expr): Null<Block> {
-		if (params.length == 0 || params.length > 3) 
+		if (params.length == 0 || params.length > 3)
 			return null;
-						
+
 		var element = element();
 		var e = params[0];
-		switch (e.expr) {
-			case ExprDef.EConst(c):
+		switch (e) {
+			case macro !doctype:
+				element.selector.tag = '!doctype';
+				element.attributes = macro {html: true};
+			case _.expr => ExprDef.EConst(c):
 				switch (c) {
 					case Constant.CIdent(s):
-						if (s.charAt(0) == s.charAt(0).toUpperCase()) {
-							// Custom element
-							return Block.CustomElement(s, params.slice(1), posInfo(e));
-						} else {
-							element.selector.tag = s;
-						}
+						element.selector.tag = s;
 					default: return null;
 				}
-			case ExprDef.EField(_, _) | ExprDef.EBinop(_, _, _) | ExprDef.EArray(_, _):
+			case _.expr => ExprDef.EField(_, _) | ExprDef.EBinop(_, _, _) | ExprDef.EArray(_, _):
 				getAttr(e, element.inlineAttributes);
 				removeAttr(e);
 				element.selector = parseSelector(e.toString().replace(' ', ''));
 			default: return null;
 		}
-		
+
 		if (params.length > 1)
 			element.attributes = params[1];
 		if (params.length > 2)
 			element.content = params[2];
-			
+
 		return Block.ElementBlock(element, posInfo(e));
 	}
-	
+
 	static function removeAttr(e: Expr) {
 		switch (e.expr) {
 			case ExprDef.EArray(e1, _):
@@ -303,7 +297,7 @@ class IthrilBuilder {
 		}
 		e.iter(removeAttr);
 	}
-	
+
 	static function getAttr(e: Expr, attributes: Array<InlineAttribute>) {
 		switch (e.expr) {
 			case ExprDef.EArray(prev, _ => macro $a=$b):
@@ -328,15 +322,15 @@ class IthrilBuilder {
 		}
 		e.iter(getAttr.bind(_, attributes));
 	}
-	
+
 	static function parseSelector(selector: String): Selector {
 		selector = selector.replace('.', ',.').replace('+', ',+');
 		var parts: Array<String> = selector.split(',');
-		
+
 		var tag = '';
 		var id = '';
 		var classes: Array<String> = [];
-		
+
 		for (part in parts) {
 			var value = part.substr(1);
 			switch (part.charAt(0)) {
@@ -345,14 +339,14 @@ class IthrilBuilder {
 				default: tag = part;
 			}
 		}
-		
+
 		return {
-			tag: tag, 
+			tag: tag,
 			classes: classes,
 			id: id
 		};
 	}
-	
+
 	static function posInfo(e: Expr): PosInfo {
 		var pos = e.pos;
 		var info = Std.string(pos);
@@ -377,7 +371,7 @@ class IthrilBuilder {
 
 		if (!lines.exists(line) || lines.get(line) > start)
 			lines.set(line, start);
-		
+
 		return {
 			file: Context.getPosInfos(pos).file,
 			line: line,

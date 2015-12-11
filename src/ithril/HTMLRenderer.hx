@@ -107,7 +107,7 @@ class HTMLRenderer {
 		}
 
 		// TODO: check for other targets
-		if (view.hasField("$trusted")) {
+		if (Std.is(view, TrustedHTML)) {
 			return Std.string(view);
 		}
 

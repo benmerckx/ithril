@@ -1,0 +1,30 @@
+.ithril {
+	@font-family: 'Open Sans', sans-serif;
+	@toolbar-height: 42px;
+	@sidebar-width: 300px;
+
+	@color-main: #479a90;
+	@color-main-dark: #3d897f;
+	@color-main-darker: #417970;
+	@color-main-light: #6daea8;
+	@color-link: #0083b5;
+
+	@content-bg: #f1f2f5;
+	@colored-bg: darken(@content-bg, 7);
+	@accent-color: white;
+	@font-color: #4d5a6e;
+
+	.inline(@valign: top) {
+		display: inline-block;
+		vertical-align: @valign;
+	}
+
+	@import (less) "tabs.less";
+	@import (less) "text.less";
+
+	box-sizing: border-box;
+
+	*, *:before, *:after {
+	  box-sizing: inherit;
+	}
+}

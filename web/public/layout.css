@@ -1,37 +1,27 @@
-body 
-{
-    background: #eee;
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600');
+body {
+  background: #eee;
+  font-family: 'Open Sans', sans-serif;
 }
-
 a {
-	cursor: pointer;
+  cursor: pointer;
+  text-decoration: none;
 }
-
-.tabs {
+a img {
+  border: none;
+}
+.ithril {
+  box-sizing: border-box;
+}
+.ithril .tabs {
   margin: 10px;
   margin-top: 20px;
   position: relative;
 }
-.tabs.disabled {
-  pointer-events: none;
-}
-.tabs.disabled:before {
-  content: '';
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: red;
-  z-index: 1;
-  opacity: .4;
-  background: #f1f2f5;
-}
-.tabs nav {
+.ithril .tabs nav {
   margin-top: 10px;
 }
-.tabs nav a {
+.ithril .tabs nav a {
   display: inline-block;
   vertical-align: top;
   font-size: 14px;
@@ -41,11 +31,11 @@ a {
   border-top-right-radius: 3px;
   background: #ebecf1;
 }
-.tabs nav a.active {
+.ithril .tabs nav a.active {
   background: #dcdfe6;
   color: #676e76;
 }
-.tabs .tab {
+.ithril .tabs .tab {
   display: block;
   width: 100%;
   background: #dcdfe6;
@@ -54,18 +44,63 @@ a {
   border-bottom-right-radius: 3px;
   border-top-right-radius: 3px;
 }
-.tabs .tabs {
+.ithril .tabs .tabs {
   position: relative;
 }
-.tabs .tabs nav a.active {
+.ithril .tabs .tabs nav a.active {
   background: #f1f2f5;
 }
-.tabs .tabs .tab {
+.ithril .tabs .tabs .tab {
   background: #f1f2f5;
 }
-.tabs .tabs .tabs nav a.active {
+.ithril .tabs .tabs .tabs nav a.active {
   background: #dcdfe6;
 }
-.tabs .tabs .tabs .tab {
+.ithril .tabs .tabs .tabs .tab {
   background: #dcdfe6;
+}
+.ithril textarea.field {
+  overflow: hidden;
+}
+.ithril .field,
+.ithril .field + .mirror {
+  display: inline-block;
+  vertical-align: middle;
+  border: 0;
+  background: white;
+  border-radius: 3px;
+  line-height: 22px;
+  padding: 10px 14px;
+  font-size: 15px;
+  line-height: 1.428571429;
+  color: #4d5a6e;
+  width: 100%;
+  font-family: 'Open Sans', sans-serif;
+  resize: none;
+}
+.ithril .field:focus,
+.ithril .field + .mirror:focus {
+  outline: none;
+  box-shadow: 0px 0px 0px 2px #a4c6fd inset;
+}
+.ithril .field.small,
+.ithril .field + .mirror.small {
+  padding: 5px 10px;
+}
+.ithril .field.path,
+.ithril .field + .mirror.path {
+  background: #dcdfe6;
+}
+.ithril .field.mirror,
+.ithril .field + .mirror.mirror {
+  visibility: hidden;
+  position: absolute;
+  left: -1000px;
+  top: -1000px;
+  word-wrap: break-word;
+}
+.ithril *,
+.ithril *:before,
+.ithril *:after {
+  box-sizing: inherit;
 }

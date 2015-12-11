@@ -2,6 +2,7 @@
 -cp web
 -main Web
 --each
+-cmd lessc web/layout.less web/public/layout.css
 -D js-flatten
 -D js-es5
 -D analyzer

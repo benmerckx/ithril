@@ -1,7 +1,6 @@
 import ithril.Component;
-
-import ithril.components.Tabs;
-import ithril.components.Text;
+import ithril.elements.Tabs;
+import ithril.elements.Text;
 
 class Web extends Component {
 	var tabs = [1, 2, 3, 4, 5];

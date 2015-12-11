@@ -1,0 +1,40 @@
+textarea.field {
+	overflow: hidden;
+}
+
+.field, .field+.mirror {
+	.inline(middle);
+	border: 0;
+	background: white;
+	border-radius: 3px;
+	line-height: 22px;
+	padding: 10px 14px;
+	font-size: 15px;
+	line-height: 1.428571429;
+	color: @font-color;
+	width: 100%;
+	font-family: @font-family;
+	resize: none;
+
+	&:focus {
+		outline: none;
+		box-shadow: 0px 0px 0px 2px #a4c6fd inset;
+	}
+
+	&.small {
+		padding: 5px 10px;
+	}
+
+	&.path {
+		//color: black;
+		background: @colored-bg;
+	}
+
+	&.mirror {
+		visibility: hidden;
+		position: absolute;
+		left: -1000px;
+		top: -1000px;
+		word-wrap: break-word;
+	}
+}

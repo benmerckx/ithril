@@ -1,22 +1,26 @@
 package ithril;
 
-@:autoBuild(ithril.ComponentBuilder.build())
-@:allow(ithril.ComponentCache)
-class ComponentAbstract implements Ithril {
-	//var children: Array<VirtualElement> = [];
-	//var parent: ComponentAbstract = null;
+@:genericBuild(ithril.component.ComponentBuilder.buildGeneric())
+class Component<Rest> {}
+
+@:autoBuild(ithril.component.ComponentBuilder.build())
+@:allow(ithril.component.ComponentCache)
+class ComponentAbstract<State, Child: VirtualElement> implements Ithril {
+	var children: Array<Child>;
+	var parent: Component = null;
+	public var state(default, null): State;
 
 	public function new() {}
 
-	function setChildren(children: Array<VirtualElement>) {
+	function setChildren(children: Array<Child>) {
 		if (children.length == 1 && Std.is(children[0], Array)) {
-			children = children[0];
+			children = untyped children[0];
 		}
-		untyped this.children = children;
+		this.children = children;
 		if (Std.is(children, Array)) {
 			children.map(function(child) {
 				if (Std.is(child, ComponentAbstract)) {
-					child.parent = this;
+					(cast child).parent = this;
 				}
 			});
 		}
@@ -26,6 +30,3 @@ class ComponentAbstract implements Ithril {
 		return HTMLRenderer.render(this, space);
 	}
 }
-
-@:genericBuild(ithril.ComponentBuilder.buildGeneric())
-class Component<Rest> {}

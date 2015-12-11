@@ -136,7 +136,7 @@ class IthrilBuilder {
 				case Block.CustomElement(name, arguments, pos):
 					var key = Md5.encode(Std.string(pos));
 					exprList.push(macro {
-						ithril.ComponentCache.getComponent($v{key}, $i{name}, ${createExpr(item.children)}, [$a{arguments}]);
+						ithril.component.ComponentCache.getComponent($v{key}, $i{name}, ${createExpr(item.children)}, [$a{arguments}]);
 					});
 			}
 		}

@@ -1,4 +1,4 @@
-package ithril;
+package ithril.component;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -12,19 +12,23 @@ class ComponentBuilder {
   static var params: Array<Type>;
 
   static public function buildGeneric() {
+    var state = (macro: {});
+    var children = (macro: Dynamic);
     switch (Context.getLocalType()) {
       case TInst(cl, paramList):
-        params = paramList;
-        if (paramList.length > 1)
-          Context.error("ithril.Component can have no more than one type parameter", Context.currentPos());
+          params = paramList;
+          if (params.length == 1)
+            state = TypeTools.toComplexType(params[0]);
+          if (params.length > 1)
+            children = TypeTools.toComplexType(params[1]);
       default:
         Context.error("Class expected", Context.currentPos());
     }
     return ComplexType.TPath({
-      sub: null,
-      params: null,
+      sub: 'ComponentAbstract',
+      params: [TPType(state), TPType(children)],
       pack: ['ithril'],
-      name: 'ComponentAbstract'
+      name: 'Component'
     });
   }
 
@@ -65,13 +69,13 @@ class ComponentBuilder {
 
   static public function build() {
     var fields = Context.getBuildFields();
-    if (params.length == 1) {
-	  var extra = buildFields(Context.follow(params[0]));
-	  extra.map(function(field) {
-		if (!fields.exists(function(f) return f.name == field.name)) {
-		  fields.push(field);
-		}
-	  });
+    if (params.length > 0) {
+  	  var extra = buildFields(Context.follow(params[0]));
+  	  extra.map(function(field) {
+    		if (!fields.exists(function(f) return f.name == field.name)) {
+    		  fields.push(field);
+    		}
+  	  });
       //fields = fields.concat(buildFields(Context.follow(params[0])));
     }
     fields.map(function(field) {
@@ -84,22 +88,6 @@ class ComponentBuilder {
         });
       }
     });
-    if (!fields.exists(function(field) return field.name == 'children')) {
-      fields.push({
-        pos: Context.currentPos(),
-        name: 'children',
-        meta: null,
-        kind: FVar(macro : Array<ithril.VirtualElement>)
-      });
-    }
-    if (!fields.exists(function(field) return field.name == 'parent')) {
-      fields.push({
-        pos: Context.currentPos(),
-        name: 'parent',
-        meta: null,
-        kind: FVar(macro : ithril.VirtualElement)
-      });
-    }
     return fields;
   }
 }

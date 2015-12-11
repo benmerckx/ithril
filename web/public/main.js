@@ -20,6 +20,12 @@ Std.__name__ = true;
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
 };
+var StringTools = function() { };
+StringTools.__name__ = true;
+StringTools.htmlEscape = function(s,quotes) {
+	s = s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
+	return quotes?s.split("\"").join("&quot;").split("'").join("&#039;"):s;
+};
 var ithril_ComponentAbstract = function() {
 };
 ithril_ComponentAbstract.__name__ = true;
@@ -57,12 +63,12 @@ Web.prototype = $extend(ithril_ComponentAbstract.prototype,{
 		while(_g11 < _g2.length) {
 			var i = _g2[_g11];
 			++_g11;
-			_g1.push(ithril_ComponentCache.getComponent_ithril_components_Tab("783661ea916915e4d74e3bed2b74c5cd",ithril_components_Tab,["Content " + i],["Label " + i]));
+			_g1.push(ithril_component_ComponentCache.getComponent_ithril_elements_Tab("78dfa01db7d14ae3d05ae0fb6338aa4f",ithril_elements_Tab,["Content " + i],["Label " + i]));
 		}
 		tmp = _g1;
-		return { tag : "div", attrs : { 'class' : "tabs-example"}, children : [ithril_ComponentCache.getComponent_ithril_components_Tabs("4d7bc5ea769112b163cf993e4b800760",ithril_components_Tabs,[ithril_ComponentCache.getComponent_ithril_components_Tab("3163797cd1a883be8b028398c5d766ea",ithril_components_Tab,["Tab 1"],["Tab label"]),ithril_ComponentCache.getComponent_ithril_components_Tab("166108404fc1c94e3c2fd220e2655f34",ithril_components_Tab,["Tab 2"],["Tab label 2"])],[]),ithril_ComponentCache.getComponent_ithril_components_Tabs("3c7a243d6c544b44ad3c2352dd22e859",ithril_components_Tabs,[tmp],[]),{ tag : "a", attrs : { onclick : function() {
+		return { tag : "div", attrs : { 'class' : "tabs-example"}, children : [ithril_component_ComponentCache.getComponent_ithril_elements_Tabs("521277084a8d7cb0794135abf767cfdc",ithril_elements_Tabs,[ithril_component_ComponentCache.getComponent_ithril_elements_Tab("a9ded0a8a82de85494c5a3e39c8ff2bc",ithril_elements_Tab,["Tab 1"],["Tab label"]),ithril_component_ComponentCache.getComponent_ithril_elements_Tab("995eacc7873124e28de6b5106bd328d2",ithril_elements_Tab,["Tab 2"],["Tab label 2"])],[]),ithril_component_ComponentCache.getComponent_ithril_elements_Tabs("d84b9ad88b134ff93cbd77d5c9295b00",ithril_elements_Tabs,[tmp],[]),{ tag : "a", attrs : { onclick : function() {
 			_g.tabs.push(_g.tabs.length + 1);
-		}}, children : ["Add tab"]},{ tag : "div", attrs : { }, children : [{ tag : "h1", attrs : { }, children : [this.inputValue]},ithril_ComponentCache.getComponent_ithril_components_Text("9415d667520a84163177afa56760e83b",ithril_components_Text,[],[{ oninput : function(e) {
+		}}, children : ["Add tab"]},{ tag : "div", attrs : { }, children : [{ tag : "h1", attrs : { }, children : [this.inputValue]},ithril_component_ComponentCache.getComponent_ithril_elements_Text("5eaa1e32a01156585ac9da8a1e265401",ithril_elements_Text,[],[{ oninput : function(e) {
 			_g.inputValue = e.target.value;
 		}, value : this.inputValue, multiline : true}])]}]};
 	}
@@ -89,99 +95,110 @@ haxe_ds_StringMap.prototype = {
 	}
 	,__class__: haxe_ds_StringMap
 };
-var ithril_ComponentCache = function() { };
-ithril_ComponentCache.__name__ = true;
-ithril_ComponentCache.getComponent_ithril_components_Text = function(key,type,children,state) {
-	key = ithril_ComponentCache.createKey(key,state);
+var ithril_TrustedHTML = function(body) {
+	this.body = body;
+	return m.trust(body);
+};
+ithril_TrustedHTML.__name__ = true;
+ithril_TrustedHTML.prototype = {
+	__class__: ithril_TrustedHTML
+};
+var ithril_component_ComponentCache = function() { };
+ithril_component_ComponentCache.__name__ = true;
+ithril_component_ComponentCache.getComponent_ithril_elements_Text = function(key,type,children,state) {
+	key = ithril_component_ComponentCache.createKey(key,state);
 	var tmp;
-	var _this = ithril_ComponentCache.componentInstances;
+	var _this = ithril_component_ComponentCache.componentInstances;
 	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
 	if(!tmp) {
-		var value = new ithril_components_Text();
-		var _this1 = ithril_ComponentCache.componentInstances;
+		var value = new ithril_elements_Text();
+		var _this1 = ithril_component_ComponentCache.componentInstances;
 		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
 	}
 	var tmp1;
-	var _this2 = ithril_ComponentCache.componentInstances;
+	var _this2 = ithril_component_ComponentCache.componentInstances;
 	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
 	var instance = tmp1;
-	ithril_ComponentCache.setProps(instance,children,state);
+	ithril_component_ComponentCache.setProps(instance,children,state);
 	return instance;
 };
-ithril_ComponentCache.getComponent_ithril_components_Tabs = function(key,type,children,state) {
-	key = ithril_ComponentCache.createKey(key,state);
+ithril_component_ComponentCache.getComponent_ithril_elements_Tabs = function(key,type,children,state) {
+	key = ithril_component_ComponentCache.createKey(key,state);
 	var tmp;
-	var _this = ithril_ComponentCache.componentInstances;
+	var _this = ithril_component_ComponentCache.componentInstances;
 	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
 	if(!tmp) {
-		var value = new ithril_components_Tabs();
-		var _this1 = ithril_ComponentCache.componentInstances;
+		var value = new ithril_elements_Tabs();
+		var _this1 = ithril_component_ComponentCache.componentInstances;
 		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
 	}
 	var tmp1;
-	var _this2 = ithril_ComponentCache.componentInstances;
+	var _this2 = ithril_component_ComponentCache.componentInstances;
 	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
 	var instance = tmp1;
-	ithril_ComponentCache.setProps(instance,children,state);
+	ithril_component_ComponentCache.setProps(instance,children,state);
 	return instance;
 };
-ithril_ComponentCache.getComponent_ithril_components_Tab = function(key,type,children,state) {
-	key = ithril_ComponentCache.createKey(key,state);
+ithril_component_ComponentCache.getComponent_ithril_elements_Tab = function(key,type,children,state) {
+	key = ithril_component_ComponentCache.createKey(key,state);
 	var tmp;
-	var _this = ithril_ComponentCache.componentInstances;
+	var _this = ithril_component_ComponentCache.componentInstances;
 	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
 	if(!tmp) {
-		var value = new ithril_components_Tab();
-		var _this1 = ithril_ComponentCache.componentInstances;
+		var value = new ithril_elements_Tab();
+		var _this1 = ithril_component_ComponentCache.componentInstances;
 		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
 	}
 	var tmp1;
-	var _this2 = ithril_ComponentCache.componentInstances;
+	var _this2 = ithril_component_ComponentCache.componentInstances;
 	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
 	var instance = tmp1;
-	ithril_ComponentCache.setProps(instance,children,state);
+	ithril_component_ComponentCache.setProps(instance,children,state);
 	return instance;
 };
-ithril_ComponentCache.createKey = function(key,state) {
+ithril_component_ComponentCache.createKey = function(key,state) {
 	var id = "";
 	if(state.length > 0 && Object.prototype.hasOwnProperty.call(state[0],"key")) id = "__key__" + Std.string(state[0].key); else {
 		var tmp;
-		var _this = ithril_ComponentCache.componentCount;
+		var _this = ithril_component_ComponentCache.componentCount;
 		if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
 		var tmp1;
 		if(tmp) {
 			var tmp2;
-			var _this1 = ithril_ComponentCache.componentCount;
+			var _this1 = ithril_component_ComponentCache.componentCount;
 			if(__map_reserved[key] != null) tmp2 = _this1.getReserved(key); else tmp2 = _this1.h[key];
 			tmp1 = tmp2;
 		} else tmp1 = 0;
 		var count = tmp1;
-		var _this2 = ithril_ComponentCache.componentCount;
+		var _this2 = ithril_component_ComponentCache.componentCount;
 		var value = count + 1;
 		if(__map_reserved[key] != null) _this2.setReserved(key,value); else _this2.h[key] = value;
 		id = count == null?"null":"" + count;
-		if(ithril_ComponentCache.timeout == null) ithril_ComponentCache.timeout = window.setTimeout(function() {
-			ithril_ComponentCache.componentCount = new haxe_ds_StringMap();
-			ithril_ComponentCache.timeout = null;
+		if(ithril_component_ComponentCache.timeout == null) ithril_component_ComponentCache.timeout = window.setTimeout(function() {
+			ithril_component_ComponentCache.componentCount = new haxe_ds_StringMap();
+			ithril_component_ComponentCache.timeout = null;
 		},0);
 	}
 	return key + id;
 };
-ithril_ComponentCache.setProps = function(instance,children,state) {
+ithril_component_ComponentCache.setProps = function(instance,children,state) {
 	instance.setChildren(children);
 	instance.setState.apply(instance,state);
 };
-var ithril_components_Tab = function() {
+var ithril_elements_Tab = function() {
 	ithril_ComponentAbstract.call(this);
 };
-ithril_components_Tab.__name__ = true;
-ithril_components_Tab.__super__ = ithril_ComponentAbstract;
-ithril_components_Tab.prototype = $extend(ithril_ComponentAbstract.prototype,{
-	labelView: function() {
-		var _g = this;
-		return { tag : "a", attrs : { onclick : function() {
-			_g.parent.setSelected(_g);
-		}, 'class' : this.parent.isSelected(this)?"active":""}, children : [this.label]};
+ithril_elements_Tab.__name__ = true;
+ithril_elements_Tab.__super__ = ithril_ComponentAbstract;
+ithril_elements_Tab.prototype = $extend(ithril_ComponentAbstract.prototype,{
+	labelView: function(selected,onclick) {
+		var tmp;
+		var f = onclick;
+		var a1 = this;
+		tmp = function() {
+			f(a1);
+		};
+		return { tag : "a", attrs : { onclick : tmp, 'class' : selected?"active":""}, children : [this.label]};
 	}
 	,view: function() {
 		return { tag : "div", attrs : { 'class' : "tab"}, children : [this.children]};
@@ -189,15 +206,15 @@ ithril_components_Tab.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	,setState: function(label) {
 		this.label = label;
 	}
-	,__class__: ithril_components_Tab
+	,__class__: ithril_elements_Tab
 });
-var ithril_components_Tabs = function() {
+var ithril_elements_Tabs = function() {
 	this.selected = 0;
 	ithril_ComponentAbstract.call(this);
 };
-ithril_components_Tabs.__name__ = true;
-ithril_components_Tabs.__super__ = ithril_ComponentAbstract;
-ithril_components_Tabs.prototype = $extend(ithril_ComponentAbstract.prototype,{
+ithril_elements_Tabs.__name__ = true;
+ithril_elements_Tabs.__super__ = ithril_ComponentAbstract;
+ithril_elements_Tabs.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	setSelected: function(tab) {
 		this.selected = this.children.indexOf(tab);
 	}
@@ -217,44 +234,69 @@ ithril_components_Tabs.prototype = $extend(ithril_ComponentAbstract.prototype,{
 		while(_g1 < _g2.length) {
 			var tab = _g2[_g1];
 			++_g1;
-			_g.push(tab.labelView());
+			_g.push(tab.labelView(this.isSelected(tab),$bind(this,this.setSelected)));
 		}
 		tmp1 = _g;
-		return { tag : "div", attrs : tmp, children : [{ tag : "nav", attrs : { }, children : [tmp1]},this.children[this.selected]]};
+		return { tag : "div", attrs : { 'class' : "ithril"}, children : [{ tag : "div", attrs : tmp, children : [{ tag : "nav", attrs : { }, children : [tmp1]},this.children[this.selected]]}]};
 	}
 	,setState: function(attrs) {
 		this.attrs = attrs;
 	}
-	,__class__: ithril_components_Tabs
+	,__class__: ithril_elements_Tabs
 });
-var ithril_components_Text = function() {
+var ithril_elements_Text = function() {
 	this.value = "";
 	ithril_ComponentAbstract.call(this);
 };
-ithril_components_Text.__name__ = true;
-ithril_components_Text.__super__ = ithril_ComponentAbstract;
-ithril_components_Text.prototype = $extend(ithril_ComponentAbstract.prototype,{
+ithril_elements_Text.__name__ = true;
+ithril_elements_Text.__super__ = ithril_ComponentAbstract;
+ithril_elements_Text.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	setState: function(options) {
 		this.options = options;
 	}
 	,setupMirror: function(el,isInitialized,ctx) {
+		var _g = this;
+		this.setHeight(el);
+		if(!isInitialized) {
+			var tmp;
+			var f = $bind(this,this.setHeight);
+			var a1 = el;
+			tmp = function() {
+				f(a1);
+			};
+			window.addEventListener("resize",tmp);
+			ctx.onunload = function() {
+				var tmp1;
+				var f1 = $bind(_g,_g.setHeight);
+				var a11 = el;
+				tmp1 = function() {
+					f1(a11);
+				};
+				window.removeEventListener("resize",tmp1);
+			};
+		}
+	}
+	,setHeight: function(mirror) {
+		var area = mirror.previousSibling;
+		mirror.style.width = area.offsetWidth + "px";
+		area.style.height = mirror.offsetHeight + "px";
 	}
 	,textarea: function() {
 		var _g = this;
 		return { tag : "div", attrs : { }, children : [{ tag : "textarea", attrs : { oninput : function(e) {
 			_g.value = e.target.value;
-		}}, children : [this.value]},{ tag : "div", attrs : { config : $bind(this,this.setupMirror), 'class' : "mirror"}, children : [this.value.split("\n").join("<br>")]}]};
+		}, 'class' : "field"}, children : [this.value]},{ tag : "div", attrs : { config : $bind(this,this.setupMirror), 'class' : "mirror"}, children : [new ithril_TrustedHTML(StringTools.htmlEscape(this.value).split("\n").join("<br>") + "<br>")]}]};
 	}
 	,input: function() {
 		var _g = this;
 		return { tag : "input", attrs : { oninput : function(e) {
 			_g.value = e.target.value;
-		}, value : this.value, type : "text"}, children : []};
+		}, value : this.value, 'class' : "field"}, children : []};
 	}
 	,view: function() {
-		return this.options.multiline?this.textarea():this.input();
+		return { tag : "div", attrs : { 'class' : "ithril"}, children : [this.options.multiline?this.textarea():this.input()]};
 	}
-	,__class__: ithril_components_Text
+	,__class__: ithril_elements_Text
 });
 var js_Boot = function() { };
 js_Boot.__name__ = true;
@@ -403,8 +445,8 @@ Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
 var __map_reserved = {}
-ithril_ComponentCache.componentInstances = new haxe_ds_StringMap();
-ithril_ComponentCache.componentCount = new haxe_ds_StringMap();
+ithril_component_ComponentCache.componentInstances = new haxe_ds_StringMap();
+ithril_component_ComponentCache.componentCount = new haxe_ds_StringMap();
 js_Boot.__toStr = {}.toString;
 Web.main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);

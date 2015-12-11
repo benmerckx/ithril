@@ -1,4 +1,4 @@
-package ithril;
+package ithril.component;
 
 import ithril.Component;
 
@@ -7,7 +7,7 @@ typedef Constructible = {
 }
 
 class ComponentCache {
-  static var componentInstances: Map<String, ComponentAbstract> = new Map();
+  static var componentInstances: Map<String, Component> = new Map();
   static var componentCount: Map<String, Int> = new Map();
   static var timeout: Null<Int> = null;
 
@@ -30,7 +30,7 @@ class ComponentCache {
     return key + id;
   }
 
-  static function setProps(instance: ComponentAbstract, children: Array<VirtualElement>, state: Array<Dynamic>) {
+  static function setProps(instance: Component, children: Array<VirtualElement>, state: Array<Dynamic>) {
     instance.setChildren(children);
     Reflect.callMethod(instance, (cast instance).setState, state);
   }
@@ -41,7 +41,7 @@ class ComponentCache {
     type: Class<T>,
     children: Array<VirtualElement>,
     state: Array<Dynamic>
-  ): ComponentAbstract {
+  ): Component {
     key = createKey(key, state);
 
     if (!componentInstances.exists(key))

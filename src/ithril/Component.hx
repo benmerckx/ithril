@@ -6,9 +6,10 @@ class Component<Rest> {}
 @:autoBuild(ithril.component.ComponentBuilder.build())
 @:allow(ithril.component.ComponentCache)
 class ComponentAbstract<State, Child: VirtualElement> implements Ithril {
+	public var state(default, null): State;
+	public var stateFields: Array<String> = [];
 	var children: Array<Child>;
 	var parent: Component = null;
-	public var state(default, null): State;
 
 	public function new() {}
 

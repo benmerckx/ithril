@@ -70,7 +70,8 @@ class ComponentBuilder {
   static public function build() {
     var fields = Context.getBuildFields();
     if (params.length > 0) {
-  	  var extra = buildFields(Context.follow(params[0]));
+      var stateType = Context.follow(params[0]);
+  	  var extra = buildFields(stateType);
   	  extra.map(function(field) {
     		if (!fields.exists(function(f) return f.name == field.name)) {
     		  fields.push(field);

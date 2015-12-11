@@ -35,20 +35,27 @@ class ComponentCache {
     Reflect.callMethod(instance, (cast instance).setState, state);
   }
 
+  static function getInstance<T>(
+    key: String,
+    type: Class<T>,
+    children: Array<VirtualElement>,
+    state: Array<Dynamic>,
+    create: Void -> T): T {
+      key = createKey(key, state);
+      if (!componentInstances.exists(key))
+        componentInstances.set(key, cast create());
+      var instance = componentInstances.get(key);
+      setProps(instance, children, state);
+      return cast instance;
+  }
+
   @:generic
   public static function getComponent<T: Constructible>(
     key: String,
     type: Class<T>,
     children: Array<VirtualElement>,
     state: Array<Dynamic>
-  ): Component {
-    key = createKey(key, state);
-
-    if (!componentInstances.exists(key))
-      componentInstances.set(key, cast new T());
-
-    var instance = componentInstances.get(key);
-    setProps(instance, children, state);
-    return instance;
+  ): T {
+    return getInstance(key, type, children, state, function() return new T());
   }
 }

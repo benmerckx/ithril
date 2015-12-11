@@ -106,55 +106,19 @@ ithril_TrustedHTML.prototype = {
 var ithril_component_ComponentCache = function() { };
 ithril_component_ComponentCache.__name__ = true;
 ithril_component_ComponentCache.getComponent_ithril_elements_Text = function(key,type,children,state) {
-	key = ithril_component_ComponentCache.createKey(key,state);
-	var tmp;
-	var _this = ithril_component_ComponentCache.componentInstances;
-	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
-	if(!tmp) {
-		var value = new ithril_elements_Text();
-		var _this1 = ithril_component_ComponentCache.componentInstances;
-		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
-	}
-	var tmp1;
-	var _this2 = ithril_component_ComponentCache.componentInstances;
-	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
-	var instance = tmp1;
-	ithril_component_ComponentCache.setProps(instance,children,state);
-	return instance;
+	return ithril_component_ComponentCache.getInstance(key,type,children,state,function() {
+		return new ithril_elements_Text();
+	});
 };
 ithril_component_ComponentCache.getComponent_ithril_elements_Tabs = function(key,type,children,state) {
-	key = ithril_component_ComponentCache.createKey(key,state);
-	var tmp;
-	var _this = ithril_component_ComponentCache.componentInstances;
-	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
-	if(!tmp) {
-		var value = new ithril_elements_Tabs();
-		var _this1 = ithril_component_ComponentCache.componentInstances;
-		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
-	}
-	var tmp1;
-	var _this2 = ithril_component_ComponentCache.componentInstances;
-	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
-	var instance = tmp1;
-	ithril_component_ComponentCache.setProps(instance,children,state);
-	return instance;
+	return ithril_component_ComponentCache.getInstance(key,type,children,state,function() {
+		return new ithril_elements_Tabs();
+	});
 };
 ithril_component_ComponentCache.getComponent_ithril_elements_Tab = function(key,type,children,state) {
-	key = ithril_component_ComponentCache.createKey(key,state);
-	var tmp;
-	var _this = ithril_component_ComponentCache.componentInstances;
-	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
-	if(!tmp) {
-		var value = new ithril_elements_Tab();
-		var _this1 = ithril_component_ComponentCache.componentInstances;
-		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
-	}
-	var tmp1;
-	var _this2 = ithril_component_ComponentCache.componentInstances;
-	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
-	var instance = tmp1;
-	ithril_component_ComponentCache.setProps(instance,children,state);
-	return instance;
+	return ithril_component_ComponentCache.getInstance(key,type,children,state,function() {
+		return new ithril_elements_Tab();
+	});
 };
 ithril_component_ComponentCache.createKey = function(key,state) {
 	var id = "";
@@ -184,6 +148,23 @@ ithril_component_ComponentCache.createKey = function(key,state) {
 ithril_component_ComponentCache.setProps = function(instance,children,state) {
 	instance.setChildren(children);
 	instance.setState.apply(instance,state);
+};
+ithril_component_ComponentCache.getInstance = function(key,type,children,state,create) {
+	key = ithril_component_ComponentCache.createKey(key,state);
+	var tmp;
+	var _this = ithril_component_ComponentCache.componentInstances;
+	if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
+	if(!tmp) {
+		var value = create();
+		var _this1 = ithril_component_ComponentCache.componentInstances;
+		if(__map_reserved[key] != null) _this1.setReserved(key,value); else _this1.h[key] = value;
+	}
+	var tmp1;
+	var _this2 = ithril_component_ComponentCache.componentInstances;
+	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
+	var instance = tmp1;
+	ithril_component_ComponentCache.setProps(instance,children,state);
+	return instance;
 };
 var ithril_elements_Tab = function() {
 	ithril_ComponentAbstract.call(this);

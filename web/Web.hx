@@ -35,7 +35,7 @@ class Web extends Component {
 				(a, {onclick: function() tabs.push(tabs.length + 1)}, 'Add tab')
 				(div)
 					(h1, {}, inputValue)
-					(Text, {oninput: function(e) inputValue = e.target.value, value: inputValue, multiline: true})
+					(Text, {oninput: function(e) inputValue = e.field.value, value: inputValue, multiline: true})
 		;
 	}
 

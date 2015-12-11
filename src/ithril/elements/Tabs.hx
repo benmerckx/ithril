@@ -6,10 +6,10 @@ typedef TabEvents = {
 	select: Tab -> Void
 }
 
-class Tab extends Component<{label: String}> {
+class Tab extends Component<String> {
 	public function labelView(selected, onclick: Tab -> Void) {
 		return ithril
-			(a, {onclick: onclick.bind(this), 'class': selected?'active':''}, label)
+			(a, {onclick: onclick.bind(this), 'class': selected?'active':''}, state)
 		;
 	}
 
@@ -21,7 +21,7 @@ class Tab extends Component<{label: String}> {
 	}
 }
 
-class Tabs extends Component<{?attrs: Dynamic}, Tab> {
+class Tabs extends Component<Dynamic, Tab> {
 	var selected = 0;
 
 	public function setSelected(tab: Tab) {
@@ -33,10 +33,10 @@ class Tabs extends Component<{?attrs: Dynamic}, Tab> {
 	}
 
 	public function view() {
-		if (attrs == null) attrs = {};
+		if (state == null) state = {};
 		return ithril
 			(div.ithril)
-				(div.tabs, attrs)
+				(div.tabs, state)
 					(nav)
 						[for (tab in children) tab.labelView(isSelected(tab), setSelected)]
 					[children[selected]]

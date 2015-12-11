@@ -1,4 +1,5 @@
 (function ($global) { "use strict";
+var $estr = function() { return js_Boot.__string_rec(this,''); };
 function $extend(from, fields) {
 	function Inherit() {} Inherit.prototype = from; var proto = new Inherit();
 	for (var name in fields) proto[name] = fields[name];
@@ -15,6 +16,15 @@ HxOverrides.iter = function(a) {
 	}};
 };
 Math.__name__ = true;
+var Reflect = function() { };
+Reflect.__name__ = true;
+Reflect.field = function(o,field) {
+	try {
+		return o[field];
+	} catch( e ) {
+		return null;
+	}
+};
 var Std = function() { };
 Std.__name__ = true;
 Std.string = function(s) {
@@ -30,7 +40,10 @@ var ithril_ComponentAbstract = function() {
 };
 ithril_ComponentAbstract.__name__ = true;
 ithril_ComponentAbstract.prototype = {
-	setChildren: function(children) {
+	setState: function(state) {
+		this.state = state;
+	}
+	,setChildren: function(children) {
 		var _g = this;
 		if(children.length == 1 && ((children instanceof Array) && children.__enum__ == null)) children = children[0];
 		this.children = children;
@@ -57,20 +70,77 @@ Web.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	,body: function() {
 		var _g = this;
 		var tmp;
+		var tmp3;
+		var tmp8 = ithril_component_ComponentCache.getComponent_ithril_elements_Tab("a9ded0a8a82de85494c5a3e39c8ff2bc",ithril_elements_Tab,["Tab 1"],"Tab label");
+		tmp8.setChildren(["Tab 1"]);
+		tmp8.setState("Tab label");
+		tmp3 = tmp8;
+		var tmp4;
+		var tmp9 = ithril_component_ComponentCache.getComponent_ithril_elements_Tab("995eacc7873124e28de6b5106bd328d2",ithril_elements_Tab,["Tab 2"],"Tab label 2");
+		tmp9.setChildren(["Tab 2"]);
+		tmp9.setState("Tab label 2");
+		tmp4 = tmp9;
+		var tmp5 = ithril_component_ComponentCache.getComponent_ithril_elements_Tabs("521277084a8d7cb0794135abf767cfdc",ithril_elements_Tabs,[tmp3,tmp4],{ });
+		var tmp6;
+		var tmp10 = ithril_component_ComponentCache.getComponent_ithril_elements_Tab("a9ded0a8a82de85494c5a3e39c8ff2bc",ithril_elements_Tab,["Tab 1"],"Tab label");
+		tmp10.setChildren(["Tab 1"]);
+		tmp10.setState("Tab label");
+		tmp6 = tmp10;
+		var tmp7;
+		var tmp11 = ithril_component_ComponentCache.getComponent_ithril_elements_Tab("995eacc7873124e28de6b5106bd328d2",ithril_elements_Tab,["Tab 2"],"Tab label 2");
+		tmp11.setChildren(["Tab 2"]);
+		tmp11.setState("Tab label 2");
+		tmp7 = tmp11;
+		tmp5.setChildren([tmp6,tmp7]);
+		tmp5.setState({ });
+		tmp = tmp5;
+		var tmp1;
+		var tmp12;
 		var _g1 = [];
 		var _g11 = 0;
 		var _g2 = this.tabs;
 		while(_g11 < _g2.length) {
 			var i = _g2[_g11];
 			++_g11;
-			_g1.push(ithril_component_ComponentCache.getComponent_ithril_elements_Tab("78dfa01db7d14ae3d05ae0fb6338aa4f",ithril_elements_Tab,["Content " + i],["Label " + i]));
+			var tmp15;
+			var tmp16 = ithril_component_ComponentCache.getComponent_ithril_elements_Tab("78dfa01db7d14ae3d05ae0fb6338aa4f",ithril_elements_Tab,["Content " + i],"Label " + i);
+			tmp16.setChildren(["Content " + i]);
+			tmp16.setState("Label " + i);
+			tmp15 = tmp16;
+			_g1.push(tmp15);
 		}
-		tmp = _g1;
-		return { tag : "div", attrs : { 'class' : "tabs-example"}, children : [ithril_component_ComponentCache.getComponent_ithril_elements_Tabs("521277084a8d7cb0794135abf767cfdc",ithril_elements_Tabs,[ithril_component_ComponentCache.getComponent_ithril_elements_Tab("a9ded0a8a82de85494c5a3e39c8ff2bc",ithril_elements_Tab,["Tab 1"],["Tab label"]),ithril_component_ComponentCache.getComponent_ithril_elements_Tab("995eacc7873124e28de6b5106bd328d2",ithril_elements_Tab,["Tab 2"],["Tab label 2"])],[]),ithril_component_ComponentCache.getComponent_ithril_elements_Tabs("d84b9ad88b134ff93cbd77d5c9295b00",ithril_elements_Tabs,[tmp],[]),{ tag : "a", attrs : { onclick : function() {
+		tmp12 = _g1;
+		var tmp13 = ithril_component_ComponentCache.getComponent_ithril_elements_Tabs("d84b9ad88b134ff93cbd77d5c9295b00",ithril_elements_Tabs,[tmp12],{ });
+		var tmp14;
+		var _g12 = [];
+		var _g21 = 0;
+		var _g3 = this.tabs;
+		while(_g21 < _g3.length) {
+			var i1 = _g3[_g21];
+			++_g21;
+			var tmp17;
+			var tmp18 = ithril_component_ComponentCache.getComponent_ithril_elements_Tab("78dfa01db7d14ae3d05ae0fb6338aa4f",ithril_elements_Tab,["Content " + i1],"Label " + i1);
+			tmp18.setChildren(["Content " + i1]);
+			tmp18.setState("Label " + i1);
+			tmp17 = tmp18;
+			_g12.push(tmp17);
+		}
+		tmp14 = _g12;
+		tmp13.setChildren([tmp14]);
+		tmp13.setState({ });
+		tmp1 = tmp13;
+		var tmp2;
+		var tmp19 = ithril_component_ComponentCache.getComponent_ithril_elements_Text("5eaa1e32a01156585ac9da8a1e265401",ithril_elements_Text,[],{ oninput : function(e) {
+			_g.inputValue = e.field.value;
+		}, value : this.inputValue, multiline : true});
+		tmp19.setChildren([]);
+		tmp19.setState({ oninput : function(e1) {
+			_g.inputValue = e1.field.get_value();
+		}, value : this.inputValue, multiline : true});
+		tmp2 = tmp19;
+		return { tag : "div", attrs : { 'class' : "tabs-example"}, children : [tmp,tmp1,{ tag : "a", attrs : { onclick : function() {
 			_g.tabs.push(_g.tabs.length + 1);
-		}}, children : ["Add tab"]},{ tag : "div", attrs : { }, children : [{ tag : "h1", attrs : { }, children : [this.inputValue]},ithril_component_ComponentCache.getComponent_ithril_elements_Text("5eaa1e32a01156585ac9da8a1e265401",ithril_elements_Text,[],[{ oninput : function(e) {
-			_g.inputValue = e.target.value;
-		}, value : this.inputValue, multiline : true}])]}]};
+		}}, children : ["Add tab"]},{ tag : "div", attrs : { }, children : [{ tag : "h1", attrs : { }, children : [this.inputValue]},tmp2]}]};
 	}
 	,__class__: Web
 });
@@ -106,23 +176,23 @@ ithril_TrustedHTML.prototype = {
 var ithril_component_ComponentCache = function() { };
 ithril_component_ComponentCache.__name__ = true;
 ithril_component_ComponentCache.getComponent_ithril_elements_Text = function(key,type,children,state) {
-	return ithril_component_ComponentCache.getInstance(key,type,children,state,function() {
+	return ithril_component_ComponentCache.getInstance(key,children,state,function() {
 		return new ithril_elements_Text();
 	});
 };
 ithril_component_ComponentCache.getComponent_ithril_elements_Tabs = function(key,type,children,state) {
-	return ithril_component_ComponentCache.getInstance(key,type,children,state,function() {
+	return ithril_component_ComponentCache.getInstance(key,children,state,function() {
 		return new ithril_elements_Tabs();
 	});
 };
 ithril_component_ComponentCache.getComponent_ithril_elements_Tab = function(key,type,children,state) {
-	return ithril_component_ComponentCache.getInstance(key,type,children,state,function() {
+	return ithril_component_ComponentCache.getInstance(key,children,state,function() {
 		return new ithril_elements_Tab();
 	});
 };
 ithril_component_ComponentCache.createKey = function(key,state) {
 	var id = "";
-	if(state.length > 0 && Object.prototype.hasOwnProperty.call(state[0],"key")) id = "__key__" + Std.string(state[0].key); else {
+	if(Object.prototype.hasOwnProperty.call(state,"key")) id = "__key__" + Std.string(Reflect.field(state,"key")); else {
 		var tmp;
 		var _this = ithril_component_ComponentCache.componentCount;
 		if(__map_reserved[key] != null) tmp = _this.existsReserved(key); else tmp = _this.h.hasOwnProperty(key);
@@ -145,11 +215,7 @@ ithril_component_ComponentCache.createKey = function(key,state) {
 	}
 	return key + id;
 };
-ithril_component_ComponentCache.setProps = function(instance,children,state) {
-	instance.setChildren(children);
-	instance.setState.apply(instance,state);
-};
-ithril_component_ComponentCache.getInstance = function(key,type,children,state,create) {
+ithril_component_ComponentCache.getInstance = function(key,children,state,create) {
 	key = ithril_component_ComponentCache.createKey(key,state);
 	var tmp;
 	var _this = ithril_component_ComponentCache.componentInstances;
@@ -163,9 +229,57 @@ ithril_component_ComponentCache.getInstance = function(key,type,children,state,c
 	var _this2 = ithril_component_ComponentCache.componentInstances;
 	if(__map_reserved[key] != null) tmp1 = _this2.getReserved(key); else tmp1 = _this2.h[key];
 	var instance = tmp1;
-	ithril_component_ComponentCache.setProps(instance,children,state);
 	return instance;
 };
+var ithril_elements_FieldEventType = { __ename__ : true, __constructs__ : ["Change","Input","Focus","Blur"] };
+ithril_elements_FieldEventType.Change = ["Change",0];
+ithril_elements_FieldEventType.Change.toString = $estr;
+ithril_elements_FieldEventType.Change.__enum__ = ithril_elements_FieldEventType;
+ithril_elements_FieldEventType.Input = ["Input",1];
+ithril_elements_FieldEventType.Input.toString = $estr;
+ithril_elements_FieldEventType.Input.__enum__ = ithril_elements_FieldEventType;
+ithril_elements_FieldEventType.Focus = ["Focus",2];
+ithril_elements_FieldEventType.Focus.toString = $estr;
+ithril_elements_FieldEventType.Focus.__enum__ = ithril_elements_FieldEventType;
+ithril_elements_FieldEventType.Blur = ["Blur",3];
+ithril_elements_FieldEventType.Blur.toString = $estr;
+ithril_elements_FieldEventType.Blur.__enum__ = ithril_elements_FieldEventType;
+var ithril_elements_Field = function() {
+	ithril_ComponentAbstract.call(this);
+};
+ithril_elements_Field.__name__ = true;
+ithril_elements_Field.__super__ = ithril_ComponentAbstract;
+ithril_elements_Field.prototype = $extend(ithril_ComponentAbstract.prototype,{
+	get_value: function() {
+		return this.value;
+	}
+	,set_value: function(value) {
+		return this.value = value;
+	}
+	,forwardListeners: function(attrs) {
+		var _g = this;
+		attrs.onchange = function(e) {
+			_g.set_value(e.target.value);
+			if(_g.state.onchange != null) _g.state.onchange({ type : ithril_elements_FieldEventType.Change, field : _g});
+		};
+		attrs.oninput = function(e1) {
+			_g.set_value(e1.target.value);
+			if(_g.state.oninput != null) _g.state.oninput({ type : ithril_elements_FieldEventType.Input, field : _g});
+		};
+		attrs.onfocus = function(e2) {
+			if(_g.state.onfocus != null) _g.state.onfocus({ type : ithril_elements_FieldEventType.Focus, field : _g});
+		};
+		attrs.onblur = function(e3) {
+			if(_g.state.onblur != null) _g.state.onblur({ type : ithril_elements_FieldEventType.Blur, field : _g});
+		};
+		return attrs;
+	}
+	,setState: function(state) {
+		ithril_ComponentAbstract.prototype.setState.call(this,state);
+		this.set_value(state.value);
+	}
+	,__class__: ithril_elements_Field
+});
 var ithril_elements_Tab = function() {
 	ithril_ComponentAbstract.call(this);
 };
@@ -179,13 +293,10 @@ ithril_elements_Tab.prototype = $extend(ithril_ComponentAbstract.prototype,{
 		tmp = function() {
 			f(a1);
 		};
-		return { tag : "a", attrs : { onclick : tmp, 'class' : selected?"active":""}, children : [this.label]};
+		return { tag : "a", attrs : { onclick : tmp, 'class' : selected?"active":""}, children : [this.state]};
 	}
 	,view: function() {
 		return { tag : "div", attrs : { 'class' : "tab"}, children : [this.children]};
-	}
-	,setState: function(label) {
-		this.label = label;
 	}
 	,__class__: ithril_elements_Tab
 });
@@ -203,9 +314,9 @@ ithril_elements_Tabs.prototype = $extend(ithril_ComponentAbstract.prototype,{
 		return this.children.indexOf(tab) == this.selected;
 	}
 	,view: function() {
-		if(this.attrs == null) this.attrs = { };
+		if(this.state == null) this.state = { };
 		var tmp;
-		var t = this.attrs;
+		var t = this.state;
 		t["class"] = "tabs";
 		tmp = t;
 		var tmp1;
@@ -220,22 +331,15 @@ ithril_elements_Tabs.prototype = $extend(ithril_ComponentAbstract.prototype,{
 		tmp1 = _g;
 		return { tag : "div", attrs : { 'class' : "ithril"}, children : [{ tag : "div", attrs : tmp, children : [{ tag : "nav", attrs : { }, children : [tmp1]},this.children[this.selected]]}]};
 	}
-	,setState: function(attrs) {
-		this.attrs = attrs;
-	}
 	,__class__: ithril_elements_Tabs
 });
 var ithril_elements_Text = function() {
-	this.value = "";
-	ithril_ComponentAbstract.call(this);
+	ithril_elements_Field.call(this);
 };
 ithril_elements_Text.__name__ = true;
-ithril_elements_Text.__super__ = ithril_ComponentAbstract;
-ithril_elements_Text.prototype = $extend(ithril_ComponentAbstract.prototype,{
-	setState: function(options) {
-		this.options = options;
-	}
-	,setupMirror: function(el,isInitialized,ctx) {
+ithril_elements_Text.__super__ = ithril_elements_Field;
+ithril_elements_Text.prototype = $extend(ithril_elements_Field.prototype,{
+	setupMirror: function(el,isInitialized,ctx) {
 		var _g = this;
 		this.setHeight(el);
 		if(!isInitialized) {
@@ -263,19 +367,21 @@ ithril_elements_Text.prototype = $extend(ithril_ComponentAbstract.prototype,{
 		area.style.height = mirror.offsetHeight + "px";
 	}
 	,textarea: function() {
-		var _g = this;
-		return { tag : "div", attrs : { }, children : [{ tag : "textarea", attrs : { oninput : function(e) {
-			_g.value = e.target.value;
-		}, 'class' : "field"}, children : [this.value]},{ tag : "div", attrs : { config : $bind(this,this.setupMirror), 'class' : "mirror"}, children : [new ithril_TrustedHTML(StringTools.htmlEscape(this.value).split("\n").join("<br>") + "<br>")]}]};
+		var tmp;
+		var t = this.forwardListeners({ });
+		t["class"] = "field";
+		tmp = t;
+		return { tag : "div", attrs : { }, children : [{ tag : "textarea", attrs : tmp, children : [this.get_value()]},{ tag : "div", attrs : { config : $bind(this,this.setupMirror), 'class' : "mirror"}, children : [new ithril_TrustedHTML(StringTools.htmlEscape(this.get_value()).split("\n").join("<br>") + "<br>")]}]};
 	}
 	,input: function() {
-		var _g = this;
-		return { tag : "input", attrs : { oninput : function(e) {
-			_g.value = e.target.value;
-		}, value : this.value, 'class' : "field"}, children : []};
+		var tmp;
+		var t = this.forwardListeners({ value : this.get_value()});
+		t["class"] = "field";
+		tmp = t;
+		return { tag : "input", attrs : tmp, children : []};
 	}
 	,view: function() {
-		return { tag : "div", attrs : { 'class' : "ithril"}, children : [this.options.multiline?this.textarea():this.input()]};
+		return { tag : "div", attrs : { 'class' : "ithril"}, children : [this.state.multiline?this.textarea():this.input()]};
 	}
 	,__class__: ithril_elements_Text
 });

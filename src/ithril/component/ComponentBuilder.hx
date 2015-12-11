@@ -17,7 +17,7 @@ class ComponentBuilder {
     switch (Context.getLocalType()) {
       case TInst(cl, paramList):
           params = paramList;
-          if (params.length == 1)
+          if (params.length > 0)
             state = TypeTools.toComplexType(params[0]);
           if (params.length > 1)
             children = TypeTools.toComplexType(params[1]);
@@ -32,36 +32,12 @@ class ComponentBuilder {
     });
   }
 
-  static function buildFields(param: Type) {
+  static function stateFields(param: Type): Array<String> {
     switch (param) {
       case TAnonymous(_.get() => (a = _)):
-        var fields = a.fields.map(TypeTools.toField);
-        var setters = a.fields.map(function(field) {
-          return macro {$p{['this', field.name]} = $i{field.name};};
+        return a.fields.map(function(field) {
+          return field.name;
         });
-        fields.push({
-          pos: Context.currentPos(),
-          name: 'setState',
-          meta: [{
-            pos: Context.currentPos(),
-            params: null,
-            name: ':keep'
-          }],
-          kind: FFun({
-            ret: TPath({sub: null, name: "Void", pack:[], params:[]}),
-            params: null,
-            expr: macro $b{setters},
-            args: a.fields.map(function(field) return {
-              value: null,
-              type: TypeTools.toComplexType(field.type),
-              opt: false,
-              name: field.name
-            })
-          }),
-          doc: null,
-          access: [APublic]
-        });
-        return fields;
       default:
         return [];
     }
@@ -71,13 +47,12 @@ class ComponentBuilder {
     var fields = Context.getBuildFields();
     if (params.length > 0) {
       var stateType = Context.follow(params[0]);
-  	  var extra = buildFields(stateType);
-  	  extra.map(function(field) {
-    		if (!fields.exists(function(f) return f.name == field.name)) {
-    		  fields.push(field);
-    		}
-  	  });
-      //fields = fields.concat(buildFields(Context.follow(params[0])));
+  	  var fieldNames = stateFields(stateType);
+      fields.map(function(field) {
+        if (field.name == 'stateFields') {
+          field.kind = FVar(macro: Array<String>, macro $v{fieldNames});
+        }
+      });
     }
     fields.map(function(field) {
       if (field.name == 'view' || field.name == 'controller' || field.name == 'setState' || field.name == 'setChildren') {

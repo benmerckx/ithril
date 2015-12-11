@@ -1,30 +1,14 @@
 package ithril.elements;
 
 import ithril.Component;
-
-typedef InputEvent = {
-  field: Text
-}
-
-typedef InputAttributes = {
-  ?onchange: InputEvent -> Void,
-  ?key: String
-}
+import ithril.elements.Field;
 
 typedef TextOptions = {
-	>InputAttributes,
-	?multiline: Bool,
-	?value: String
+	>FieldOptions<Text, String>,
+	?multiline: Bool
 }
 
-class Text extends Component<{?options: TextOptions}> {
-  var value: String = '';
-
-  public function setState(options: TextOptions) {
-    //if (options.value != null) value = options.value;
-    this.options = options;
-  }
-
+class Text extends Field<TextOptions, String> {
   function setupMirror(el, isInitialized, ctx) {
     #if js
     setHeight(el);
@@ -44,21 +28,21 @@ class Text extends Component<{?options: TextOptions}> {
   function textarea() {
     return ithril
       (div)
-        (textarea.field, {oninput: function(e) value = e.target.value}, value)
+        (textarea.field, forwardListeners({}), value)
         (div.mirror, {config: setupMirror}, new TrustedHTML(StringTools.htmlEscape(value).split("\n").join('<br>')+'<br>'))
     ;
   }
 
   function input() {
     return ithril
-      (input.field, {oninput: function(e) value = e.target.value, value: value})
+      (input.field, forwardListeners({value: value}))
     ;
   }
 
   public function view() {
     return ithril
       (div.ithril)
-        [options.multiline ? textarea() : input()]
+        [state.multiline ? textarea() : input()]
     ;
   }
 }

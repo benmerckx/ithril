@@ -13,7 +13,11 @@ class ComponentAbstract<State, Child: VirtualElement> implements Ithril {
 
 	public function new() {}
 
-	function setChildren(children: Array<Child>) {
+	public function setState(state: State) {
+		this.state = state;
+	}
+
+	public function setChildren(children: Array<Child>) {
 		if (children.length == 1 && Std.is(children[0], Array)) {
 			children = untyped children[0];
 		}

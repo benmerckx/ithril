@@ -2,8 +2,9 @@ package ithril.component;
 
 import ithril.Component;
 
-typedef Constructible = {
+typedef ComponentType = {
   public function new():Void;
+  //public var state(default, null): S;
 }
 
 class ComponentCache {
@@ -11,10 +12,10 @@ class ComponentCache {
   static var componentCount: Map<String, Int> = new Map();
   static var timeout: Null<Int> = null;
 
-  static function createKey(key: String, state: Array<Dynamic>) {
+  static function createKey<S: Dynamic>(key: String, state: S) {
     var id = '';
-    if (state.length > 0 && Reflect.hasField(state[0], 'key')) {
-      id = '__key__'+state[0].key;
+    if (Reflect.hasField(state, 'key')) {
+      id = '__key__'+Reflect.field(state, 'key');
     } else {
       var count = componentCount.exists(key) ? componentCount.get(key) : 0;
       componentCount.set(key, count+1);
@@ -30,32 +31,27 @@ class ComponentCache {
     return key + id;
   }
 
-  static function setProps(instance: Component, children: Array<VirtualElement>, state: Array<Dynamic>) {
-    instance.setChildren(children);
-    Reflect.callMethod(instance, (cast instance).setState, state);
-  }
-
   static function getInstance<T>(
     key: String,
-    type: Class<T>,
     children: Array<VirtualElement>,
-    state: Array<Dynamic>,
+    state: Dynamic,
     create: Void -> T): T {
       key = createKey(key, state);
       if (!componentInstances.exists(key))
         componentInstances.set(key, cast create());
-      var instance = componentInstances.get(key);
-      setProps(instance, children, state);
-      return cast instance;
+      var instance: T = cast componentInstances.get(key);
+      //instance.setChildren(children);
+      //instance.setState(state);
+      return instance;
   }
 
   @:generic
-  public static function getComponent<T: Constructible>(
+  public static function getComponent<T: ComponentType>(
     key: String,
     type: Class<T>,
     children: Array<VirtualElement>,
-    state: Array<Dynamic>
+    state: Dynamic
   ): T {
-    return getInstance(key, type, children, state, function() return new T());
+    return getInstance(key, children, state, function() return new T());
   }
 }

@@ -1,36 +1,28 @@
-#Ithril
+# ithril
 
 [![Build Status](https://travis-ci.org/benmerckx/ithril.svg?branch=master)](https://travis-ci.org/benmerckx/ithril)
 
-Simple template syntax for mithril views.
-It's aware of indentation so you don't have to close tags. 
-You can use the same kind of selectors as in mithril, except for ids (since using # would not be valid haxe syntax, these are replaced with +):
-Normal expressions can be used in attribute values and inline by using brackets. Inline for and while loops only need one set of brackets.
+Templates for haxe. Compiles to HTML or [Mithril](https://github.com/ciscoheat/mithril-hx) views.
 
-## Example
-
-You need to implement `ithril.Ithril` for the macros to do their work.
+Implement `ithril.Ithril` for the macros to do their work.
 
 ```haxe
-function () {
-	return ithril
-		(div.class-name)
-			['Any expression can be used here']
-		(div+id)
-			(ul)
-				(li, {}, 'Some')
-				(li, {}, 'List items')
-			(ul.another-list)
-				[for (item in list) ithril(li, {}, item.title)]
-			(form)
-				(input[type="text"], {value: "Text value"})
-				(input[type="checkbox"], {checked: true})
-		(footer)
-			['More information will be following']
-	;
-}
+function () [
+  (div.class-name)
+    ['Any expression can be used here']
+  (div+id)
+    (ul)
+      (li > 'Some')
+      (li > 'List items')
+    (ul.another-list)
+      (list => item)
+        (li > item.title)
+    (form)
+      (input[type="text"] (value = "Text value", onfocus = focus))
+      (input[type="checkbox"])
+];
 ```
 
-##Output
+## Output
 
-Everything gets compiled to simple objects, using [this notation](http://lhorie.github.io/mithril/optimizing-performance.html#compiling-templates) so it can be used with mithril, but might also be used to turn that into html or even react templates in the future.
+Everything gets compiled to simple objects, using [this notation](http://lhorie.github.io/mithril/optimizing-performance.html#compiling-templates) so the output can directly be used with Mithril. Use `HTMLRenderer.render` to render the output to a string.

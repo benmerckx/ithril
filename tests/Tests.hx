@@ -12,56 +12,56 @@ class CustomElement extends Component {
 		this.attr = attr == null ? {} : attr;
 	}
 	
-	public function view() {
-		return ithril(div, attr);
-	}
+	public function view() [
+		(div (attr))
+	];
 }
 
 class TestHTMLRenderer extends TestCase implements Ithril {
 	
 	public function testBasic() {
-		assertEquals('<div></div>', HTMLRenderer.render(ithril(div)));
+		assertEquals('<div></div>', HTMLRenderer.render([(div)]));
 	}
 	
 	public function testAttributes() {
-		assertEquals('<div attr="test"></div>', HTMLRenderer.render(ithril(div, {attr: 'test'})));
+		assertEquals('<div attr="test"></div>', HTMLRenderer.render([(div (attr = 'test'))]));
 	}
 	
 	public function testStyleAttribute() {
-		assertEquals('<div style="param2:test;param:value"></div>', HTMLRenderer.render(ithril(div, {style: {param: 'value', param2: 'test'}})));
-		assertEquals('<div style="param:value"></div>', HTMLRenderer.render(ithril(div, {style: 'param:value'})));
-		assertEquals('<div style="background-color:white"></div>', HTMLRenderer.render(ithril(div, {style: {backgroundColor: 'white'}})));
+		assertEquals('<div style="param2:test;param:value"></div>', HTMLRenderer.render([(div (style = {param: 'value', param2: 'test'}))]));
+		assertEquals('<div style="param:value"></div>', HTMLRenderer.render([(div (style = 'param:value'))]));
+		assertEquals('<div style="background-color:white"></div>', HTMLRenderer.render([(div (style = {backgroundColor: 'white'}))]));
 	}
 	
 	public function testChildren() {
-		assertEquals('<div><div></div><div><div></div></div></div>', HTMLRenderer.render(ithril
+		assertEquals('<div><div></div><div><div></div></div></div>', HTMLRenderer.render([
 			(div)
 				(div)
 				(div)
 					(div)
-		));
+		]));
 	}
 	
 	public function testTextnode() {
-		assertEquals('<div>Test</div>', HTMLRenderer.render(ithril(div, {}, 'Test')));
+		assertEquals('<div>Test</div>', HTMLRenderer.render([(div > 'Test')]));
 	}
 	
 	public function testEscape() {
-		assertEquals('<div attr="&lt;" style="param:&lt;">&lt;</div>', HTMLRenderer.render(ithril(div, {attr: '<', style: {param: '<'}}, '<')));
+		assertEquals('<div attr="&lt;" style="param:&lt;">&lt;</div>', HTMLRenderer.render([(div (attr = '<', style = {param: '<'}) > '<')]));
 	}
 }
 
 class TestIthil extends TestCase implements Ithril {
 	
 	public function testBasic() {
-		assert({tag: 'div', attrs: {}, children: []}, ithril(div));
+		assert({tag: 'div', attrs: {}, children: []}, [(div)]);
 	}
 	
 	public function testClassname() {
-		assert({tag: 'div', attrs: {'class': 'test'}, children: []}, ithril(div.test));
-		assert({tag: 'div', attrs: {'class': 'test second'}, children: []}, ithril(div.test.second));
-		assert({tag: 'div', attrs: {'class': 'test-with-hyphen'}, children: []}, ithril(div.test-with-hyphen));
-		assert({tag: 'div', attrs: {'class': ['c1', 'c2']}, children: []}, ithril(div, {'class': ['c1', 'c2']}));
+		assert({tag: 'div', attrs: {'class': 'test'}, children: []}, [(div.test)]);
+		assert({tag: 'div', attrs: {'class': 'test second'}, children: []}, [(div.test.second)]);
+		assert({tag: 'div', attrs: {'class': 'test-with-hyphen'}, children: []}, [(div.test-with-hyphen)]);
+		assert({tag: 'div', attrs: {'class': ['c1', 'c2']}, children: []}, [(div ('class' = ['c1', 'c2']))]);
 		
 		/**
 		 * To fix
@@ -74,38 +74,38 @@ class TestIthil extends TestCase implements Ithril {
 	}
 	
 	public function testId() {
-		assert({tag: 'div', attrs: {'id': 'test'}, children: []}, ithril(div+test));
-		assert({tag: 'div', attrs: {'id': 'test-with-hyphen'}, children: []}, ithril(div+test-with-hyphen));
+		assert({tag: 'div', attrs: {'id': 'test'}, children: []}, [(div+test)]);
+		assert({tag: 'div', attrs: {'id': 'test-with-hyphen'}, children: []}, [(div+test-with-hyphen)]);
 	}
 	
 	public function testChildren() {
-		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}, ithril
+		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}, [
 			(div)
 				(div)
-		);
+		]);
 		
-		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}]}, ithril
+		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}]}, [
 			(div)
 				(div)
 					(div)
-		);
+		]);
 		
-		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}, ithril
+		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}, [
 			(div)
 				(div)(div)
-		);
+		]);
 		
-		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}, ithril
+		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}, [
 			(div)
 				(div)
 				(div)
-		);
+		]);
 		
-		assert(([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}, {tag: 'div', attrs: {}, children: []}]: Dynamic), ithril
+		assert(([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}, {tag: 'div', attrs: {}, children: []}]: Dynamic), [
 			(div)
 				(div)
 			(div)
-		);
+		]);
 		
 		/* To fix
 		 
@@ -116,17 +116,17 @@ class TestIthil extends TestCase implements Ithril {
 	}
 	
 	public function testAttribute() {
-		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, ithril(div[attr='test']));
-		assert({tag: 'div', attrs: {attr: 'test', second: 'test'}, children: []}, ithril(div[attr='test'][second='test']));
+		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, [(div[attr='test'])]);
+		assert({tag: 'div', attrs: {attr: 'test', second: 'test'}, children: []}, [(div[attr='test'][second='test'])]);
 	}
 	
 	public function testCombination() {
-		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: []}, ithril(div[attr='test'].test+test));
-		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}, children: []}, ithril(div[attr='test'].test+test[attr2='test']));
+		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: []}, [(div[attr='test'].test+test)]);
+		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}, children: []}, [(div[attr='test'].test+test[attr2='test'])]);
 	}
 	
 	public function testTextnode() {
-		assert({tag: 'div', attrs: {}, children: ['Test']}, ithril(div, {}, 'Test'));
+		assert({tag: 'div', attrs: {}, children: ['Test']}, [(div > 'Test')]);
 		/*assert({tag: 'div', attrs: {}, children: (['Test', {tag: 'div', attrs: {}, children: []}, Array<Dynamic>)}, ithril
 			(div, {}, 'Test')
 				(div)
@@ -135,34 +135,34 @@ class TestIthil extends TestCase implements Ithril {
 	
 	public function testAddToExistingAttributes() {
 		var expected = {tag: 'div', attrs: {attr: 'test', id: 'test', 'class': 'test'}, children: []};
-		assert(expected, ithril(div.test+test, {attr: 'test'}));
-		assert(expected, ithril(div.test+test, 
-			(function(): Dynamic {
+		//assert(expected, [(div.test+test (attr ='test'))]);
+		assert(expected, [(div.test+test  
+			((function(): Dynamic {
 				return {
 					attr: 'test'
 				}
-			})()
-		));
+			})())
+		)]);
 	}
 	
 	public function testInlineExpression() {
-		assert({tag: 'div', attrs: {}, children: ['Test']}, ithril
+		assert({tag: 'div', attrs: {}, children: ['Test']}, [
 			(div)
 				['Test']
-		);
+		]);
 	}
 	
 	public function testInlineLoops() {
 		var items = ['a', 'b', 'c'];
-		assert({tag: 'div', attrs: {}, children: [items]}, ithril
+		assert({tag: 'div', attrs: {}, children: [items]}, [
 			(div)
 				[for (i in items) i]
-		);
-		assert({tag: 'div', attrs: {}, children: ([items, {tag: 'div', attrs: {}, children: []}]: Array<Dynamic>)}, ithril
+		]);
+		assert({tag: 'div', attrs: {}, children: ([items, {tag: 'div', attrs: {}, children: []}]: Array<Dynamic>)}, [
 			(div)
 				[for (i in items) i]
 				(div)
-		);
+		]);
 	}
 	
 	/*public function testCustomElement() {

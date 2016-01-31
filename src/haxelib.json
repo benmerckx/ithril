@@ -7,5 +7,7 @@
   "version": "0.1.0",
   "releasenote": "No more type check on second argument",
   "contributors": ["benmerckx"],
-  "dependencies": {}
+  "dependencies": {
+	"tink_macro": "",
+  }
 }

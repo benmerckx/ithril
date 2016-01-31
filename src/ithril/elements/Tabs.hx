@@ -7,21 +7,17 @@ typedef TabEvents = {
 }
 
 class Tab extends Component<String> {
-	public function labelView(selected, onclick: Tab -> Void) {
-		return ithril
-			(a, {onclick: onclick.bind(this), 'class': selected?'active':''}, state)
-		;
-	}
+	public function labelView(selected, onclick: Tab -> Void) [
+		(a (onclick =onclick.bind(this), 'class' = selected?'active':'') > state)
+	];
 
-	public function view() {
-		return ithril
-			(div.tab)
-				[children]
-		;
-	}
+	public function view() [
+		(div.tab)
+			[children]
+	];
 }
 
-class Tabs extends Component<Dynamic, Tab> {
+class Tabs<T> extends Component<Dynamic, Tab> {
 	var selected = 0;
 
 	public function setSelected(tab: Tab) {
@@ -32,14 +28,12 @@ class Tabs extends Component<Dynamic, Tab> {
 		return children.indexOf(tab) == selected;
 	}
 
-	public function view() {
-		if (state == null) state = {};
-		return ithril
-			(div.ithril)
-				(div.tabs, state)
-					(nav)
-						[for (tab in children) tab.labelView(isSelected(tab), setSelected)]
-					[children[selected]]
-		;
-	}
+	public function view() [
+		(div.ithril)
+			(div.tabs (state == null ? {} : state))
+				(nav)
+					($for (tab in children))
+						[tab.labelView(isSelected(tab), setSelected)]
+				[children[selected]]
+	];
 }

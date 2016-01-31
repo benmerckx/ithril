@@ -21,11 +21,12 @@ class ComponentCache {
       componentCount.set(key, count+1);
       id = Std.string(count);
       #if js
-      if (timeout == null)
-        timeout = js.Browser.window.setTimeout(function() {
-          componentCount = new Map();
+      if (timeout == null) {
+		timeout = js.Browser.window.requestAnimationFrame(function(_) {
+		  componentCount = new Map();
           timeout = null;
-        }, 0);
+		});
+	  }
       #end
     }
     return key + id;

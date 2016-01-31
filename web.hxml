@@ -1,3 +1,4 @@
+-lib tink_macro
 -cp src
 -cp web
 -main Web

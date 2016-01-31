@@ -8,7 +8,7 @@ class Web extends Component {
 
 	public function view() {
 		#if js return body(); #end
-		return ithril
+		[
 			(!doctype)
 			(meta[charset="utf-8"])
 			(link[href="layout.css"][rel="stylesheet"])
@@ -16,28 +16,25 @@ class Web extends Component {
 				[body()]
 			(script[src="https://cdnjs.cloudflare.com/ajax/libs/mithril/0.2.0/mithril.min.js"])
 			(script[src="main.js"])
-		;
+		];
 	}
 
-	public function body() {
-		return ithril
-			(div.tabs-example)
-				(Tabs)
-					(Tab, 'Tab label')
-						['Tab 1']
-					(Tab, 'Tab label 2')
-						['Tab 2']
-				(Tabs)
-					[for (i in tabs) ithril
-						(Tab, 'Label '+i)
-							['Content '+i]
-					]
-				(a, {onclick: function() tabs.push(tabs.length + 1)}, 'Add tab')
-				(div)
-					(h1, {}, inputValue)
-					(Text, {oninput: function(e) inputValue = e.field.value, value: inputValue, multiline: true})
-		;
-	}
+	public function body() [
+		(div.tabs-example)
+			(Tabs)
+				(Tab ('Tab label'))
+					['Tab 1']
+				(Tab ('Tab label 2'))
+					['Tab 2']
+			(Tabs)
+				(tabs => i)
+					(Tab ('Label '+i))
+						['Content '+i]
+			(a (onclick = function() tabs.push(tabs.length + 1)) > 'Add tab')
+			(div)
+				(h1 > inputValue)
+				(Text (oninput = function(e) inputValue = e.field.value, value = inputValue, multiline = true))
+	];
 
 	public static function main() {
 		#if !js

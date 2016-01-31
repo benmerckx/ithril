@@ -15,7 +15,7 @@ class Text extends Field<TextOptions, String> {
     if (!isInitialized) {
       js.Browser.window.addEventListener('resize', setHeight.bind(el));
       ctx.onunload = function() js.Browser.window.removeEventListener('resize', setHeight.bind(el));
-		}
+	}
     #end
   }
 
@@ -25,24 +25,18 @@ class Text extends Field<TextOptions, String> {
 		area.style.height = mirror.offsetHeight+'px';
 	}
 
-  function textarea() {
-    return ithril
+  function textarea() [
       (div)
-        (textarea.field, forwardListeners({}), value)
-        (div.mirror, {config: setupMirror}, new TrustedHTML(StringTools.htmlEscape(value).split("\n").join('<br>')+'<br>'))
-    ;
-  }
+        (textarea.field (forwardListeners({})) > value)
+        (div.mirror (config = setupMirror) > new TrustedHTML(StringTools.htmlEscape(value).split("\n").join('<br>')+'<br>'))
+   ];
 
-  function input() {
-    return ithril
-      (input.field, forwardListeners({value: value}))
-    ;
-  }
+  function input() [
+      (input.field (forwardListeners({value: value})))
+  ];
 
-  public function view() {
-    return ithril
+  public function view() [
       (div.ithril)
         [state.multiline ? textarea() : input()]
-    ;
-  }
+  ];
 }

@@ -4,3 +4,7 @@ example/main.js
 .*
 !/.gitignore
 !/.travis.yml
+docker-compose.yml
+web.hxml
+web
+src/ithril/elements

@@ -1,6 +1,0 @@
-main:
-  image: fnichol/uhttpd
-  volumes:
-   - ./web/public/:/www
-  ports:
-   - "80"

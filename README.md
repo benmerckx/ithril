@@ -23,7 +23,7 @@ function () [
 
 Ithril views must be declared inside brackets. If used in a method they will always return.
 
-### Elements
+#### Elements
 
 Any html element can be expressed in parentheses:  
 `(img)`
@@ -42,7 +42,7 @@ Attributes can also be expressed separately:
 `(img ({src: "img.jpg", alt: ""}))`  
 `(img (aFunctionCallReturningAttributes()))`
 
-### Children
+#### Children
 
 A shortcut for defining one child:  
 `(h1 > 'My title')`
@@ -58,7 +58,7 @@ More than one child can simply be nested by using indentation:
 			(a[href="http://github.com"] > 'Github')
 ```
 
-### Inline expressions
+#### Inline expressions
 
 Any expression can be used inside brackets:
 ```haxe
@@ -68,7 +68,7 @@ Any expression can be used inside brackets:
 	[this.buttonLabel]
 ```
 
-### Conditionals
+#### Conditionals
 
 If/else can be used inside templates (`$ifelse` is on the todo list):
 ```haxe
@@ -78,14 +78,14 @@ If/else can be used inside templates (`$ifelse` is on the todo list):
 	(h2 > 'Not that big')
 ```
 
-### For loop
+#### For loop
 
 ```haxe
 ($for (link in links))
 	(a (href=link.url, target='_blank') > link.title)
 ```
 
-### Map
+#### Map
 
 Following syntax can be used for any object (in this case `links`) with a map method:
 ```haxe
@@ -99,7 +99,7 @@ Custom components can be created by extending `ithril.Component`.
 A component can then be used in your view like any other element:  
 `(MyComponent (attr1=1, attr2=2))`
 
-### State
+#### State
 
 A component's attributes are type checked, so the example above would have to be defined like this:  
 `class MyComponent extends Component<{attr1: Int, attr2: Int}>`
@@ -123,7 +123,7 @@ class MyComponent extends Component<{attr1: Int, attr2: Int}> {
 }
 ```
 
-### Children
+#### Children
 
 Children of a Component can be used however you like (`children => child` is [map syntax](#map)):
 ```haxe
@@ -153,7 +153,7 @@ And would output:
 </ul>
 ```
 
-### Lifecycle
+#### Lifecycle
 
 A component is cached while it's in view. You can perform an action the moment it's created or destroyed (no longer in view) by using `mount` and `unmount`. This can be useful to, for example, set/unset listeners. These methods are only called on the client side.
 
@@ -170,7 +170,7 @@ class Container extends Component {
 }
 ```
 
-### Rendering
+#### Rendering
 
 Components can be rendered by passing an instance to mithril:  
 `M.mount(js.Browser.document.body, component);`

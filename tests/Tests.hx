@@ -5,15 +5,9 @@ import ithril.Ithril;
 import ithril.HTMLRenderer;
 import haxe.Json;
 
-class CustomElement extends Component {
-	var attr: Dynamic;
-	
-	function attributes(attr) {
-		this.attr = attr == null ? {} : attr;
-	}
-	
+class CustomElement extends Component<{attr: String}> {
 	public function view() [
-		(div (attr))
+		(div (state))
 	];
 }
 
@@ -122,6 +116,7 @@ class TestIthil extends TestCase implements Ithril {
 	
 	public function testCombination() {
 		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: []}, [(div[attr='test'].test+test)]);
+		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: ['a']}, [(div[attr='test'].test+test > 'a')]);
 		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}, children: []}, [(div[attr='test'].test+test[attr2='test'])]);
 	}
 	
@@ -165,14 +160,11 @@ class TestIthil extends TestCase implements Ithril {
 		]);
 	}
 	
-	/*public function testCustomElement() {
-		assert({tag: 'div', attrs: {}, children: []}, 
-			(ithril(CustomElement)).view()
-		);
+	public function testCustomElement() {
 		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, 
-			(ithril(CustomElement, {attr: 'test'})).view()
+			[(CustomElement (attr = 'test'))].view()
 		);
-	}*/
+	}
 	
 	inline function assert<T>(o1: T, o2: T) {
 		assertEquals(Json.stringify(o1, null, ' '), Json.stringify(o2, null, ' '));

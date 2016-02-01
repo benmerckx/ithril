@@ -3,7 +3,7 @@ import ithril.elements.Tabs;
 import ithril.elements.Text;
 
 class Web extends Component {
-	var tabs = [1, 2, 3, 4, 5];
+	var tabs = [1];
 	var inputValue = 'Hello';
 
 	public function view() {
@@ -31,6 +31,7 @@ class Web extends Component {
 					(Tab ('Label '+i))
 						['Content '+i]
 			(a (onclick = function() tabs.push(tabs.length + 1)) > 'Add tab')
+			(a (onclick = function() tabs.pop()) > 'Remove tab')
 			(div)
 				(h1 > inputValue)
 				(Text (oninput = function(e) inputValue = e.field.value, value = inputValue, multiline = true))

@@ -10,12 +10,17 @@ class ComponentAbstract<State, Child: VirtualElement> implements Ithril {
 	public var stateFields: Array<String> = [];
 	var children: Array<Child>;
 	var parent: Component = null;
+	var dirty: Bool = false;
 
 	public function new() {}
 
 	public function setState(state: State) {
 		this.state = state;
 	}
+	
+	public function mount() {}
+	
+	public function unmount() {}
 
 	public function setChildren(children: Array<Child>) {
 		if (children.length == 1 && Std.is(children[0], Array)) {

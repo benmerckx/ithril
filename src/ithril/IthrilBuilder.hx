@@ -196,9 +196,10 @@ class IthrilBuilder {
 					var key = Md5.encode(Std.string(pos));
 					var state = arguments.length > 0 ? arguments[0] : macro {};
 					exprList.push(macro {
+						var children: Dynamic = ${createExpr(item.children)};
 						var tmp =
-						ithril.component.ComponentCache.getComponent($v{key}, $i{name}, ${createExpr(item.children)}, $state);
-						tmp.setChildren(${createExpr(item.children)});
+						ithril.component.ComponentCache.getComponent($v{key}, $i{name}, children, $state);
+						tmp.setChildren(children);
 						tmp.setState($state);
 						tmp;
 					});

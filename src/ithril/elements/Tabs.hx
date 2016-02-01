@@ -7,8 +7,17 @@ typedef TabEvents = {
 }
 
 class Tab extends Component<String> {
+	
+	override public function mount() {
+		trace('mounted tab');
+	}
+	
+	override public function unmount() {
+		trace('unmounted tab');
+	}
+	
 	public function labelView(selected, onclick: Tab -> Void) [
-		(a (onclick =onclick.bind(this), 'class' = selected?'active':'') > state)
+		(a (onclick = onclick.bind(this), 'class' = selected?'active':'') > state)
 	];
 
 	public function view() [
@@ -32,7 +41,7 @@ class Tabs<T> extends Component<Dynamic, Tab> {
 		(div.ithril)
 			(div.tabs (state == null ? {} : state))
 				(nav)
-					($for (tab in children))
+					(children => tab)
 						[tab.labelView(isSelected(tab), setSelected)]
 				[children[selected]]
 	];

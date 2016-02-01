@@ -6,12 +6,8 @@ import haxe.macro.Type;
 import haxe.crypto.Md5;
 
 using StringTools;
-using haxe.macro.ExprTools;
-
-typedef ViewContext = {
-	expr: Expr,
-	blocks: Array<Block>
-}
+using tink.MacroApi;
+using tink.CoreApi;
 
 typedef Cell = {
 	tag: String,
@@ -22,6 +18,11 @@ typedef Cell = {
 enum Block {
 	ElementBlock(data: Element, pos: PosInfo);
 	ExprBlock(e: Expr, pos: PosInfo);
+	CustomElement(type: String, arguments: Array<Expr>, pos: PosInfo);
+	For(e: Expr, pos: PosInfo);
+	If(e: Expr, pos: PosInfo);
+	Else(pos: PosInfo);
+	Map(a: Expr, b: Expr, pos: PosInfo);
 }
 
 typedef BlockWithChildren = {
@@ -64,51 +65,84 @@ typedef Lines = Map<Int, Int>;
 class IthrilBuilder {
 
 	static var lines: Lines;
+	static var isTemplate: Bool;
 
-	macro static public function build(): Array<Field> {
+	macro static public function build(): Array<Field>
 		return Context.getBuildFields().map(inlineView);
-	}
 
-	static function inlineView(field: Field) {
-		return switch (field.kind) {
+	static function inlineView(field: Field)
+		return switch field.kind {
 			case FieldType.FFun(func):
 				lines = new Lines();
-				func.expr.iter(parseBlock);
+				isTemplate = false;
+				parseFunction(func.expr);
+				if (isTemplate) {
+					func.expr = yieldExpr(func.expr);
+					yieldSubExpr(func.expr);
+				}
 				field;
 			default: field;
 		}
-	}
-
-	static function parseBlock(e: Expr) {
-
-		switch (e.expr) {
-			case ExprDef.ECall(_, _) | ExprDef.EArray(_, _):
-				parseCalls(e, {
-					expr: e,
-					blocks: []
-				});
+		
+	static function yieldSubExpr(e: Expr) {
+		switch e {
+			case macro function($a) $b:
+				e.expr = (macro function($a) ${yieldExpr(b)}).expr;
 			default:
 		}
-		e.iter(parseBlock);
+		e.iter(yieldSubExpr);
+	}
+	
+	static function yieldExpr(e: Expr)
+		return e.yield(function(e) {
+			return switch e {
+				case macro (@:ithril $f: Dynamic):
+					macro return ($f: Dynamic);
+				default: e;
+			}
+		});
+		
+	static function parseFunction(e: Expr) {
+		switch e.expr {
+			case ExprDef.EArrayDecl(values):
+				if (values.length == 1)
+					switch parseCalls(values[0]) {
+						case Success(blocks):
+							isTemplate = true;
+							e.expr = createExpr(orderBlocks(blocks), true).expr;
+						default:
+					}
+			default:
+		}
+		e.iter(parseFunction);
 	}
 
-	static function parseCalls(e: Expr, ctx: ViewContext) {
-		switch (e) {
+	static function parseCalls(e: Expr): Outcome<Array<Block>, Noise>
+		return switch e {
 			case _.expr => ExprDef.ECall(callExpr, params):
-				var block = chainElement(params, e);
-				if (block != null) {
-					ctx.blocks.push(block);
-					parseCalls(callExpr, ctx);
+				if (params.length != 1) Failure(Noise);
+				else switch chainElement(params[0]) {
+					case Success(b1):
+						switch parseCalls(callExpr) {
+							case Success(b2): Success([b1].concat(b2));
+							default: Failure(Noise);
+						}
+					default: Failure(Noise);
 				}
-			case _.expr => ExprDef.EArray(e1, e2):
+			case macro $e1[$e2]:
 				var block = Block.ExprBlock(preprocess(e2), posInfo(e2));
-				ctx.blocks.push(block);
-				parseCalls(e1, ctx);
-			case macro ithril:
-				ctx.expr.expr = createExpr(orderBlocks(ctx), true).expr;
+				switch parseCalls(e1) {
+					case Success(b): Success([block].concat(b));
+					default: Failure(Noise);
+				}
+			case macro ($start):
+				switch chainElement(start) {
+					case Success(b): Success([b]);
+					default: Failure(Noise);
+				}
 			default:
+				Failure(Noise);
 		}
-	}
 
 	static function preprocess(e: Expr) return switch e {
 		case macro for($head) $body:
@@ -121,8 +155,34 @@ class IthrilBuilder {
 	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
 		var exprList: Array<Expr> = [];
 		if (prepend != null) exprList.push(prepend);
+		var i = 0;
 		for (item in list) {
 			switch (item.block) {
+				case Block.For(e, _):
+					root = true;
+					exprList.push(macro [for ($e) ${createExpr(item.children, true)}]);
+				case Block.If(e, _):
+					var elseCond = macro null;
+					if (list.length > i+1) {
+						var next: BlockWithChildren = list[i+1];
+						switch next.block {
+							case Block.Else(_):
+								if (next.indent == item.indent)
+									elseCond = createExpr(next.children, true);
+							default:
+						}
+					}
+					root = true;
+					exprList.push(macro $e ? ${createExpr(item.children, true)} : $elseCond);
+				case Block.Else(_):
+					continue;
+				case Block.Map(a, b, _):
+					switch b.getIdent() {
+						case Success(i):
+							root = true;
+							exprList.push(macro $a.map(function($i) ${createExpr(item.children, true)}));
+						default: continue;
+					}
 				case Block.ElementBlock(data, _):
 					var tag = Context.makeExpr(data.selector.tag, Context.currentPos());
 					exprList.push(macro {
@@ -132,10 +192,23 @@ class IthrilBuilder {
 					});
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
+				case Block.CustomElement(name, arguments, pos):
+					var key = Md5.encode(Std.string(pos));
+					var state = arguments.length > 0 ? arguments[0] : macro {};
+					exprList.push(macro {
+						var children: Dynamic = ${createExpr(item.children)};
+						var tmp =
+						ithril.component.ComponentCache.getComponent($v{key}, $i{name}, children, $state);
+						tmp.setChildren(children);
+						tmp.setState($state);
+						tmp;
+					});
 			}
+			i++;
 		}
-		if (root && exprList.length == 1) {
-			return macro (${exprList[0]}: Dynamic);
+		if (root) {
+			var final = exprList.length == 1 ? macro ${exprList[0]} : macro $a{exprList};
+			return macro (@:ithril $final: Dynamic);
 		}
 		return macro ($a{exprList}: Dynamic);
 	}
@@ -202,13 +275,19 @@ class IthrilBuilder {
 		}
 	}
 
-	static function orderBlocks(ctx: ViewContext) {
-		ctx.blocks.reverse();
+	static function orderBlocks(blocks: Array<Block>) {
+		blocks.reverse();
 		var list: Array<BlockWithChildren> = [];
 		var current: BlockWithChildren = null;
-		for (block in ctx.blocks) {
+		for (block in blocks) {
 			var line = switch (block) {
-				case Block.ElementBlock(_, pos) | Block.ExprBlock(_, pos):
+				case Block.ElementBlock(_, pos) | 
+					 Block.ExprBlock(_, pos) | 
+					 Block.CustomElement(_, _, pos) | 
+					 Block.For(_, pos) |
+					 Block.If(_, pos) |
+					 Block.Map(_, _, pos) |
+					 Block.Else(pos):
 					pos.line;
 			}
 			var indent = lines.get(line);
@@ -257,40 +336,129 @@ class IthrilBuilder {
 		};
 	}
 
-	static function chainElement(params: Array<Expr>, callExpr: Expr): Null<Block> {
-		if (params.length == 0 || params.length > 3)
-			return null;
-
+	static function chainElement(e: Expr): Outcome<Block, Noise> {
 		var element = element();
-		var e = params[0];
-		switch (e) {
+		switch e {
+			case macro $f ($a) if (f.getIdent().equals("$for")):
+				return Success(Block.For(a, posInfo(e)));
+			case macro $f ($a) if (f.getIdent().equals("$if")):
+				return Success(Block.If(a, posInfo(e)));
+			case macro $f if (f.getIdent().equals("$else")):
+				return Success(Block.Else(posInfo(e)));
+			case macro $a => $b:
+				return Success(Block.Map(a, b, posInfo(e)));
 			case macro !doctype:
 				element.selector.tag = '!doctype';
 				element.attributes = macro {html: true};
 			case _.expr => ExprDef.EConst(c):
 				switch (c) {
 					case Constant.CIdent(s):
-						element.selector.tag = s;
-					default: return null;
+						if (s.charAt(0) == s.charAt(0).toUpperCase()) {
+							// Custom element
+							return Success(Block.CustomElement(s, [], posInfo(e)));
+						} else {
+							element.selector.tag = s;
+						}
+					default: return Failure(Noise);
 				}
-			case _.expr => ExprDef.EField(_, _) | ExprDef.EBinop(_, _, _) | ExprDef.EArray(_, _):
-				getAttr(e, element.inlineAttributes);
-				removeAttr(e);
-				element.selector = parseSelector(e.toString().replace(' ', ''));
-			default: return null;
+			case _.expr => ExprDef.EBinop(op, e1, e2):
+				switch op {
+					case Binop.OpAdd | Binop.OpSub:
+						switch chainElement(e2) {
+							case Success(Block.ElementBlock(el, _)):
+								element.attributes = el.attributes;
+							default:
+						}
+						parseEndBlock(e, element);
+					case Binop.OpGt:
+						switch chainElement(e1) {
+							case Success(block):
+								switch block {
+									case Block.ElementBlock(el, _):
+										element = el;
+										element.content = e2;
+									default:
+										return Failure(Noise);
+								}
+							default: return Failure(Noise);
+						}
+					default: 
+						return Failure(Noise);
+				}
+			case _.expr => ExprDef.EField(_, _) | ExprDef.EArray(_, _):
+				parseEndBlock(e, element);
+			case _.expr => ExprDef.ECall(e1, attrs):
+				switch chainElement(e1) {
+					case Success(block): 
+						switch block {
+							case Block.ElementBlock(el, _):
+								switch extractAttributes(attrs) {
+									case Success(a): el.attributes = a;
+									case Failure(Noise): return Failure(Noise);
+								}
+							case Block.CustomElement(type, _, pos):
+								switch extractAttributes(attrs) {
+									case Success(a): return Success(Block.CustomElement(type, [a], pos));
+									case Failure(Noise): return Failure(Noise);
+								}
+								// TODO: customelement
+							default:
+						}
+						return Success(block);
+					case Failure(Noise): return Failure(Noise);
+				}
+			default: return Failure(Noise);
 		}
 
-		if (params.length > 1)
-			element.attributes = params[1];
-		if (params.length > 2)
-			element.content = params[2];
-
-		return Block.ElementBlock(element, posInfo(e));
+		return Success(Block.ElementBlock(element, posInfo(e)));
 	}
+	
+	static function parseEndBlock(e, element) {
+		getAttr(e, element.inlineAttributes);
+		var clean = {expr: e.expr, pos: e.pos};
+		removeAttr(clean);
+		element.selector = parseSelector(clean.toString().replace(' ', ''));
+	}
+	
+	static function extractAttributes(attrs: Array<Expr>): Outcome<Expr, Noise> {
+		if (attrs.length == 1)
+			switch attrs[0] {
+				case macro $a=$b:
+					switch assignToField(a, b) {
+						case Success(field): 
+							return Success({expr: ExprDef.EObjectDecl([field]), pos: a.pos});
+						default: Failure(Noise);
+					}
+				default: return Success(attrs[0]);
+			}
+			
+		var fields = [];
+		for (e in attrs) {
+			switch e {
+				case macro $a=$b:
+					switch assignToField(a, b) {
+						case Success(field): fields.push(field);
+						default: return Failure(Noise);
+					}
+				default: return Failure(Noise);
+			}
+		}
+		return Success({expr: ExprDef.EObjectDecl(fields), pos: attrs[0].pos});
+	}
+	
+	static function assignToField(a: Expr, b: Expr): Outcome<ObjField, Noise>
+		return switch a.getName() {
+			case Success(name):
+				Success({field: name, expr: b});
+			default: Failure(Noise);
+		}
 
 	static function removeAttr(e: Expr) {
 		switch (e.expr) {
 			case ExprDef.EArray(e1, _):
+				removeAttr(e1);
+				e.expr = e1.expr;
+			case ExprDef.ECall(e1, _):
 				removeAttr(e1);
 				e.expr = e1.expr;
 			default:

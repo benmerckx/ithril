@@ -1,3 +1,10 @@
 *.hxproj
 example/main.js
 *.zip
+.*
+!/.gitignore
+!/.travis.yml
+docker-compose.yml
+web.hxml
+web
+src/ithril/elements

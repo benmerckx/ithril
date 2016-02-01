@@ -334,6 +334,7 @@ ithril_elements_Field.prototype = $extend(ithril_ComponentAbstract.prototype,{
 	,__class__: ithril_elements_Field
 });
 var ithril_elements_Tab = function() {
+	this.random = Math.random();
 	ithril_ComponentAbstract.call(this);
 };
 ithril_elements_Tab.__name__ = true;
@@ -355,7 +356,7 @@ ithril_elements_Tab.prototype = $extend(ithril_ComponentAbstract.prototype,{
 		return { tag : "a", attrs : { onclick : tmp, 'class' : selected?"active":""}, children : [this.state]};
 	}
 	,view: function() {
-		return { tag : "div", attrs : { 'class' : "tab"}, children : [this.children]};
+		return { tag : "div", attrs : { 'class' : "tab"}, children : [this.children,{ tag : "div", attrs : { 'class' : "random"}, children : [this.random]}]};
 	}
 	,__class__: ithril_elements_Tab
 });

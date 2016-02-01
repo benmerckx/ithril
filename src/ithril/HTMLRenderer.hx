@@ -83,8 +83,8 @@ class HTMLRenderer {
 	}
 
 	public function renderView(view: Dynamic, level = 0) {
-		if (Std.is(view, String))
-			return spacer(level) + escape(view) + lineEnd();
+		if (Std.is(view, String) || Std.is(view, Int) || Std.is(view, Float) || Std.is(view, Bool))
+			return spacer(level) + escape(Std.string(view)) + lineEnd();
 
 		if (view == null) return '';
 
@@ -110,7 +110,7 @@ class HTMLRenderer {
 		if (Std.is(view, TrustedHTML)) {
 			return Std.string(view);
 		}
-
+		
 		if (VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
 			return spacer(level) + '<' + view.tag + createAttrString(view.attrs) + '>' + lineEnd();
 		}

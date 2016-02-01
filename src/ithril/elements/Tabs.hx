@@ -8,6 +8,8 @@ typedef TabEvents = {
 
 class Tab extends Component<String> {
 	
+	var random = Math.random();
+	
 	override public function mount() {
 		trace('mounted tab');
 	}
@@ -23,6 +25,7 @@ class Tab extends Component<String> {
 	public function view() [
 		(div.tab)
 			[children]
+			(div.random > random)
 	];
 }
 

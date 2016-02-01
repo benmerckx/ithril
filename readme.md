@@ -6,18 +6,16 @@ Templates for haxe. Compiles to HTML or [Mithril](https://github.com/ciscoheat/m
 
 ```haxe
 function () [
-  (div.class-name)
-    ['Any expression can be used here']
-  (div+id)
-    (ul)
-      (li > 'Some')
-      (li > 'List items')
-    (ul.another-list)
-      (list => item)
-        (li > item.title)
-    (form)
-      (input[type="text"] (value = "Text value", onfocus = focus))
-      (input[type="checkbox"])
+	(div.intro)
+		(ul)
+			(li > 'Some')
+			(li > 'List items')
+		(ul.another-list)
+			(list => item)
+				(li > item.title)
+		(form)
+			(input[type="text"] (value = "Text value", onfocus = focus))
+			(input[type="checkbox"][required]) ['Check this']
 ];
 ```
 
@@ -216,4 +214,4 @@ class Web extends ithril.Component {
 
 ## Output
 
-Everything gets compiled to simple objects, using [this notation](http://lhorie.github.io/mithril/optimizing-performance.html#compiling-templates) so the output can directly be used with Mithril. Use `HTMLRenderer.render` to render the output to a string.
+Everything gets compiled to simple objects, using [this notation](http://lhorie.github.io/mithril/optimizing-performance.html#compiling-templates) so the output can be used directly with Mithril. Use `ithril.HTMLRenderer.render` to render the output to a string.

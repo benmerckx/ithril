@@ -341,6 +341,8 @@ class IthrilBuilder {
 		switch e {
 			case macro $f ($a) if (f.getIdent().equals("$for")):
 				return Success(Block.For(a, posInfo(e)));
+			case macro $a in $b:
+				return Success(Block.For(e, posInfo(e)));
 			case macro $f ($a) if (f.getIdent().equals("$if")):
 				return Success(Block.If(a, posInfo(e)));
 			case macro $f if (f.getIdent().equals("$else")):

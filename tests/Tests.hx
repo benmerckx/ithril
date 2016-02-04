@@ -149,6 +149,16 @@ class TestIthil extends TestCase implements Ithril {
 	
 	public function testInlineLoops() {
 		var items = ['a', 'b', 'c'];
+		assert({tag: 'div', attrs: {}, children: items}, [
+			(div)
+				($for (i in items))
+					[i]
+		]);
+		assert({tag: 'div', attrs: {}, children: items}, [
+			(div)
+				(i in items)
+					[i]
+		]);
 		assert({tag: 'div', attrs: {}, children: [items]}, [
 			(div)
 				[for (i in items) i]

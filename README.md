@@ -81,7 +81,7 @@ If/else can be used inside templates (`$ifelse` is on the todo list):
 #### For loop
 
 ```haxe
-($for (link in links))
+(link in links)
 	(a (href=link.url, target='_blank') > link.title)
 ```
 

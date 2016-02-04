@@ -11,6 +11,14 @@ class CustomElement extends Component<{attr: String}> {
 	];
 }
 
+class ListComponent extends Component {
+    public function view() [
+        (ul)
+            (children => child)
+                (li > child)
+    ];
+}
+
 class TestHTMLRenderer extends TestCase implements Ithril {
 	
 	public function testBasic() {
@@ -42,6 +50,15 @@ class TestHTMLRenderer extends TestCase implements Ithril {
 	
 	public function testEscape() {
 		assertEquals('<div attr="&lt;" style="param:&lt;">&lt;</div>', HTMLRenderer.render([(div (attr = '<', style = {param: '<'}) > '<')]));
+	}
+	
+	public function testCustomList() {
+		assertEquals('<ul><li><span>A</span></li><li><span>B</span></li><li><span>C</span></li></ul>', HTMLRenderer.render([
+			(ListComponent)
+				(span > 'A')
+				(span > 'B')
+				(span > 'C')
+		]));
 	}
 }
 

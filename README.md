@@ -115,7 +115,7 @@ Usage would be:
 State can be accessed inside the component:
 ```haxe
 class MyComponent extends Component<{attr1: Int, attr2: Int}> {
-	pubic function view() [
+	public function view() [
 		(div.my-comp)
 			(span.attr > 'Attribute 1'+state.attr1)
 			(span.attr > 'Attribute 2'+state.attr2)

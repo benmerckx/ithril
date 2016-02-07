@@ -168,12 +168,12 @@ class IthrilBuilder {
 						switch next.block {
 							case Block.Else(_):
 								if (next.indent == item.indent)
-									elseCond = createExpr(next.children, true);
+									elseCond = createExpr(next.children);
 							default:
 						}
 					}
-					root = true;
-					exprList.push(macro $e ? ${createExpr(item.children, true)} : $elseCond);
+					//root = true;
+					exprList.push(macro $e ? ${createExpr(item.children)} : $elseCond);
 				case Block.Else(_):
 					continue;
 				case Block.Map(a, b, _):

@@ -4,7 +4,7 @@
   "license": "MIT",
   "tags": ["js", "html", "template", "web"],
   "description": "Templates for haxe. Compiles to HTML or Mithril views.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "releasenote": "Simplified for loop",
   "contributors": ["benmerckx"],
   "classPath": "src",

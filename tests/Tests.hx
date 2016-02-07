@@ -131,6 +131,31 @@ class TestIthil extends TestCase implements Ithril {
 		assert({tag: 'div', attrs: {attr: 'test', second: 'test'}, children: []}, [(div[attr='test'][second='test'])]);
 	}
 	
+	public function testCallableAttribute() {
+		function attr() return {
+			attr: 'test'
+		}
+		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, [(div (attr))]);
+	}
+	
+	public function testCombineAttributes() {
+		assert({tag: 'div', attrs: {a: 1, b: 2}, children: []}, [
+			(div (a=1) (b=2))
+		]);
+		assert({tag: 'div', attrs: {a: 1}, children: []}, [
+			(div (a=1) (a=2))
+		]);
+		function attr() return {
+			attr: 'test'
+		}
+		assert({tag: 'div', attrs: {a: 1, attr: 'test'}, children: []}, [
+			(div (a=1) (attr))
+		]);
+		assert({tag: 'div', attrs: {id: 'id', a: 1, attr: 'test'}, children: ['ok']}, [
+			(div+id (a=1) (attr) > 'ok')
+		]);
+	}
+	
 	public function testCombination() {
 		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: []}, [(div[attr='test'].test+test)]);
 		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: ['a']}, [(div[attr='test'].test+test > 'a')]);

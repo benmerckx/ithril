@@ -227,6 +227,7 @@ class IthrilBuilder {
 				case macro {}:
 				default:
 					// concat objects
+					// TODO: replace by Attributes.combine
 					var attrs: Array<Expr> = [];
 					if (id != '')
 						attrs.push(macro Reflect.setField(t, 'id', $v { id } ));
@@ -395,7 +396,11 @@ class IthrilBuilder {
 						switch block {
 							case Block.ElementBlock(el, _):
 								switch extractAttributes(attrs) {
-									case Success(a): el.attributes = a;
+									case Success(a): 
+										if (el.attributes != null)
+											el.attributes = macro ithril.Attributes.combine(${el.attributes}, $a);
+										else
+											el.attributes = a;
 									case Failure(Noise): return Failure(Noise);
 								}
 							case Block.CustomElement(type, _, pos):
@@ -403,7 +408,6 @@ class IthrilBuilder {
 									case Success(a): return Success(Block.CustomElement(type, [a], pos));
 									case Failure(Noise): return Failure(Noise);
 								}
-								// TODO: customelement
 							default:
 						}
 						return Success(block);
@@ -431,7 +435,10 @@ class IthrilBuilder {
 							return Success({expr: ExprDef.EObjectDecl([field]), pos: a.pos});
 						default: Failure(Noise);
 					}
-				default: return Success(attrs[0]);
+				default: {
+					// Call if is callable
+					return Success(macro ithril.Attributes.attrs(${attrs[0]}));
+				}
 			}
 			
 		var fields = [];

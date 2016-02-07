@@ -214,12 +214,7 @@ class IthrilBuilder {
 	}
 
 	static function createAttrsExpr(data: Element): Expr {
-		var e: Expr;
-		var id = data.selector.id;
-		var className = data.selector.classes.join(' ');
-
 		var fields: Array<ObjField> = [];
-
 		if (data.attributes != null) {
 			switch (data.attributes) {
 				case _.expr => ExprDef.EObjectDecl(f):
@@ -227,27 +222,19 @@ class IthrilBuilder {
 				case macro {}:
 				default:
 					// concat objects
-					// TODO: replace by Attributes.combine
-					var attrs: Array<Expr> = [];
-					if (id != '')
-						attrs.push(macro Reflect.setField(t, 'id', $v { id } ));
-					if (className != '')
-						attrs.push(macro Reflect.setField(t, 'class', $v{className}));
-					for (attr in data.inlineAttributes) {
-						var key = attr.attr;
-						attrs.push(macro Reflect.setField(t, $v{key}, ${attr.value}));
-					}
-					if (attrs.length > 0)
-						return macro {
-							var t = ${data.attributes};
-							$b{attrs};
-							t;
-						};
+					var e = addFieldsFromElement(fields, data);
+					if (fields.length > 0)
+						return macro ithril.Attributes.combine($e, ${data.attributes});
 					else
 						return data.attributes;
 			}
 		}
-
+		return addFieldsFromElement(fields, data);
+	}
+	
+	static function addFieldsFromElement(fields: Array<ObjField>, data: Element) {
+		var id = data.selector.id;
+		var className = data.selector.classes.join(' ');
 		if (id != '')
 			addToObjFields(fields, 'id', macro $v{id});
 		if (className != '')

@@ -11,12 +11,24 @@ class CustomElement extends Component<{attr: String}> {
 	];
 }
 
+class CombinedAttributes extends Component<{a: Int, b: Int}> {
+	public function view() [
+		(div (state))
+	];
+}
+
 class ListComponent extends Component {
     public function view() [
         (ul)
             (children => child)
                 (li > child)
     ];
+}
+
+class Label extends Component<String> {
+	public function view() [
+		(div > state)
+	];
 }
 
 class TestHTMLRenderer extends TestCase implements Ithril {
@@ -60,6 +72,20 @@ class TestHTMLRenderer extends TestCase implements Ithril {
 				(span > 'C')
 		]));
 	}
+	
+	public function testCustomLabel() {
+		assertEquals('<div>ok</div>', HTMLRenderer.render([
+			(Label ('ok'))
+		]));
+		function ok() return 'ok';
+		assertEquals('<div>ok</div>', HTMLRenderer.render([
+			(Label (ok))
+		]));
+		var variable = 'ok';
+		assertEquals('<div>ok</div>', HTMLRenderer.render([
+			(Label (variable))
+		]));
+	}
 }
 
 class TestIthil extends TestCase implements Ithril {
@@ -73,15 +99,18 @@ class TestIthil extends TestCase implements Ithril {
 		assert({tag: 'div', attrs: {'class': 'test second'}, children: []}, [(div.test.second)]);
 		assert({tag: 'div', attrs: {'class': 'test-with-hyphen'}, children: []}, [(div.test-with-hyphen)]);
 		assert({tag: 'div', attrs: {'class': ['c1', 'c2']}, children: []}, [(div ('class' = ['c1', 'c2']))]);
-		
-		/**
-		 * To fix
-		 * From mithril:
-		 * For developer convenience, Mithril makes an exception for the class attribute: 
-		 * if there are classes defined in both parameters, they are concatenated as a space separated list. 
-		 * It does not, however, de-dupe classes if the same class is declared twice.
-		 */
-		//assert([{tag: 'div', attrs: {'class': 'test test2'}, children: []}], ithril(div.test, {'class': 'test2'}));
+	}
+	
+	/**
+	 * From mithril docs:
+	 * For developer convenience, Mithril makes an exception for the class attribute: 
+	 * if there are classes defined in both parameters, they are concatenated as a space separated list. 
+	 * It does not, however, de-dupe classes if the same class is declared twice.
+	 */
+	public function testClassnameCombine() {		
+		assert({tag: 'div', attrs: {'class': 'test test2'}, children: []}, [(div.test ('class' = 'test2'))]);
+		assert({tag: 'div', attrs: {'class': 'test test2'}, children: []}, [(div.test ('class' = ['test2']))]);
+		assert({tag: 'div', attrs: {'class': 'test test2'}, children: []}, [(div ('class' = 'test') ('class' = 'test2'))]);
 	}
 	
 	public function testId() {
@@ -117,13 +146,6 @@ class TestIthil extends TestCase implements Ithril {
 				(div)
 			(div)
 		]);
-		
-		/* To fix
-		 
-		assert([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}],
-			ithril(div)
-				(div)
-		);*/
 	}
 	
 	public function testAttribute() {
@@ -132,7 +154,7 @@ class TestIthil extends TestCase implements Ithril {
 	}
 	
 	public function testCallableAttribute() {
-		function attr() return {
+		function attr(): {attr:String} return {
 			attr: 'test'
 		}
 		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, [(div (attr))]);
@@ -164,15 +186,11 @@ class TestIthil extends TestCase implements Ithril {
 	
 	public function testTextnode() {
 		assert({tag: 'div', attrs: {}, children: ['Test']}, [(div > 'Test')]);
-		/*assert({tag: 'div', attrs: {}, children: (['Test', {tag: 'div', attrs: {}, children: []}, Array<Dynamic>)}, ithril
-			(div, {}, 'Test')
-				(div)
-		);*/
 	}
 	
 	public function testAddToExistingAttributes() {
 		var expected = {tag: 'div', attrs: {attr: 'test', id: 'test', 'class': 'test'}, children: []};
-		//assert(expected, [(div.test+test (attr ='test'))]);
+		assert(expected, [(div.test+test (attr ='test'))]);
 		assert(expected, [(div.test+test  
 			((function(): Dynamic {
 				return {
@@ -215,6 +233,12 @@ class TestIthil extends TestCase implements Ithril {
 	public function testCustomElement() {
 		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, 
 			[(CustomElement (attr = 'test'))].view()
+		);
+	}
+	
+	public function testCustomCombined() {
+		assert({tag: 'div', attrs: {a: 1, b: 2}, children: []}, 
+			[(CombinedAttributes (a=1) (b=2))].view()
 		);
 	}
 	

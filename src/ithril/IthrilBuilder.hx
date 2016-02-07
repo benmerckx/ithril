@@ -252,7 +252,10 @@ class IthrilBuilder {
 		fields.map(function(field: ObjField) {
 			if (field.field == key) {
 				exists = true;
-				field.expr = expr;
+				if (key == 'class')
+					field.expr = macro ithril.Attributes.combineClassNames(${field.expr}, $expr);
+				else
+					field.expr.expr = expr.expr;
 			}
 		});
 		if (!exists) {
@@ -390,9 +393,14 @@ class IthrilBuilder {
 											el.attributes = a;
 									case Failure(Noise): return Failure(Noise);
 								}
-							case Block.CustomElement(type, _, pos):
+							case Block.CustomElement(type, prevAttr, pos):
 								switch extractAttributes(attrs) {
-									case Success(a): return Success(Block.CustomElement(type, [a], pos));
+									case Success(a): {
+										if (prevAttr != null && prevAttr.length != 0) {
+											a = macro ithril.Attributes.combine(${prevAttr[0]}, $a);
+										}
+										return Success(Block.CustomElement(type, [a], pos));
+									}
 									case Failure(Noise): return Failure(Noise);
 								}
 							default:

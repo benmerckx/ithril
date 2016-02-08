@@ -50,7 +50,8 @@ typedef PosInfo = {
 	file: String,
 	line: Int,
 	start: Int,
-	end: Int
+	end: Int,
+	pos: Position
 }
 
 typedef InlineAttribute = {
@@ -158,10 +159,10 @@ class IthrilBuilder {
 		var i = 0;
 		for (item in list) {
 			switch (item.block) {
-				case Block.For(e, _):
+				case Block.For(e, pos):
 					root = true;
-					exprList.push(macro [for ($e) ${createExpr(item.children, true)}]);
-				case Block.If(e, _):
+					exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, true)}]);
+				case Block.If(e, pos):
 					var elseCond = macro null;
 					if (list.length > i+1) {
 						var next: BlockWithChildren = list[i+1];
@@ -173,28 +174,28 @@ class IthrilBuilder {
 						}
 					}
 					//root = true;
-					exprList.push(macro $e ? ${createExpr(item.children)} : $elseCond);
+					exprList.push(macro @:pos(pos.pos) $e ? ${createExpr(item.children)} : $elseCond);
 				case Block.Else(_):
 					continue;
-				case Block.Map(a, b, _):
+				case Block.Map(a, b, pos):
 					switch b.getIdent() {
 						case Success(i):
 							root = true;
-							exprList.push(macro $a.map(function($i) ${createExpr(item.children, true)}));
+							exprList.push(macro @:pos(pos.pos) $a.map(function($i) ${createExpr(item.children, true)}));
 						default: continue;
 					}
-				case Block.ElementBlock(data, _):
+				case Block.ElementBlock(data, pos):
 					var tag = Context.makeExpr(data.selector.tag, Context.currentPos());
 					exprList.push(macro {
 						tag: ${tag},
-						attrs: ${createAttrsExpr(data)},
+						attrs: ${createAttrsExpr(pos.pos, data)},
 						children: (${createExpr(item.children, false, data.content)}: Dynamic)
 					});
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
 				case Block.CustomElement(name, arguments, pos):
 					var key = Md5.encode(Std.string(pos));
-					var state = arguments.length > 0 ? arguments[0] : macro {};
+					var state = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) {};
 					exprList.push(macro {
 						var children: Dynamic = ${createExpr(item.children)};
 						var tmp =
@@ -213,7 +214,7 @@ class IthrilBuilder {
 		return macro ($a{exprList}: Dynamic);
 	}
 
-	static function createAttrsExpr(data: Element): Expr {
+	static function createAttrsExpr(pos: Position, data: Element): Expr {
 		var fields: Array<ObjField> = [];
 		if (data.attributes != null) {
 			switch (data.attributes) {
@@ -222,17 +223,17 @@ class IthrilBuilder {
 				case macro {}:
 				default:
 					// concat objects
-					var e = addFieldsFromElement(fields, data);
+					var e = addFieldsFromElement(data.attributes.pos, fields, data);
 					if (fields.length > 0)
 						return macro ithril.Attributes.combine($e, ${data.attributes});
 					else
 						return data.attributes;
 			}
 		}
-		return addFieldsFromElement(fields, data);
+		return addFieldsFromElement(pos, fields, data);
 	}
 	
-	static function addFieldsFromElement(fields: Array<ObjField>, data: Element) {
+	static function addFieldsFromElement(pos: Position, fields: Array<ObjField>, data: Element) {
 		var id = data.selector.id;
 		var className = data.selector.classes.join(' ');
 		if (id != '')
@@ -243,7 +244,7 @@ class IthrilBuilder {
 			addToObjFields(fields, attr.attr, attr.value);
 		}
 		return {
-			expr: ExprDef.EObjectDecl(fields), pos: Context.currentPos()
+			expr: ExprDef.EObjectDecl(fields), pos: pos
 		};
 	}
 
@@ -432,7 +433,7 @@ class IthrilBuilder {
 					}
 				default: {
 					// Call if is callable
-					return Success(macro ithril.Attributes.attrs(${attrs[0]}));
+					return Success(macro @:pos(attrs[0].pos) ithril.Attributes.attrs(${attrs[0]}));
 				}
 			}
 			
@@ -548,7 +549,8 @@ class IthrilBuilder {
 			file: Context.getPosInfos(pos).file,
 			line: line,
 			start: start,
-			end: end
+			end: end,
+			pos: pos
 		};
 	}
 }

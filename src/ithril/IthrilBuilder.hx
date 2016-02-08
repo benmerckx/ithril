@@ -23,6 +23,7 @@ enum Block {
 	If(e: Expr, pos: PosInfo);
 	Else(pos: PosInfo);
 	Map(a: Expr, b: Expr, pos: PosInfo);
+	Assignment(ident: String, block: Block, pos: PosInfo);
 }
 
 typedef BlockWithChildren = {
@@ -158,7 +159,7 @@ class IthrilBuilder {
 		if (prepend != null) exprList.push(prepend);
 		var i = 0;
 		for (item in list) {
-			switch (item.block) {
+			switch item.block {
 				case Block.For(e, pos):
 					root = true;
 					exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, true)}]);
@@ -193,6 +194,10 @@ class IthrilBuilder {
 					});
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
+				case Block.Assignment(ident, block, pos):
+					item.block = block;
+					var el = createExpr([item], true);
+					exprList.push(macro @:pos(pos.pos) $i{ident} = $el);
 				case Block.CustomElement(name, arguments, pos):
 					var key = Md5.encode(Std.string(pos));
 					var state = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) {};
@@ -279,6 +284,7 @@ class IthrilBuilder {
 					 Block.For(_, pos) |
 					 Block.If(_, pos) |
 					 Block.Map(_, _, pos) |
+					 Block.Assignment(_, _, pos) |
 					 Block.Else(pos):
 					pos.line;
 			}
@@ -344,6 +350,21 @@ class IthrilBuilder {
 			case macro !doctype:
 				element.selector.tag = '!doctype';
 				element.attributes = macro {html: true};
+			case macro $v = $el:
+				switch chainElement(el) {
+					case Success(block): 
+						switch block {
+							case Block.CustomElement(_, _, pos):
+								switch v.getIdent() {
+									case Success(ident):
+										return Success(Block.Assignment(ident, block, posInfo(v)));
+									default:
+								}
+							default:
+						}
+					default:
+				}
+				return Failure(Noise);
 			case _.expr => ExprDef.EConst(c):
 				switch (c) {
 					case Constant.CIdent(s):

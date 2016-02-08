@@ -236,6 +236,14 @@ class TestIthil extends TestCase implements Ithril {
 		);
 	}
 	
+	public function testCustomElementKeepRef() {
+		var test = null;
+		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, 
+			[(test = CustomElement (attr = 'test'))].view()
+		);
+		assertEquals(true, Std.is(test, CustomElement));
+	}
+	
 	public function testCustomCombined() {
 		assert({tag: 'div', attrs: {a: 1, b: 2}, children: []}, 
 			[(CombinedAttributes (a=1) (b=2))].view()

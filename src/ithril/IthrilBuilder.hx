@@ -225,7 +225,7 @@ class IthrilBuilder {
 					// concat objects
 					var e = addFieldsFromElement(data.attributes.pos, fields, data);
 					if (fields.length > 0)
-						return macro ithril.Attributes.combine($e, ${data.attributes});
+						return macro @:pos(e.pos) ithril.Attributes.combine($e, ${data.attributes});
 					else
 						return data.attributes;
 			}
@@ -254,7 +254,7 @@ class IthrilBuilder {
 			if (field.field == key) {
 				exists = true;
 				if (key == 'class')
-					field.expr = macro ithril.Attributes.combineClassNames(${field.expr}, $expr);
+					field.expr = macro @:pos(expr.pos) ithril.Attributes.combineClassNames(${field.expr}, $expr);
 				else
 					field.expr.expr = expr.expr;
 			}
@@ -389,7 +389,7 @@ class IthrilBuilder {
 								switch extractAttributes(attrs) {
 									case Success(a): 
 										if (el.attributes != null)
-											el.attributes = macro ithril.Attributes.combine(${el.attributes}, $a);
+											el.attributes = macro @:pos(a.pos) ithril.Attributes.combine(${el.attributes}, $a);
 										else
 											el.attributes = a;
 									case Failure(Noise): return Failure(Noise);
@@ -398,7 +398,7 @@ class IthrilBuilder {
 								switch extractAttributes(attrs) {
 									case Success(a): {
 										if (prevAttr != null && prevAttr.length != 0) {
-											a = macro ithril.Attributes.combine(${prevAttr[0]}, $a);
+											a = macro @:pos(a.pos) ithril.Attributes.combine(${prevAttr[0]}, $a);
 										}
 										return Success(Block.CustomElement(type, [a], pos));
 									}

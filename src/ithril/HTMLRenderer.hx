@@ -3,6 +3,12 @@ package ithril;
 using Reflect;
 using Lambda;
 
+@:enum 
+abstract Namespace(String) from String to String {
+	var None = '';
+	var Svg = 'http://www.w3.org/2000/svg';
+}
+
 class HTMLRenderer {
 
 	var VOID_TAGS = [
@@ -20,11 +26,11 @@ class HTMLRenderer {
 		return StringTools.htmlEscape(str);
 	}
 
-	function createChildrenContent(view, level) {
+	function createChildrenContent(view, level, namespace: Namespace) {
 		if(Std.is(view.children, Array) && view.children.length == 0)
 			return '';
 
-		return renderView(view.children, level);
+		return renderView(view.children, level, namespace);
 	}
 
 	function removeEmpty(n: String) {
@@ -44,7 +50,14 @@ class HTMLRenderer {
         return outStr;
     }
 
-	function attribute(name: String, value: Dynamic) {
+	function attribute(name: String, value: Dynamic, namespace: Namespace) {
+		switch namespace {
+			case Namespace.Svg: 
+				if (name == 'href')
+					name = 'xlink:href';
+			default:
+		}
+		
 		if (Reflect.isFunction(value) || value == null)
 			return '';
 
@@ -74,22 +87,22 @@ class HTMLRenderer {
 		return ' ' + (name == 'className' ? 'class' : name) + '="' + escape(Std.string(value)) + '"';
 	}
 
-	function createAttrString(attrs: Dynamic) {
+	function createAttrString(attrs: Dynamic, namespace: Namespace) {
 		if (attrs == null) return '';
 
 		return Reflect.fields(attrs).map(function(name) {
-			return attribute(name, attrs.field(name));
+			return attribute(name, attrs.field(name), namespace);
 		}).join('');
 	}
 
-	public function renderView(view: Dynamic, level = 0) {
+	public function renderView(view: Dynamic, level = 0, namespace: Namespace) {
 		if (Std.is(view, String) || Std.is(view, Int) || Std.is(view, Float) || Std.is(view, Bool))
 			return spacer(level) + escape(Std.string(view)) + lineEnd();
 
 		if (view == null) return '';
 
 		if (Std.is(view, Array)) {
-			return (view: Array<Dynamic>).map(renderView.bind(_, level + 1)).join('');
+			return (view: Array<Dynamic>).map(renderView.bind(_, level + 1, namespace)).join('');
 		}
 
 		if (Reflect.isObject(view)) {
@@ -98,7 +111,7 @@ class HTMLRenderer {
 				var fields = Type.getInstanceFields(type);
 				if (fields.has('view')) {
 					var scope = fields.has('controller') ? view.controller() : {};
-					var result = renderView(view.view(), level);
+					var result = renderView(view.view(), level, namespace);
 					if (scope.hasField('onunload'))
 						untyped scope.onunload();
 					return result;
@@ -112,13 +125,18 @@ class HTMLRenderer {
 		}
 		
 		if (VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
-			return spacer(level) + '<' + view.tag + createAttrString(view.attrs) + '>' + lineEnd();
+			return spacer(level) + '<' + view.tag + createAttrString(view.attrs, namespace) + '>' + lineEnd();
 		}
-
-		var children = createChildrenContent(view, level+1);
+		
+		if (view.tag == 'svg') {
+			namespace = Namespace.Svg;
+			view.attrs.xmlns = namespace;
+		}
+		
+		var children = createChildrenContent(view, level+1, namespace);
 
 		return [
-			spacer(level) + '<', view.tag, createAttrString(view.attrs), '>' + lineEnd(),
+			spacer(level) + '<', view.tag, createAttrString(view.attrs, namespace), '>' + lineEnd(),
 			children,
 			spacer(level) + '</', view.tag, '>' + lineEnd(),
 		].join('');
@@ -136,7 +154,7 @@ class HTMLRenderer {
 
 	public static function render(view: Dynamic, space = ''): String {
 		var renderer = new HTMLRenderer(space);
-		return renderer.renderView(view);
+		return renderer.renderView(view, Namespace.None);
 	}
 
 }

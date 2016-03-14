@@ -57,6 +57,16 @@ class TestHTMLRenderer extends TestCase implements Ithril {
 		]));
 	}
 	
+	public function testSvg() {
+		assertEquals('<svg xmlns="http://www.w3.org/2000/svg"><a xlink:href="http://example.com/link/"><text x="10" y="25">Link</text></a></svg>', 
+			HTMLRenderer.render([
+				(svg)
+					(a (href="http://example.com/link/"))
+						(text (x="10", y="25") > 'Link')
+			])
+		);
+	}
+	
 	public function testTextnode() {
 		assertEquals('<div>Test</div>', HTMLRenderer.render([(div > 'Test')]));
 	}

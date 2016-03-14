@@ -71,7 +71,7 @@ class HTMLRenderer {
 			return styles != '' ? ' style="' + escape(styles) + '"' : '';
 		}
 
-		return ' ' + (name == 'className' ? 'class' : name) + '="' + escape(value) + '"';
+		return ' ' + (name == 'className' ? 'class' : name) + '="' + escape(Std.string(value)) + '"';
 	}
 
 	function createAttrString(attrs: Dynamic) {

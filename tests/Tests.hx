@@ -39,6 +39,7 @@ class TestHTMLRenderer extends TestCase implements Ithril {
 	
 	public function testAttributes() {
 		assertEquals('<div attr="test"></div>', HTMLRenderer.render([(div (attr = 'test'))]));
+		assertEquals('<div attr="123"></div>', HTMLRenderer.render([(div (attr = 123))]));
 	}
 	
 	public function testStyleAttribute() {

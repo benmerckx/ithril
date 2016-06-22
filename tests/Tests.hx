@@ -2,6 +2,7 @@ import haxe.unit.TestCase;
 import haxe.unit.TestRunner;
 import ithril.Component;
 import ithril.Ithril;
+import ithril.IthrilView;
 import ithril.HTMLRenderer;
 import haxe.Json;
 
@@ -31,7 +32,7 @@ class Label extends Component<String> {
 	];
 }
 
-class TestHTMLRenderer extends TestCase implements Ithril {
+class TestHTMLRenderer extends TestCase implements IthrilView {
 	
 	public function testBasic() {
 		assertEquals('<div></div>', HTMLRenderer.render([(div)]));
@@ -99,7 +100,7 @@ class TestHTMLRenderer extends TestCase implements Ithril {
 	}
 }
 
-class TestIthil extends TestCase implements Ithril {
+class TestIthil extends TestCase implements IthrilView {
 	
 	public function testBasic() {
 		assert({tag: 'div', attrs: {}, children: []}, [(div)]);

@@ -98,6 +98,15 @@ class TestHTMLRenderer extends TestCase implements IthrilView {
 			(Label (variable))
 		]));
 	}
+	
+	public function testTrusted() {
+		assertEquals('&lt;b&gt;ok&lt;/b&gt;', HTMLRenderer.render([
+			['<b>ok</b>']
+		]));
+		assertEquals('<b>ok</b>', HTMLRenderer.render([
+			[Ithril.trust('<b>ok</b>')]
+		]));
+	}
 }
 
 class TestIthil extends TestCase implements IthrilView {

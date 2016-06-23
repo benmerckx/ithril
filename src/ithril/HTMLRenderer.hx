@@ -120,7 +120,7 @@ class HTMLRenderer {
 		}
 
 		// TODO: check for other targets
-		if (Std.is(view, TrustedHTML)) {
+		if (Std.is(view, ithril.Ithril.TrustedHTMLAccess)) {
 			return Std.string(view);
 		}
 		

@@ -180,7 +180,7 @@ Or may be rendered as html (string):
 
 ## Usage
 
-Any of your class methods can use ithril syntax if you either implement `ithril.Ithril` or extend `ithril.Component`.
+Any of your class methods can use ithril syntax if you either implement `ithril.IthrilView` or extend `ithril.Component`.
 
 ```haxe
 class Web extends ithril.Component {

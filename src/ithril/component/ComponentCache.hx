@@ -4,7 +4,6 @@ import ithril.Component;
 
 typedef ComponentType = {
 	public function new():Void;
-	//public var state(default, null): S;
 }
 
 class ComponentCache {

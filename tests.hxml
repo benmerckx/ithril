@@ -1,5 +1,2 @@
--lib tink_macro
--cp src
 -cp tests
 -main Tests
---interp

@@ -45,7 +45,7 @@ class ComponentAbstract<State, Child: VirtualElement> implements IthrilView {
 	
 	@:keep
 	public static function __init__() {
-		#if js
+		#if (!nodejs && js)
 		// JS client has to be monkey patched, because mithril has no hooks
 		function patch(obj, method: String, impl: Dynamic) untyped {
 			var store = {}, previous = obj[method];

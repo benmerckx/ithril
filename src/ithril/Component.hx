@@ -1,5 +1,8 @@
 package ithril;
 
+import haxe.DynamicAccess;
+import ithril.component.ComponentCache;
+
 @:genericBuild(ithril.component.ComponentBuilder.buildGeneric())
 class Component<Rest> {}
 
@@ -38,5 +41,47 @@ class ComponentAbstract<State, Child: VirtualElement> implements IthrilView {
 
 	public function asHTML(space = ''): String {
 		return HTMLRenderer.render(this, space);
+	}
+	
+	@:keep
+	public static function __init__() {
+		#if js
+		// JS client has to be monkey patched, because mithril has no hooks
+		function patch(obj, method: String, impl: Dynamic) untyped {
+			var store = {}, previous = obj[method];
+			Object.keys(previous).map(function(key) store[key] = previous[key]);
+			obj[method] = impl.bind(__js__('this'), obj[method]);
+			Object.keys(store).map(function (key) obj[method][key] = store[key]);
+		}
+		
+		var window: DynamicAccess<Dynamic> = cast js.Browser.window,
+			m: Dynamic = window.get('m'),
+			redrawing = false, 
+			queue = false, 
+			counted = 0,
+			next = window.exists('requestAnimationFrame') ? window['requestAnimationFrame'] : window['setTimeout'];
+		
+			patch(m, 'redraw', function(original, force) {
+				if (queue) return;
+				if (!redrawing) {
+					ComponentCache.invalidate();
+					original(force);
+					redrawing = true;
+					queue = false;
+					next(function() {
+						ComponentCache.collect();
+						redrawing = false;
+						if (queue) {
+							next(function() {
+								m.redraw();
+								queue = false;
+							}, 16);
+						}
+					}, 16);
+				} else {
+					queue = true;
+				}
+			});
+		#end
 	}
 }

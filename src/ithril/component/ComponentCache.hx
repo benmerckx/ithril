@@ -20,26 +20,24 @@ class ComponentCache {
 			var count = componentCount.exists(key) ? componentCount.get(key) : 0;
 			componentCount.set(key, count+1);
 			id = Std.string(count);
-			#if js
-			if (timeout == null) {
-			// mark dirty
-			for (component in componentInstances)
-			component.dirty = true;
-			timeout = js.Browser.window.requestAnimationFrame(function(_) {
-				componentCount = new Map();
-				timeout = null;
-				for (key in componentInstances.keys()) {
-					var component = componentInstances.get(key);
-					if (component.dirty) {
-						component.unmount();
-						componentInstances.remove(key);
-					}
-				}
-			});
-		}
-			#end
 		}
 		return key + id;
+	}
+	
+	public static function invalidate() {
+		for (component in componentInstances)
+			component.dirty = true;
+	}
+	
+	public static function collect() {
+		componentCount = new Map();
+		for (key in componentInstances.keys()) {
+			var component = componentInstances.get(key);
+			if (component.dirty) {
+				component.unmount();
+				componentInstances.remove(key);
+			}
+		}
 	}
 
 	static function getInstance<T>(

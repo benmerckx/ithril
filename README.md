@@ -70,7 +70,7 @@ Any expression can be used inside brackets:
 
 #### Conditionals
 
-If/else can be used inside templates (`$ifelse` is on the todo list):
+If/else can be used inside templates (`$elseif` is on the todo list):
 ```haxe
 ($if (bigTitle))
 	(h1 > 'Big')

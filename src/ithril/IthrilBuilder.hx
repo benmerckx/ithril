@@ -207,7 +207,7 @@ class IthrilBuilder {
 						ithril.component.ComponentCache.getComponent($v{key}, $i{name}, children, $state);
 						tmp.setChildren(children);
 						tmp.setState($state);
-						tmp;
+						tmp.view();
 					});
 			}
 			i++;

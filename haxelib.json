@@ -4,8 +4,8 @@
   "license": "MIT",
   "tags": ["js", "html", "template", "web"],
   "description": "Templates for haxe. Compiles to HTML or Mithril views.",
-  "version": "1.1.1",
-  "releasenote": "Redraw logic updated",
+  "version": "1.1.2",
+  "releasenote": "Call view directly on components",
   "contributors": ["benmerckx"],
   "classPath": "src",
   "dependencies": {

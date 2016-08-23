@@ -2,11 +2,20 @@ package ithril;
 
 class Ithril {
 	
-	public static function trust(content: String) {
+	inline public static function trust(content: String) {
 		#if (!nodejs && js)
-		untyped return m.trust(content);
-		#end
+		return untyped m.trust(content);
+		#else
 		return new TrustedHTML(content);
+		#end
+	}
+	
+	inline public static function redraw(?force: Bool) {
+		#if (!nodejs && js)
+		return untyped m.redraw(force);
+		#else
+		return null;
+		#end
 	}
 	
 }

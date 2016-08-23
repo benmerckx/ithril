@@ -45,6 +45,7 @@ class ComponentAbstract<State, Child: VirtualElement> implements IthrilView {
 	
 	@:keep
 	public static function __init__() {
+		trace('ok');
 		#if (!nodejs && js)
 		// JS client has to be monkey patched, because mithril has no hooks
 		function patch(obj, method: String, impl: Dynamic) untyped {
@@ -69,13 +70,11 @@ class ComponentAbstract<State, Child: VirtualElement> implements IthrilView {
 					redrawing = true;
 					queue = false;
 					next(function() {
-						ComponentCache.collect();
 						redrawing = false;
+						ComponentCache.collect();
 						if (queue) {
-							next(function() {
-								m.redraw();
-								queue = false;
-							}, 16);
+							queue = false;
+							m.redraw(force);
 						}
 					}, 16);
 				} else {

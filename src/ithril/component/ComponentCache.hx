@@ -3,8 +3,7 @@ package ithril.component;
 import ithril.Component;
 
 typedef ComponentType = {
-	public function new(): Void;
-	public function view(): VirtualElement;
+	public function new():Void;
 }
 
 class ComponentCache {
@@ -58,7 +57,7 @@ class ComponentCache {
 	}
 
 	@:generic
-	public static function getComponent<T: ComponentType> (
+	public static function getComponent<T: ComponentType>(
 		key: String,
 		type: Class<T>,
 		children: Array<VirtualElement>,

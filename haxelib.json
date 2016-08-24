@@ -5,7 +5,7 @@
   "tags": ["js", "html", "template", "web"],
   "description": "Templates for haxe. Compiles to HTML or Mithril views.",
   "version": "1.1.2",
-  "releasenote": "Call view directly on components",
+  "releasenote": "Revert",
   "contributors": ["benmerckx"],
   "classPath": "src",
   "dependencies": {

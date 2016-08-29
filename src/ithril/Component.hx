@@ -13,7 +13,8 @@ class ComponentAbstract<State, Child: VirtualElement> implements IthrilView {
 	public var stateFields: Array<String> = [];
 	var children: Array<Child>;
 	var parent: Component = null;
-	var dirty: Bool = false;
+	var dirty = false;
+	var isMounted = false;
 
 	public function new() {}
 
@@ -45,7 +46,6 @@ class ComponentAbstract<State, Child: VirtualElement> implements IthrilView {
 	
 	@:keep
 	public static function __init__() {
-		trace('ok');
 		#if (!nodejs && js)
 		// JS client has to be monkey patched, because mithril has no hooks
 		function patch(obj, method: String, impl: Dynamic) untyped {

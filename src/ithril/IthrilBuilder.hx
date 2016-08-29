@@ -207,6 +207,10 @@ class IthrilBuilder {
 						ithril.component.ComponentCache.getComponent($v{key}, $i{name}, children, $state);
 						tmp.setChildren(children);
 						tmp.setState($state);
+						if (!@:privateAccess tmp.isMounted) {
+							tmp.mount();
+							@:privateAccess tmp.isMounted = true;
+						}
 						tmp;
 					});
 			}

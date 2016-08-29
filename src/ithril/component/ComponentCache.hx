@@ -48,7 +48,7 @@ class ComponentCache {
 		key = createKey(key, state);
 		if (!componentInstances.exists(key)) {
 			var c: Component = cast create();
-			c.mount();
+			//c.mount();
 			componentInstances.set(key, c);
 		}
 		var component = componentInstances.get(key);

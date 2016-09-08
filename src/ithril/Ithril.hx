@@ -18,6 +18,9 @@ class Ithril {
 		#end
 	}
 	
+	inline public static function retain()
+		return {subtree: 'retain'}
+	
 }
 
 typedef TrustedHTMLAccess = TrustedHTML;

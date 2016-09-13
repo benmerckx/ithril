@@ -200,7 +200,7 @@ class IthrilBuilder {
 					exprList.push(macro @:pos(pos.pos) $i{ident} = $el);
 				case Block.CustomElement(name, arguments, pos):
 					var key = Md5.encode(Std.string(pos));
-					var state = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) {};
+					var state = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) null;
 					exprList.push(macro {
 						var children: Dynamic = ${createExpr(item.children)};
 						var tmp =

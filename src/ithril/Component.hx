@@ -8,11 +8,11 @@ class Component<Rest> {}
 
 @:autoBuild(ithril.component.ComponentBuilder.build())
 @:allow(ithril.component.ComponentCache)
-class ComponentAbstract<State, Child: VirtualElement> implements IthrilView {
+class ComponentAbstract<State, Child: VirtualElement, Parent: Component> implements IthrilView {
 	public var state(default, null): State;
 	public var stateFields: Array<String> = [];
 	var children: Array<Child>;
-	var parent: Component = null;
+	var parent: Parent;
 	var dirty = false;
 	var isMounted = false;
 

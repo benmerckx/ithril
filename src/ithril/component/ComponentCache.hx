@@ -12,15 +12,19 @@ class ComponentCache {
 	static var timeout: Null<Int> = null;
 
 	static function createKey<S: Dynamic>(key: String, state: S) {
-		var id = '';
-		if (Reflect.hasField(state, 'key')) {
-			id = '__key__'+Reflect.field(state, 'key');
-		} else {
-			var count = componentCount.exists(key) ? componentCount.get(key) : 0;
-			componentCount.set(key, count+1);
-			id = Std.string(count);
-		}
-		return key + id;
+		var id = '', count = 0;
+		
+		if (state != null && Reflect.hasField(state, 'key'))
+			id = key+Reflect.field(state, 'key');
+		else
+			id = key;
+		
+		if (componentCount.exists(id))
+			count = componentCount.get(id);
+		componentCount.set(id, count+1);
+		id += '--'+Std.string(count);
+		
+		return id;
 	}
 	
 	public static function invalidate() {

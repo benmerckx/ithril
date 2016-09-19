@@ -4,8 +4,8 @@
   "license": "MIT",
   "tags": ["js", "html", "template", "web"],
   "description": "Templates for haxe. Compiles to HTML or Mithril views.",
-  "version": "1.2.0",
-  "releasenote": "Added retain",
+  "version": "1.2.1",
+  "releasenote": "Null as default state",
   "contributors": ["benmerckx"],
   "classPath": "src",
   "dependencies": {

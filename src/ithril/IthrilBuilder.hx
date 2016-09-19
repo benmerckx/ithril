@@ -164,7 +164,7 @@ class IthrilBuilder {
 					root = true;
 					exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, true)}]);
 				case Block.If(e, pos):
-					var elseCond = macro null;
+					var elseCond = macro @:pos(pos.pos) null;
 					if (list.length > i+1) {
 						var next: BlockWithChildren = list[i+1];
 						switch next.block {
@@ -201,7 +201,7 @@ class IthrilBuilder {
 				case Block.CustomElement(name, arguments, pos):
 					var key = Md5.encode(Std.string(pos));
 					var state = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) null;
-					exprList.push(macro {
+					exprList.push(macro @:pos(pos.pos) {
 						var children: Dynamic = ${createExpr(item.children)};
 						var tmp =
 						ithril.component.ComponentCache.getComponent($v{key}, $i{name}, children, $state);
@@ -216,11 +216,14 @@ class IthrilBuilder {
 			}
 			i++;
 		}
+		var pos = exprList.length > 0 ? exprList[0].pos : Context.currentPos();
+		
 		if (root) {
 			var final = exprList.length == 1 ? macro ${exprList[0]} : macro $a{exprList};
-			return macro (@:ithril $final: Dynamic);
+			return macro @:pos(pos) (@:ithril $final: Dynamic);
 		}
-		return macro ($a{exprList}: Dynamic);
+		
+		return macro @:pos(pos) ($a{exprList}: Dynamic);
 	}
 
 	static function createAttrsExpr(pos: Position, data: Element): Expr {

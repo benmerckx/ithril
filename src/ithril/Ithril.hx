@@ -19,7 +19,7 @@ class Ithril {
 	}
 	
 	inline public static function retain()
-		return {subtree: 'retain'}
+		return untyped {subtree: 'retain'}
 	
 }
 

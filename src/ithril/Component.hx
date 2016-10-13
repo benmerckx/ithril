@@ -47,6 +47,7 @@ class ComponentAbstract<State, Child: VirtualElement, Parent: Component> impleme
 	@:keep
 	public static function __init__() {
 		#if (!nodejs && js)
+		trace('patched');
 		// JS client has to be monkey patched, because mithril has no hooks
 		function patch(obj, method: String, impl: Dynamic) untyped {
 			var store = {}, previous = obj[method];
@@ -65,13 +66,12 @@ class ComponentAbstract<State, Child: VirtualElement, Parent: Component> impleme
 			patch(m, 'redraw', function(original, force) {
 				if (queue) return;
 				if (!redrawing) {
+					redrawing = true;
 					ComponentCache.invalidate();
 					original(force);
-					redrawing = true;
-					queue = false;
 					next(function() {
-						redrawing = false;
 						ComponentCache.collect();
+						redrawing = false;
 						if (queue) {
 							queue = false;
 							m.redraw(force);

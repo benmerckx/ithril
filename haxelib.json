@@ -4,11 +4,11 @@
   "license": "MIT",
   "tags": ["js", "html", "template", "web"],
   "description": "Templates for haxe. Compiles to HTML or Mithril views.",
-  "version": "1.2.3",
-  "releasenote": "Retain as untyped as it can't unify with mithril externs",
+  "version": "1.3.0",
+  "releasenote": "Updated redraw cycle",
   "contributors": ["benmerckx"],
   "classPath": "src",
   "dependencies": {
-	"tink_macro": ""
+    "tink_macro": ""
   }
 }

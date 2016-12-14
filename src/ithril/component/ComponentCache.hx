@@ -2,9 +2,12 @@ package ithril.component;
 
 import ithril.Component;
 
-typedef ComponentType = {
-	public function new():Void;
-}
+typedef ComponentType = 
+#if (haxe_ver > 3.201)
+haxe.Constraints.Constructible<Dynamic>;
+#else
+{public function new():Void;}
+#end
 
 class ComponentCache {
 	static var componentInstances: Map<String, Component> = new Map();

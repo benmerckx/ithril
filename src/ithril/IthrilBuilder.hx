@@ -219,7 +219,7 @@ class IthrilBuilder {
 		var pos = exprList.length > 0 ? exprList[0].pos : Context.currentPos();
 		
 		if (root) {
-			var final = exprList.length == 1 ? macro ${exprList[0]} : macro $a{exprList};
+			var final = exprList.length == 1 ? macro ${exprList[0]} : exprList.length > 1 ? macro $a{exprList} : null;
 			return macro @:pos(pos) (@:ithril $final: Dynamic);
 		}
 		

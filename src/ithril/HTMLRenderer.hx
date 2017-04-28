@@ -133,7 +133,7 @@ class HTMLRenderer {
 			view.attrs.xmlns = namespace;
 		}
 		
-		var children = createChildrenContent(view, level+1, namespace);
+		var children = createChildrenContent(view, level, namespace);
 
 		return [
 			spacer(level) + '<', view.tag, createAttrString(view.attrs, namespace), '>' + lineEnd(),

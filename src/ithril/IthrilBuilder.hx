@@ -321,7 +321,12 @@ class IthrilBuilder {
 			current = positionedBlock;
 
 			if (addTo != null)
-				addTo.children.push(positionedBlock);
+			{
+				if (addTo.children == null)
+					addTo.children = [positionedBlock];
+				else
+					addTo.children.push(positionedBlock);
+			}
 			else
 				list.push(positionedBlock);
 		}

@@ -156,13 +156,28 @@ class IthrilBuilder {
 
 	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
 		var exprList: Array<Expr> = [];
-		if (prepend != null) exprList.push(prepend);
+		if (prepend != null) 
+#if !mithril_111 
+			exprList.push(prepend); 
+#else
+		{
+			exprList.push(macro {
+				tag: '#',
+				children: ${prepend}
+			});
+		}
+#end
+
 		var i = 0;
 		if (list != null) for (item in list) {
 			switch item.block {
 				case Block.For(e, pos):
 					root = true;
+#if !mithril_111
 					exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, true)}]);
+#else
+					exprList.push(macro @:pos(pos.pos) { tag: "[", children: [for ($e) ${createExpr(item.children, true)}]});
+#end
 				case Block.If(e, pos):
 					var elseCond = macro @:pos(pos.pos) null;
 					if (list.length > i+1) {
@@ -175,14 +190,34 @@ class IthrilBuilder {
 						}
 					}
 					//root = true;
-					exprList.push(macro @:pos(pos.pos) $e ? ${createExpr(item.children)} : $elseCond);
+					exprList.push(macro @:pos(pos.pos) {
+						if ($e) {
+#if !mithril_111
+							${createExpr(item.children)};
+#else
+							{ tag: "[", children: ${createExpr(item.children)} };
+#end
+						} else {
+#if !mithril_111
+							$elseCond;
+#else
+							{ tag: "[", children: $elseCond };
+#end
+						}
+					});
 				case Block.Else(_):
 					continue;
 				case Block.Map(a, b, pos):
 					switch b.getIdent() {
 						case Success(i):
 							root = true;
-							exprList.push(macro @:pos(pos.pos) $a.map(function($i) ${createExpr(item.children, true)}));
+							exprList.push(macro @:pos(pos.pos) {
+#if !mithril_111
+								$a.map(function($i) ${createExpr(item.children, true)});
+#else
+								{ tag: "[", children: $a.map(function($i) ${createExpr(item.children, true)}) };
+#end
+							});
 						default: continue;
 					}
 				case Block.ElementBlock(data, pos):
@@ -211,7 +246,11 @@ class IthrilBuilder {
 							tmp.mount();
 							@:privateAccess tmp.isMounted = true;
 						}
+#if (nodejs || !mithril_111)
 						tmp;
+#else
+						{ tag:tmp, children: children };
+#end
 					});
 			}
 			i++;

@@ -124,8 +124,16 @@ class HTMLRenderer {
 			return Std.string(view);
 		}
 		
-		if (VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
+		if (Std.is(view.tag, String) && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
 			return spacer(level) + '<' + view.tag + createAttrString(view.attrs, namespace) + '>' + lineEnd();
+		}
+
+		if (view.tag == '#') {
+			return spacer(level) + view.children.toString() + lineEnd();
+		}
+
+		if (view.tag == '[') {
+			return createChildrenContent(view, level, namespace);
 		}
 		
 		if (view.tag == 'svg') {

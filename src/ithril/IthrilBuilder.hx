@@ -158,7 +158,7 @@ class IthrilBuilder {
 		var exprList: Array<Expr> = [];
 		if (prepend != null) exprList.push(prepend);
 		var i = 0;
-		for (item in list) {
+		if (list != null) for (item in list) {
 			switch item.block {
 				case Block.For(e, pos):
 					root = true;

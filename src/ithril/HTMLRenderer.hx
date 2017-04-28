@@ -14,7 +14,7 @@ class HTMLRenderer {
 	var VOID_TAGS = [
 		'area', 'base', 'br', 'col', 'command', 'embed', 'hr',
 		'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track',
-		'wbr', '!doctype'
+		'wbr', '!doctype', 'html'
 	];
 	var space: String;
 

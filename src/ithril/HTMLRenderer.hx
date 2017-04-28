@@ -3,7 +3,7 @@ package ithril;
 using Reflect;
 using Lambda;
 
-@:enum 
+@:enum
 abstract Namespace(String) from String to String {
 	var None = '';
 	var Svg = 'http://www.w3.org/2000/svg';
@@ -52,12 +52,12 @@ class HTMLRenderer {
 
 	function attribute(name: String, value: Dynamic, namespace: Namespace) {
 		switch namespace {
-			case Namespace.Svg: 
+			case Namespace.Svg:
 				if (name == 'href')
 					name = 'xlink:href';
 			default:
 		}
-		
+
 		if (Reflect.isFunction(value) || value == null)
 			return '';
 
@@ -123,7 +123,7 @@ class HTMLRenderer {
 		if (Std.is(view, ithril.Ithril.TrustedHTMLAccess)) {
 			return Std.string(view);
 		}
-		
+
 		if (Std.is(view.tag, String) && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
 			return spacer(level) + '<' + view.tag + createAttrString(view.attrs, namespace) + '>' + lineEnd();
 		}
@@ -135,12 +135,12 @@ class HTMLRenderer {
 		if (view.tag == '[') {
 			return createChildrenContent(view, level, namespace);
 		}
-		
+
 		if (view.tag == 'svg') {
 			namespace = Namespace.Svg;
 			view.attrs.xmlns = namespace;
 		}
-		
+
 		var children = createChildrenContent(view, level, namespace);
 
 		return [

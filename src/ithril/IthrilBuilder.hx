@@ -85,7 +85,7 @@ class IthrilBuilder {
 				field;
 			default: field;
 		}
-		
+
 	static function yieldSubExpr(e: Expr) {
 		switch e {
 			case macro function($a) $b:
@@ -94,7 +94,7 @@ class IthrilBuilder {
 		}
 		e.iter(yieldSubExpr);
 	}
-	
+
 	static function yieldExpr(e: Expr)
 		return e.yield(function(e) {
 			return switch e {
@@ -103,7 +103,7 @@ class IthrilBuilder {
 				default: e;
 			}
 		});
-		
+
 	static function parseFunction(e: Expr) {
 		switch e.expr {
 			case ExprDef.EArrayDecl(values):
@@ -156,9 +156,9 @@ class IthrilBuilder {
 
 	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
 		var exprList: Array<Expr> = [];
-		if (prepend != null) 
-#if !mithril_111 
-			exprList.push(prepend); 
+		if (prepend != null)
+#if !mithril_111
+			exprList.push(prepend);
 #else
 		{
 			exprList.push(macro {
@@ -256,12 +256,12 @@ class IthrilBuilder {
 			i++;
 		}
 		var pos = exprList.length > 0 ? exprList[0].pos : Context.currentPos();
-		
+
 		if (root) {
 			var final = exprList.length == 1 ? macro ${exprList[0]} : exprList.length > 1 ? macro $a{exprList} : null;
 			return macro @:pos(pos) (@:ithril $final: Dynamic);
 		}
-		
+
 		return macro @:pos(pos) ($a{exprList}: Dynamic);
 	}
 
@@ -283,7 +283,7 @@ class IthrilBuilder {
 		}
 		return addFieldsFromElement(pos, fields, data);
 	}
-	
+
 	static function addFieldsFromElement(pos: Position, fields: Array<ObjField>, data: Element) {
 		var id = data.selector.id;
 		var className = data.selector.classes.join(' ');
@@ -324,9 +324,9 @@ class IthrilBuilder {
 		var current: BlockWithChildren = null;
 		for (block in blocks) {
 			var line = switch (block) {
-				case Block.ElementBlock(_, pos) | 
-					 Block.ExprBlock(_, pos) | 
-					 Block.CustomElement(_, _, pos) | 
+				case Block.ElementBlock(_, pos) |
+					 Block.ExprBlock(_, pos) |
+					 Block.CustomElement(_, _, pos) |
 					 Block.For(_, pos) |
 					 Block.If(_, pos) |
 					 Block.Map(_, _, pos) |
@@ -403,7 +403,7 @@ class IthrilBuilder {
 				element.attributes = macro {html: true};
 			case macro $v = $el:
 				switch chainElement(el) {
-					case Success(block): 
+					case Success(block):
 						switch block {
 							case Block.CustomElement(_, _, pos):
 								switch v.getIdent() {
@@ -448,18 +448,18 @@ class IthrilBuilder {
 								}
 							default: return Failure(Noise);
 						}
-					default: 
+					default:
 						return Failure(Noise);
 				}
 			case _.expr => ExprDef.EField(_, _) | ExprDef.EArray(_, _):
 				parseEndBlock(e, element);
 			case _.expr => ExprDef.ECall(e1, attrs):
 				switch chainElement(e1) {
-					case Success(block): 
+					case Success(block):
 						switch block {
 							case Block.ElementBlock(el, _):
 								switch extractAttributes(attrs) {
-									case Success(a): 
+									case Success(a):
 										if (el.attributes != null)
 											el.attributes = macro @:pos(a.pos) ithril.Attributes.combine(${el.attributes}, $a);
 										else
@@ -486,20 +486,20 @@ class IthrilBuilder {
 
 		return Success(Block.ElementBlock(element, posInfo(e)));
 	}
-	
+
 	static function parseEndBlock(e, element) {
 		getAttr(e, element.inlineAttributes);
 		var clean = {expr: e.expr, pos: e.pos};
 		removeAttr(clean);
 		element.selector = parseSelector(clean.toString().replace(' ', ''));
 	}
-	
+
 	static function extractAttributes(attrs: Array<Expr>): Outcome<Expr, Noise> {
 		if (attrs.length == 1)
 			switch attrs[0] {
 				case macro $a=$b:
 					switch assignToField(a, b) {
-						case Success(field): 
+						case Success(field):
 							return Success({expr: ExprDef.EObjectDecl([field]), pos: a.pos});
 						default: Failure(Noise);
 					}
@@ -508,7 +508,7 @@ class IthrilBuilder {
 					return Success(macro @:pos(attrs[0].pos) ithril.Attributes.attrs(${attrs[0]}));
 				}
 			}
-			
+
 		var fields = [];
 		for (e in attrs) {
 			switch e {
@@ -522,7 +522,7 @@ class IthrilBuilder {
 		}
 		return Success({expr: ExprDef.EObjectDecl(fields), pos: attrs[0].pos});
 	}
-	
+
 	static function assignToField(a: Expr, b: Expr): Outcome<ObjField, Noise>
 		return switch a.getName() {
 			case Success(name):

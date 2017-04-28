@@ -246,7 +246,7 @@ class IthrilBuilder {
 							tmp.mount();
 							@:privateAccess tmp.isMounted = true;
 						}
-#if (sys || nodejs || !mithril_111)
+#if (nodejs || !mithril_111)
 						tmp;
 #else
 						{ tag:tmp, children: children };

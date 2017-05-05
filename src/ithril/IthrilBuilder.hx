@@ -9,12 +9,6 @@ using StringTools;
 using tink.MacroApi;
 using tink.CoreApi;
 
-typedef Cell = {
-	tag: String,
-	attrs: Dynamic,
-	children: Dynamic
-}
-
 enum Block {
 	ElementBlock(data: Element, pos: PosInfo);
 	ExprBlock(e: Expr, pos: PosInfo);
@@ -157,27 +151,21 @@ class IthrilBuilder {
 	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
 		var exprList: Array<Expr> = [];
 		if (prepend != null)
-#if !mithril_111
-			exprList.push(prepend);
-#else
-		{
+			//exprList.push(prepend);
 			exprList.push(macro {
 				tag: '#',
 				children: ${prepend}
 			});
-		}
-#end
 
 		var i = 0;
-		if (list != null) for (item in list) {
+		for (item in list) {
 			switch item.block {
+
 				case Block.For(e, pos):
 					root = true;
-#if !mithril_111
-					exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, true)}]);
-#else
+					//exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, true)}]);
 					exprList.push(macro @:pos(pos.pos) { tag: "[", children: [for ($e) ${createExpr(item.children, true)}]});
-#end
+
 				case Block.If(e, pos):
 					var elseCond = macro @:pos(pos.pos) null;
 					if (list.length > i+1) {
@@ -192,66 +180,57 @@ class IthrilBuilder {
 					//root = true;
 					exprList.push(macro @:pos(pos.pos) {
 						if ($e) {
-#if !mithril_111
-							${createExpr(item.children)};
-#else
+							//${createExpr(item.children)};
 							{ tag: "[", children: ${createExpr(item.children)} };
-#end
 						} else {
-#if !mithril_111
-							$elseCond;
-#else
+							//$elseCond;
 							{ tag: "[", children: $elseCond };
-#end
 						}
 					});
+
 				case Block.Else(_):
 					continue;
+
 				case Block.Map(a, b, pos):
 					switch b.getIdent() {
 						case Success(i):
 							root = true;
 							exprList.push(macro @:pos(pos.pos) {
-#if !mithril_111
-								$a.map(function($i) ${createExpr(item.children, true)});
-#else
+								//$a.map(function($i) ${createExpr(item.children, true)});
 								{ tag: "[", children: $a.map(function($i) ${createExpr(item.children, true)}) };
-#end
 							});
 						default: continue;
 					}
+
 				case Block.ElementBlock(data, pos):
 					var tag = Context.makeExpr(data.selector.tag, Context.currentPos());
+					var attrs = createAttrsExpr(pos.pos, data);
+					var children = createExpr(item.children, false, data.content);
 					exprList.push(macro {
 						tag: ${tag},
-						attrs: ${createAttrsExpr(pos.pos, data)},
-						children: (${createExpr(item.children, false, data.content)}: Dynamic)
+						attrs: ${attrs},
+						children: ${children}
 					});
+
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
+					//exprList.push(macro {
+						//tag: '[',
+						//children: ${e}
+					//});
+
 				case Block.Assignment(ident, block, pos):
 					item.block = block;
 					var el = createExpr([item], true);
 					exprList.push(macro @:pos(pos.pos) $i{ident} = $el);
+
 				case Block.CustomElement(name, arguments, pos):
-					var key = Md5.encode(Std.string(pos));
-					var state = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) null;
+					var attrs = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) null;
+					var children = createExpr(item.children, false);
 					exprList.push(macro @:pos(pos.pos) {
-						var children: Dynamic = ${createExpr(item.children)};
-						var tmp =
-						ithril.component.ComponentCache.getComponent($v{key}, $i{name}, children, $state);
-						tmp.setChildren(children);
-						tmp.setState($state);
-						if (!@:privateAccess tmp.isMounted) {
-							tmp.mount();
-							@:privateAccess tmp.isMounted = true;
-						}
-#if (nodejs || !mithril_111)
-						tmp;
-#else
-						{ tag:tmp, children: children };
-#end
+						tag: $i{name}, attrs: $attrs, children: $children
 					});
+
 			}
 			i++;
 		}

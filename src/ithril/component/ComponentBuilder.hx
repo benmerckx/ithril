@@ -12,53 +12,29 @@ class ComponentBuilder {
 	static var params: Array<Type>;
 
 	static public function buildGeneric() {
-		var state = (macro: {});
-		var children = (macro: Dynamic);
-		var parent = (macro: Dynamic);
+		var attrs = (macro: {});
 		switch (Context.getLocalType()) {
 			case TInst(cl, paramList):
 					params = paramList;
 					if (params.length > 0)
-						state = TypeTools.toComplexType(params[0]);
-					if (params.length > 1)
-						children = TypeTools.toComplexType(params[1]);
-					if (params.length > 2)
-						parent = TypeTools.toComplexType(params[2]);
+						attrs = TypeTools.toComplexType(params[0]);
 			default:
 				Context.error("Class expected", Context.currentPos());
 		}
 		return ComplexType.TPath({
 			sub: 'ComponentAbstract',
-			params: [TPType(state), TPType(children), TPType(parent)],
+			params: [TPType(attrs)],
 			pack: ['ithril'],
 			name: 'Component'
 		});
 	}
 
-	static function stateFields(param: Type): Array<String> {
-		switch (param) {
-			case TAnonymous(_.get() => (a = _)):
-				return a.fields.map(function(field) {
-					return field.name;
-				});
-			default:
-				return [];
-		}
-	}
-
 	static public function build() {
+		// add @:keep metadata to component functions called by mithril
 		var fields = Context.getBuildFields();
-		if (params.length > 0) {
-			var stateType = Context.follow(params[0]);
-			var fieldNames = stateFields(stateType);
-			fields.map(function(field) {
-				if (field.name == 'stateFields') {
-					field.kind = FVar(macro: Array<String>, macro $v{fieldNames});
-				}
-			});
-		}
+		var keepFields = [ 'new', 'view', 'oninit', 'oncreate', 'onupdate', 'onbeforeremove', 'onremove', 'onbeforeupdate' ];
 		fields.map(function(field) {
-			if (field.name == 'view' || field.name == 'controller' || field.name == 'setState' || field.name == 'setChildren') {
+			if (keepFields.indexOf(field.name) > -1) {
 				field.meta = field.meta == null ? [] : field.meta;
 				field.meta.push({
 					pos: Context.currentPos(),

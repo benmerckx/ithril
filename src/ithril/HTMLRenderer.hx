@@ -1,8 +1,5 @@
 package ithril;
 
-using Reflect;
-using Lambda;
-
 @:enum
 abstract Namespace(String) from String to String {
 	var None = '';
@@ -11,46 +8,37 @@ abstract Namespace(String) from String to String {
 
 class HTMLRenderer {
 
-	var VOID_TAGS = [
+	static var VOID_TAGS = [
 		'area', 'base', 'br', 'col', 'command', 'embed', 'hr',
 		'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track',
 		'wbr', '!doctype', 'html'
 	];
-	var space: String;
 
-	function new(space) {
-		this.space = space;
-	}
+	inline static function escapeHtml(str: String, ?quotes:Bool):String return StringTools.htmlEscape(Std.string(str), quotes);
+	inline static function removeEmpties(n:String) return n != '' && n != null;
 
-	inline function escape(str: String): String {
-		return StringTools.htmlEscape(str);
-	}
-
-	function createChildrenContent(view, level, namespace: Namespace) {
-		if(Std.is(view.children, Array) && view.children.length == 0)
-			return '';
-
-		return renderView(view.children, level, namespace);
-	}
-
-	function removeEmpty(n: String) {
-		return n != '' && n != null;
-	}
-
-	function camelToDash(str: String) {
+	static inline function camelToDash(str:String) {
         var outStr = "";
         for (i in 0 ... str.length) {
             var chr = str.charCodeAt(i);
-            if (chr >= 'A'.code && chr <= 'Z'.code) {
+            if (chr >= 'A'.code && chr <= 'Z'.code)
                 outStr += '-' + String.fromCharCode(chr - 'A'.code + 'a'.code);
-            } else {
+            else
                 outStr += String.fromCharCode(chr);
-            }
         }
         return outStr;
-    }
+	}
 
-	function attribute(name: String, value: Dynamic, namespace: Namespace) {
+	static function setHooks (component:Component, vnode:Vnode, hooks:Array<Dynamic>) {
+		if (component.oninit != null) component.oninit(vnode);
+		if (component.onremove != null) hooks.push(component.onremove.bind(vnode));
+	}
+
+	static function attribute(name: String, value: Dynamic, escapeAttributeValue, namespace: Namespace) {
+		if (Reflect.isFunction(value) || value == null) return '';
+
+		if (Std.is(value, Bool)) return value ? ' ' + name : '';
+
 		switch namespace {
 			case Namespace.Svg:
 				if (name == 'href')
@@ -58,111 +46,119 @@ class HTMLRenderer {
 			default:
 		}
 
-		if (Reflect.isFunction(value) || value == null)
-			return '';
-
-		if (Std.is(value, Bool))
-			return value ? ' ' + name : '';
-
 		if (name == 'style') {
-			if (value == '')
-				return '';
+			if (value == '') return '';
 
 			var styles = '';
 
 			if (Reflect.isObject(styles)) {
 				styles = Reflect.fields(value).map(function(key) {
-					var prop = value.field(key);
+					var prop = Reflect.field(value, key);
 					return prop != '' ? [camelToDash(key).toLowerCase(), prop].join(':') : '';
-				}).filter(removeEmpty).join(';');
+				}).filter(removeEmpties).join(';');
 			}
 
-			if (Std.is(value, String)) {
-				styles = value;
-			}
+			if (Std.is(value, String)) styles = value;
 
-			return styles != '' ? ' style="' + escape(styles) + '"' : '';
+			return styles != '' ? ' style="' + escapeAttributeValue(styles, true) + '"' : '';
 		}
 
-		return ' ' + (name == 'className' ? 'class' : name) + '="' + escape(Std.string(value)) + '"';
+		return ' ' + (name == 'className' ? 'class' : name) + '="' + escapeAttributeValue(Std.string(value), true) + '"';
 	}
 
-	function createAttrString(attrs: Dynamic, namespace: Namespace) {
-		if (attrs == null) return '';
+	static function createAttrString(view: Dynamic, escapeAttributeValue, namespace: Namespace)
+		if (view.attrs == null)
+			return '';
+		else
+			return Reflect.fields(view.attrs).map(function(name) return attribute(name, Reflect.field(view.attrs, name), escapeAttributeValue, namespace)).join('');
 
-		return Reflect.fields(attrs).map(function(name) {
-			return attribute(name, attrs.field(name), namespace);
-		}).join('');
+	static function createChildrenContent (view:Dynamic, options:Dynamic, hooks:Array<Dynamic>, level, namespace) {
+		var txt = (view.text == null || view.text == '') ? '' : spacer(options, level) + options.escapeString(view.text, true) + lineEnd(options);
+
+		if (Std.is(view.children, Array) && view.children.length == 0)
+			return txt;
+		else
+			return txt + _render(view.children, options, hooks, level, namespace);
 	}
 
-	public function renderView(view: Dynamic, level = 0, namespace: Namespace) {
-		if (Std.is(view, String) || Std.is(view, Int) || Std.is(view, Float) || Std.is(view, Bool))
-			return spacer(level) + escape(Std.string(view)) + lineEnd();
+	public static function render (view:Dynamic, ?attrs:Dynamic, ?options:Dynamic) {
+		if (Std.is(view, Class)) return render({ tag: view, attrs: attrs }, attrs, options);
+		var hooks = [];
+
+		var defaultOptions = {
+			escapeAttributeValue: escapeHtml,
+			escapeString: escapeHtml,
+			strict: false,
+			space: ''
+		}
+
+		if (options == null)
+			options = defaultOptions;
+		else
+			Reflect.fields(defaultOptions).map(function (key)
+				if (!Reflect.hasField(options, key)) Reflect.setField(options, key, Reflect.field(defaultOptions, key)));
+
+		var result = _render(view, options, hooks);
+		hooks.map(function (hook) { hook(); });
+
+		return result;
+	}
+
+	static function _render (view:Dynamic, options:Dynamic, hooks:Array<Dynamic>, level = 0, namespace = Namespace.None) {
+		if (Std.is(view, String)) return spacer(options, level) + options.escapeString(view, false) + lineEnd(options);
+
+		if (Std.is(view, Int) || Std.is(view, Float) || Std.is(view, Bool)) return view;
 
 		if (view == null) return '';
 
 		if (Std.is(view, Array)) {
-			return (view: Array<Dynamic>).map(renderView.bind(_, level + 1, namespace)).join('');
+			var result = '';
+			for (v in (view:Array<Dynamic>))
+				result += _render(v, options, hooks, level + 1, namespace);
+			return result;
 		}
 
-		if (Reflect.isObject(view)) {
-			var type = Type.getClass(view);
-			if (type != null) {
-				var fields = Type.getInstanceFields(type);
-				if (fields.has('view')) {
-					var scope = fields.has('controller') ? view.controller() : {};
-					var result = renderView(view.view(), level, namespace);
-					if (scope.hasField('onunload'))
-						untyped scope.onunload();
-					return result;
-				}
-			}
+		if (view.attrs) setHooks(view.attrs, view, hooks);
+
+		var vnode:Vnode = {
+			tag: view.tag,
+			children: view.children,
+			attrs: view.attrs != null ? view.attrs : {}
 		}
 
-		// TODO: check for other targets
-		if (Std.is(view, ithril.Ithril.TrustedHTMLAccess)) {
-			return Std.string(view);
+		if (Std.is(view.tag, Class)) {
+			var component = Type.createInstance(view.tag, [vnode]);
+			vnode.state = component;
+			setHooks(component, vnode, hooks);
+			return _render(component.view(vnode), options, hooks, level, namespace);
 		}
 
-		if (Std.is(view.tag, String) && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
-			return spacer(level) + '<' + view.tag + createAttrString(view.attrs, namespace) + '>' + lineEnd();
-		}
-
-		if (view.tag == '#') {
-			return spacer(level) + view.children.toString() + lineEnd();
-		}
-
-		if (view.tag == '[') {
-			return createChildrenContent(view, level, namespace);
-		}
+		if (view.tag == '<') return spacer(options, level) + view.children + lineEnd(options);
 
 		if (view.tag == 'svg') {
 			namespace = Namespace.Svg;
 			view.attrs.xmlns = namespace;
 		}
 
-		var children = createChildrenContent(view, level, namespace);
+		var children = createChildrenContent(view, options, hooks, level, namespace);
+		if (view.tag == '#') return spacer(options, level) + options.escapeString(children, false) + lineEnd(options);
+
+		if (view.tag == '[') return children;
+
+		if (children != null && (options.strict || (Std.is(view.tag, String) && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0)))
+			return spacer(options, level) + '<' + view.tag + createAttrString(view, options.escapeAttributeValue, namespace) + (options.strict ? '/' : '') + '>' + lineEnd(options);
 
 		return [
-			spacer(level) + '<', view.tag, createAttrString(view.attrs, namespace), '>' + lineEnd(),
+			spacer(options, level) + '<', view.tag, createAttrString(view, options.escapeAttributeValue, namespace), '>' + lineEnd(options),
 			children,
-			spacer(level) + '</', view.tag, '>' + lineEnd(),
+			spacer(options, level) + '</', view.tag, '>' + lineEnd(options)
 		].join('');
 	}
 
-	function lineEnd() {
-		if (space == '') return '';
-		else return "\n";
-	}
+	static public function lineEnd(options) return options.space == '' ? '' : "\n";
 
-	function spacer(level) {
-		if (space == '') return '';
-		return [for (i in 0 ... level) ''].join(space);
+	static function spacer(options, level) {
+		if (options.space == '') return '';
+		return [for (i in 0 ... level) ''].join(options.space);
 	}
-
-	public static function render(view: Dynamic, space = ''): String {
-		var renderer = new HTMLRenderer(space);
-		return renderer.renderView(view, Namespace.None);
-	}
-
 }

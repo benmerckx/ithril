@@ -3,7 +3,6 @@ package ithril;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
-import haxe.crypto.Md5;
 
 using StringTools;
 using tink.MacroApi;
@@ -12,6 +11,8 @@ using tink.CoreApi;
 enum Block {
 	ElementBlock(data: Element, pos: PosInfo);
 	ExprBlock(e: Expr, pos: PosInfo);
+	TrustedExprBlock(e: Expr, pos: PosInfo);
+	VnodeExprBlock(e: Expr, pos: PosInfo);
 	CustomElement(type: String, arguments: Array<Expr>, pos: PosInfo);
 	For(e: Expr, pos: PosInfo);
 	If(e: Expr, pos: PosInfo);
@@ -63,6 +64,23 @@ class IthrilBuilder {
 	static var lines: Lines;
 	static var isTemplate: Bool;
 
+	static public function buildComponent() {
+		// add @:keep metadata to component functions called by mithril
+		var fields = Context.getBuildFields();
+		var keepFields = [ 'new', 'view', 'oninit', 'oncreate', 'onupdate', 'onbeforeremove', 'onremove', 'onbeforeupdate' ];
+		fields.map(function(field) {
+			if (keepFields.indexOf(field.name) > -1) {
+				field.meta = field.meta == null ? [] : field.meta;
+				field.meta.push({
+					pos: Context.currentPos(),
+					params: null,
+					name: ':keep'
+				});
+			}
+		});
+		return fields;
+	}
+	
 	macro static public function build(): Array<Field>
 		return Context.getBuildFields().map(inlineView);
 
@@ -126,7 +144,17 @@ class IthrilBuilder {
 					default: Failure(Noise);
 				}
 			case macro $e1[$e2]:
-				var block = Block.ExprBlock(preprocess(e2), posInfo(e2));
+				var block:Block = null;
+				switch e2.expr {
+					case EMeta(s, e):
+						var nm = s.name.toLowerCase();
+						if (nm == ":trust") 
+							block = Block.TrustedExprBlock(preprocess(e2), posInfo(e2));
+						else if (nm == ":vnode")
+							block = Block.VnodeExprBlock(preprocess(e2), posInfo(e2));
+					default:
+				}
+				if (block == null) block = Block.ExprBlock(preprocess(e2), posInfo(e2));
 				switch parseCalls(e1) {
 					case Success(b): Success([block].concat(b));
 					default: Failure(Noise);
@@ -148,23 +176,37 @@ class IthrilBuilder {
 		default: e;
 	}
 
+	static function extractExprBlocks(list: Array<BlockWithChildren>) {
+		var exprList: Array<Expr> = [];
+		var toRemove = [];
+		for (i in 0...list.length) {
+			var item = list[i];
+			switch item.block {
+				case Block.ExprBlock(e, _):
+					exprList.push(e);
+					toRemove.push(item);
+				default:
+			}
+		}
+		for (i in toRemove) list.remove(i);
+		return exprList;
+	}
+
 	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
 		var exprList: Array<Expr> = [];
 		if (prepend != null)
-			//exprList.push(prepend);
-			exprList.push(macro {
-				tag: '#',
-				children: ${prepend}
-			});
+			exprList.push(prepend);
 
-		var i = 0;
-		for (item in list) {
+		for (i in 0...list.length) {
+			var item = list[i];
 			switch item.block {
 
 				case Block.For(e, pos):
-					root = true;
-					//exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, true)}]);
-					exprList.push(macro @:pos(pos.pos) { tag: "[", children: [for ($e) ${createExpr(item.children, true)}]});
+					//root = true;
+					exprList.push(macro @:pos(pos.pos) { 
+						tag: "[", 
+						children: [for ($e) ${createExpr(item.children, true)}]
+					});
 
 				case Block.If(e, pos):
 					var elseCond = macro @:pos(pos.pos) null;
@@ -172,32 +214,25 @@ class IthrilBuilder {
 						var next: BlockWithChildren = list[i+1];
 						switch next.block {
 							case Block.Else(_):
-								if (next.indent == item.indent)
+								if (next.indent == item.indent) {
 									elseCond = createExpr(next.children);
+								}
 							default:
 						}
 					}
-					//root = true;
+					root = true;
 					exprList.push(macro @:pos(pos.pos) {
-						if ($e) {
-							//${createExpr(item.children)};
-							{ tag: "[", children: ${createExpr(item.children)} };
-						} else {
-							//$elseCond;
-							{ tag: "[", children: $elseCond };
-						}
+						($e) ? { tag: "[", children: ${createExpr(item.children)} } : { tag: "[", children: $elseCond };
 					});
 
-				case Block.Else(_):
-					continue;
+				case Block.Else(_): continue;
 
 				case Block.Map(a, b, pos):
 					switch b.getIdent() {
 						case Success(i):
-							root = true;
+							root = false;
 							exprList.push(macro @:pos(pos.pos) {
-								//$a.map(function($i) ${createExpr(item.children, true)});
-								{ tag: "[", children: $a.map(function($i) ${createExpr(item.children, true)}) };
+								tag: "[", children: $a.map(function($i) ${createExpr(item.children, true)}) 
 							});
 						default: continue;
 					}
@@ -205,19 +240,38 @@ class IthrilBuilder {
 				case Block.ElementBlock(data, pos):
 					var tag = Context.makeExpr(data.selector.tag, Context.currentPos());
 					var attrs = createAttrsExpr(pos.pos, data);
-					var children = createExpr(item.children, false, data.content);
-					exprList.push(macro {
-						tag: ${tag},
-						attrs: ${attrs},
-						children: ${children}
-					});
+					var textContent = extractExprBlocks(item.children);
+					var children = createExpr(item.children, false);
+					if (data.content != null) {
+						exprList.push(macro {
+							tag: ${tag},
+							attrs: ${attrs},
+							children: ${children},
+							text: ithril.Attributes.attrs(${data.content}) + [for (i in ($a{textContent}:Array<Dynamic>)) ithril.Attributes.attrs(i)].join('')
+						});
+					} else if (textContent.length > 0) {
+						exprList.push(macro {
+							tag: ${tag},
+							attrs: ${attrs},
+							children: ${children},
+							text: [for (i in ($a{textContent}:Array<Dynamic>)) ithril.Attributes.attrs(i)].join('')
+						});
+					} else {
+						exprList.push(macro {
+							tag: ${tag},
+							attrs: ${attrs},
+							children: ${children},
+						});
+					}
+
+				case Block.VnodeExprBlock(e, _):
+					exprList.push(e);
+
+				case Block.TrustedExprBlock(e, _):
+					exprList.push(macro { tag: '<', children: ithril.Attributes.attrs(${e}) });
 
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
-					//exprList.push(macro {
-						//tag: '[',
-						//children: ${e}
-					//});
 
 				case Block.Assignment(ident, block, pos):
 					item.block = block;
@@ -232,7 +286,6 @@ class IthrilBuilder {
 					});
 
 			}
-			i++;
 		}
 		var pos = exprList.length > 0 ? exprList[0].pos : Context.currentPos();
 
@@ -305,6 +358,8 @@ class IthrilBuilder {
 			var line = switch (block) {
 				case Block.ElementBlock(_, pos) |
 					 Block.ExprBlock(_, pos) |
+					 Block.TrustedExprBlock(_, pos) |
+					 Block.VnodeExprBlock(_, pos) |
 					 Block.CustomElement(_, _, pos) |
 					 Block.For(_, pos) |
 					 Block.If(_, pos) |

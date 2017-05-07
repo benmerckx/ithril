@@ -1,16 +1,15 @@
 package ithril;
 
-@:genericBuild(ithril.component.ComponentBuilder.buildGeneric())
-class Component<Rest> {}
+@:autoBuild(ithril.IthrilBuilder.buildComponent())
+class Component implements IthrilView {
+	@:remove public function oninit(vnode:Vnode) {}
+	@:remove public function oncreate(vnode:Vnode) {}
+	@:remove public function onupdate(vnode:Vnode) {}
+	@:remove public function onbeforeremove(vnode:Vnode) {}
+	@:remove public function onremove(vnode:Vnode) {}
+	@:remove public function onbeforeupdate(vnode:Vnode) {}
 
-@:autoBuild(ithril.component.ComponentBuilder.build())
-class ComponentAbstract<T> implements IthrilView {
-	@:remove public function oninit(vnode:Vnode<T>) {}
-	@:remove public function oncreate(vnode:Vnode<T>) {}
-	@:remove public function onupdate(vnode:Vnode<T>) {}
-	@:remove public function onbeforeremove(vnode:Vnode<T>) {}
-	@:remove public function onremove(vnode:Vnode<T>) {}
-	@:remove public function onbeforeupdate(vnode:Vnode<T>) {}
+	@:keep public function view(vnode:Vnode):Vnode return null;
 
-	@:keep public function view(vnode:Vnode<T>):Vnode<Dynamic> return null;
+	public function new(?vnode:Vnode) { }
 }

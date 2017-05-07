@@ -13,6 +13,7 @@ enum Block {
 	ExprBlock(e: Expr, pos: PosInfo);
 	TrustedExprBlock(e: Expr, pos: PosInfo);
 	VnodeExprBlock(e: Expr, pos: PosInfo);
+	VnodesExprBlock(e: Expr, pos: PosInfo);
 	CustomElement(type: String, arguments: Array<Expr>, pos: PosInfo);
 	For(e: Expr, pos: PosInfo);
 	If(e: Expr, pos: PosInfo);
@@ -80,7 +81,7 @@ class IthrilBuilder {
 		});
 		return fields;
 	}
-	
+
 	macro static public function build(): Array<Field>
 		return Context.getBuildFields().map(inlineView);
 
@@ -148,10 +149,12 @@ class IthrilBuilder {
 				switch e2.expr {
 					case EMeta(s, e):
 						var nm = s.name.toLowerCase();
-						if (nm == ":trust") 
+						if (nm == ":trust")
 							block = Block.TrustedExprBlock(preprocess(e2), posInfo(e2));
 						else if (nm == ":vnode")
 							block = Block.VnodeExprBlock(preprocess(e2), posInfo(e2));
+						else if (nm == ":vnodes")
+							block = Block.VnodesExprBlock(preprocess(e2), posInfo(e2));
 					default:
 				}
 				if (block == null) block = Block.ExprBlock(preprocess(e2), posInfo(e2));
@@ -203,8 +206,8 @@ class IthrilBuilder {
 
 				case Block.For(e, pos):
 					//root = true;
-					exprList.push(macro @:pos(pos.pos) { 
-						tag: "[", 
+					exprList.push(macro @:pos(pos.pos) {
+						tag: "[",
 						children: [for ($e) ${createExpr(item.children, true)}]
 					});
 
@@ -232,7 +235,7 @@ class IthrilBuilder {
 						case Success(i):
 							root = false;
 							exprList.push(macro @:pos(pos.pos) {
-								tag: "[", children: $a.map(function($i) ${createExpr(item.children, true)}) 
+								tag: "[", children: $a.map(function($i) ${createExpr(item.children, true)})
 							});
 						default: continue;
 					}
@@ -266,6 +269,9 @@ class IthrilBuilder {
 
 				case Block.VnodeExprBlock(e, _):
 					exprList.push(e);
+
+				case Block.VnodesExprBlock(e, _):
+					exprList.push(macro { tag: '[', children: ${e} });
 
 				case Block.TrustedExprBlock(e, _):
 					exprList.push(macro { tag: '<', children: ithril.Attributes.attrs(${e}) });
@@ -360,6 +366,7 @@ class IthrilBuilder {
 					 Block.ExprBlock(_, pos) |
 					 Block.TrustedExprBlock(_, pos) |
 					 Block.VnodeExprBlock(_, pos) |
+					 Block.VnodesExprBlock(_, pos) |
 					 Block.CustomElement(_, _, pos) |
 					 Block.For(_, pos) |
 					 Block.If(_, pos) |

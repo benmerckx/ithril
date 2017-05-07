@@ -29,9 +29,9 @@ class HTMLRenderer {
         return outStr;
 	}
 
-	static function setHooks (component:Component, vnode:Vnode, hooks:Array<Dynamic>) {
+	static function setHooks (component:Dynamic, vnode:Vnode, hooks:Array<Dynamic>) {
 		if (component.oninit != null) component.oninit(vnode);
-		if (component.onremove != null) hooks.push(component.onremove.bind(vnode));
+		if (component.onremove != null) hooks.push(function () component.onremove(vnode));
 	}
 
 	static function attribute(name: String, value: Dynamic, escapeAttributeValue, namespace: Namespace) {

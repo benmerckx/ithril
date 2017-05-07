@@ -561,7 +561,7 @@ class IthrilBuilder {
 				default: return Failure(Noise);
 			}
 		}
-		return Success({expr: ExprDef.EObjectDecl(fields), pos: attrs[0].pos});
+		return Success({expr: ExprDef.EObjectDecl(fields), pos: (attrs == null || attrs.length == 0) ? Context.currentPos() : attrs[0].pos});
 	}
 
 	static function assignToField(a: Expr, b: Expr): Outcome<ObjField, Noise>

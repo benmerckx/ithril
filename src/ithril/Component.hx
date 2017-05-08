@@ -11,7 +11,7 @@ class Component implements IthrilView {
 
 	public function view(vnode:Vnode):Vnode return null;
 
-	public function new(vnode:Vnode)
+	public function new(?vnode:Vnode)
 		if (vnode != null)
 			for (f in Reflect.fields(vnode.attrs))
 				Reflect.setField(this, f, Reflect.field(vnode.attrs, f));

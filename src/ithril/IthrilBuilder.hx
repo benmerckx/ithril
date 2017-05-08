@@ -84,7 +84,7 @@ class IthrilBuilder {
 
 		// add constructor if missing 
 		if (!hasNew) {
-			var args = [ { name: 'vnode', type: TPath({ name: "Vnode", pack: ["ithril"], params: null, sub: null }), opt: false, value: null } ];
+			var args = [ { name: 'vnode', type: TPath({ name: "Vnode", pack: ["ithril"], params: null, sub: null }), opt: true, value: null } ];
 			fields.push({
 				name: "new",
 				access: [APublic],
@@ -95,7 +95,7 @@ class IthrilBuilder {
 					params: [],
 					ret: null
 				}),
-				meta: [{ name: ':keep', params: null, pos: Context.currentPos() }]
+				meta: [{ name: ':keep', params: null, pos: Context.currentPos() }],
 			});
 		}
 		return fields;

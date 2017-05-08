@@ -156,8 +156,8 @@ class IthrilBuilder {
 						else if (nm == ":vnodes")
 							block = Block.VnodesExprBlock(preprocess(e2), posInfo(e2));
 					default:
+						block = Block.ExprBlock(preprocess(e2), posInfo(e2));
 				}
-				if (block == null) block = Block.ExprBlock(preprocess(e2), posInfo(e2));
 				switch parseCalls(e1) {
 					case Success(b): Success([block].concat(b));
 					default: Failure(Noise);

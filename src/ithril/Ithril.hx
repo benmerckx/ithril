@@ -21,7 +21,7 @@ typedef RouteResolver<T:Component> = {
 	@:optional function render(vnode:Null<Vnode>):Vnodes;
 }
 
-#if !nodejs @:final @:native("m") extern #end
+#if !nodejs @:native("m") extern #end
 class Ithril {
 	public static function mount(element:Element, component:Null<Component>):Void #if nodejs {} #end;
 	public static function route(rootElement:Element, defaultRoute:String, routes:Dynamic<Either<Component, RouteResolver<Dynamic>>>):Void #if nodejs {} #end;
@@ -31,25 +31,25 @@ class Ithril {
 	public static function trust(html:String):Vnode #if nodejs { return null; } #end;
 	public static function fragment(attrs:{}, children:Array<Vnodes>):Vnode #if nodejs { return null; } #end;
 	public static function redraw():Void #if nodejs {} #end;
-	public static var version:String;
+	public static var version:String #if nodejs = "1.1.1" #end;
 
 	public static inline function routeSet(route:String, ?data:{ }, ?options:{ ?replace: Bool, ?state: { }, ?title: String }):Void
 		return untyped __js__("m.route.set({0}, {1}, {2})", route, data, options);
 
 	public static inline function routeGet():String
-		#if !nodejs return untyped m.route.get(); #else { return null; } #end
+		#if !nodejs return untyped route.get(); #else { return null; } #end
 
 	public static inline function routePrefix(prefix:String):Void
-		#if !nodejs return untyped m.route.prefix(prefix); #else {} #end
+		#if !nodejs return untyped route.prefix(prefix); #else {} #end
 
 	public static inline function routeLink(vnode:Vnode):Event->Void
-		#if !nodejs return untyped m.route.link(vnode); #else { return null; } #end
+		#if !nodejs return untyped route.link(vnode); #else { return null; } #end
 
 	public static inline function routeAttrs(vnode:Vnode):DynamicAccess<String>
-		#if !nodejs return untyped vnode.attrs; #else { return null; } #end
+		#if !nodejs return untyped __js__('{0}.attrs', vnode); #else { return null; } #end
 
 	public static inline function routeParam(?key:String):Dynamic
-		#if !nodejs return untyped m.route.param(key); #else { return null; } #end
+		#if !nodejs return untyped route.param(key); #else { return null; } #end
 
 	#if !nodejs
 	@:overload(function(selector:Either<String, Class<Component>>):Vnodes {})

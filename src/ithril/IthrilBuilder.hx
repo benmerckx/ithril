@@ -120,8 +120,8 @@ class IthrilBuilder {
 	static function parseFunction(e: Expr) {
 		switch e.expr {
 			case ExprDef.EArrayDecl(values):
-				if (values.length == 1)
-					switch parseCalls(values[0]) {
+				if (values.length > 0)
+					switch parseCalls(values[values.length - 1]) {
 						case Success(blocks):
 							isTemplate = true;
 							e.expr = createExpr(orderBlocks(blocks), true).expr;

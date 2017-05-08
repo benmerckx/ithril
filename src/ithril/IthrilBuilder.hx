@@ -69,7 +69,9 @@ class IthrilBuilder {
 		// add @:keep metadata to component functions called by mithril
 		var fields = Context.getBuildFields();
 		var keepFields = [ 'new', 'view', 'oninit', 'oncreate', 'onupdate', 'onbeforeremove', 'onremove', 'onbeforeupdate' ];
+		var hasNew = false;
 		fields.map(function(field) {
+			if (field.name == "new") hasNew = true;
 			if (keepFields.indexOf(field.name) > -1) {
 				field.meta = field.meta == null ? [] : field.meta;
 				field.meta.push({
@@ -79,6 +81,23 @@ class IthrilBuilder {
 				});
 			}
 		});
+
+		// add constructor if missing 
+		if (!hasNew) {
+			var args = [ { name: 'vnode', type: TPath({ name: "Vnode", pack: ["ithril"], params: null, sub: null }), opt: false, value: null } ];
+			fields.push({
+				name: "new",
+				access: [APublic],
+				pos: Context.currentPos(),
+				kind: FFun({
+					args: args,
+					expr: macro super(vnode),
+					params: [],
+					ret: null
+				}),
+				meta: [{ name: ':keep', params: null, pos: Context.currentPos() }]
+			});
+		}
 		return fields;
 	}
 

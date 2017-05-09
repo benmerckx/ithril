@@ -229,6 +229,7 @@ class HTMLRenderer {
 
 				if (view.tag == 'svg') {
 					namespace = Namespace.Svg;
+					if (view.attrs == null) view.attrs = { };
 					view.attrs.xmlns = namespace;
 				}
 

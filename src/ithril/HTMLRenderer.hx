@@ -30,10 +30,12 @@ class HTMLRenderer {
 	}
 
 	static function setHooks(component:Dynamic, vnode:Vnode, hooks:Array<Dynamic>) {
-		var promise = null;
+		var promise:Dynamic = null;
 		if (component != null) {
 			if (component.oninit != null) promise = component.oninit(vnode);
+			if (component.attrs != null && component.attrs.oninit != null) promise = #if js promise != null ? promise.then(component.attrs.oninit) : #end component.attrs.oninit();
 			if (component.onremove != null) hooks.push(function () return component.onremove(vnode));
+			if (component.attrs != null && component.attr.onremove != null) hooks.push(function () return component.attrs.onremove(vnode));
 		}
 #if js
 		if (promise == null) return new js.Promise(function(resolve:Dynamic->Void, reject) resolve(null));

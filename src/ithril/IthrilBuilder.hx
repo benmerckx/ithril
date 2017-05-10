@@ -12,8 +12,6 @@ enum Block {
 	ElementBlock(data: Element, pos: PosInfo);
 	ExprBlock(e: Expr, pos: PosInfo);
 	TrustedExprBlock(e: Expr, pos: PosInfo);
-	VnodeExprBlock(e: Expr, pos: PosInfo);
-	VnodesExprBlock(e: Expr, pos: PosInfo);
 	CustomElement(type: String, arguments: Array<Expr>, pos: PosInfo);
 	For(e: Expr, pos: PosInfo);
 	If(e: Expr, pos: PosInfo);
@@ -136,6 +134,7 @@ class IthrilBuilder {
 			}
 		});
 
+	@:allow(ithril.Ithril)
 	static function parseFunction(e: Expr) {
 		switch e.expr {
 			case ExprDef.EArrayDecl(values):
@@ -170,10 +169,6 @@ class IthrilBuilder {
 						var nm = s.name.toLowerCase();
 						if (nm == ":trust")
 							block = Block.TrustedExprBlock(preprocess(e2), posInfo(e2));
-						else if (nm == ":vnode")
-							block = Block.VnodeExprBlock(preprocess(e2), posInfo(e2));
-						else if (nm == ":vnodes")
-							block = Block.VnodesExprBlock(preprocess(e2), posInfo(e2));
 					default:
 						block = Block.ExprBlock(preprocess(e2), posInfo(e2));
 				}
@@ -198,23 +193,7 @@ class IthrilBuilder {
 		default: e;
 	}
 
-	static function extractExprBlocks(list: Array<BlockWithChildren>) {
-		var exprList: Array<Expr> = [];
-		var toRemove = [];
-		for (i in 0...list.length) {
-			var item = list[i];
-			switch item.block {
-				case Block.ExprBlock(e, _):
-					exprList.push(e);
-					toRemove.push(item);
-				default:
-			}
-		}
-		for (i in toRemove) list.remove(i);
-		return exprList;
-	}
-
-	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
+	static function createExprList(list:Array<BlockWithChildren>, ?prepend:Expr):Array<Expr> {
 		var exprList: Array<Expr> = [];
 		if (prepend != null)
 			exprList.push(prepend);
@@ -224,76 +203,75 @@ class IthrilBuilder {
 			switch item.block {
 
 				case Block.For(e, pos):
-					//root = true;
-					exprList.push(macro @:pos(pos.pos) {
-						tag: "[",
-						children: [for ($e) ${createExpr(item.children, true)}]
-					});
+					exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, false)}]);
 
 				case Block.If(e, pos):
-					var elseCond = macro @:pos(pos.pos) null;
+					var elseCond = macro @:pos(pos.pos) [];
 					if (list.length > i+1) {
 						var next: BlockWithChildren = list[i+1];
 						switch next.block {
 							case Block.Else(_):
-								if (next.indent == item.indent) {
-									elseCond = createExpr(next.children);
-								}
+								if (next.indent == item.indent) elseCond = createExpr(next.children);
 							default:
 						}
 					}
-					root = true;
-					exprList.push(macro @:pos(pos.pos) {
-						($e) ? { tag: "[", children: ${createExpr(item.children)} } : { tag: "[", children: $elseCond };
-					});
+					exprList.push(macro @:pos(pos.pos) (($e) ? ${createExpr(item.children)} : $elseCond));
 
 				case Block.Else(_): continue;
 
 				case Block.Map(a, b, pos):
 					switch b.getIdent() {
 						case Success(i):
-							root = false;
-							exprList.push(macro @:pos(pos.pos) {
-								tag: "[", children: $a.map(function($i) ${createExpr(item.children, true)})
-							});
+							exprList.push(macro @:pos(pos.pos) $a.map(function($i) ${createExpr(item.children, true)}));
 						default: continue;
 					}
 
 				case Block.ElementBlock(data, pos):
 					var tag = Context.makeExpr(data.selector.tag, Context.currentPos());
 					var attrs = createAttrsExpr(pos.pos, data);
-					var textContent = extractExprBlocks(item.children);
-					var children = createExpr(item.children, false);
-					if (data.content != null) {
-						exprList.push(macro {
-							tag: ${tag},
-							attrs: ${attrs},
-							children: ${children},
-							text: ithril.Attributes.attrs(${data.content}) + [for (i in ($a{textContent}:Array<Dynamic>)) ithril.Attributes.attrs(i)].join('')
-						});
-					} else if (textContent.length > 0) {
-						exprList.push(macro {
-							tag: ${tag},
-							attrs: ${attrs},
-							children: ${children},
-							text: [for (i in ($a{textContent}:Array<Dynamic>)) ithril.Attributes.attrs(i)].join('')
-						});
-					} else {
-						exprList.push(macro {
-							tag: ${tag},
-							attrs: ${attrs},
-							children: ${children},
-						});
+					var emptyAttrs = false;
+					switch attrs.expr {
+						case EObjectDecl([]):
+							emptyAttrs = true;
+						default:
 					}
 
-				case Block.VnodeExprBlock(e, _):
-					exprList.push(e);
+					var children = createExpr(item.children, false);
+					var emptyChildren = false;
+					switch children.expr {
+						case EArrayDecl([]):
+							emptyChildren = true;
+						default:
+					}
 
-				case Block.VnodesExprBlock(e, _):
-					exprList.push(macro { tag: '[', children: ${e} });
+					var vnode = null;
+					if (data.content != null) {
+						if (emptyChildren) {
+							if (emptyAttrs)
+								vnode = macro ithril.Util.makeVnode2(${tag}, ${data.content});
+							else
+								vnode = macro ithril.Util.makeVnode3(${tag}, ${attrs}, ${data.content});
+						} else {
+							if (emptyAttrs)
+								vnode = macro ithril.Util.makeVnode2(${tag}, ([${data.content}]:Array<Dynamic>).concat(${children}));
+							else
+								vnode = macro ithril.Util.makeVnode3(${tag}, ${attrs}, ([${data.content}]:Array<Dynamic>).concat(${children}));
+						}
+					} else {
+						if (emptyChildren) {
+							vnode = macro ithril.Util.makeVnode2A(${tag}, ${attrs});
+						} else {
+							if (emptyAttrs)
+								vnode = macro ithril.Util.makeVnode2(${tag}, ${children});
+							else
+								vnode = macro ithril.Util.makeVnode3(${tag}, ${attrs}, ${children});
+						}
+					}
+
+					exprList.push(vnode);
 
 				case Block.TrustedExprBlock(e, _):
-					exprList.push(macro { tag: '<', children: ithril.Attributes.attrs(${e}) });
+					exprList.push(macro ithril.Util.makeTrust(${e}));
 
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
@@ -304,14 +282,37 @@ class IthrilBuilder {
 					exprList.push(macro @:pos(pos.pos) $i{ident} = $el);
 
 				case Block.CustomElement(name, arguments, pos):
-					var attrs = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) null;
+					var attrs = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) {};
 					var children = createExpr(item.children, false);
-					exprList.push(macro @:pos(pos.pos) {
-						tag: $i{name}, attrs: $attrs, children: $children
-					});
+					var emptyChildren = false;
+					switch children.expr {
+						case EArrayDecl([]):
+							emptyChildren = true;
+						default:
+					}
+					var emptyAttrs = arguments.length == 0;
 
+					if (emptyChildren) {
+						if (emptyAttrs) {
+							exprList.push(macro @:pos(pos.pos) ithril.Util.makeVnode1($i{name}));
+						} else {
+							exprList.push(macro @:pos(pos.pos) ithril.Util.makeVnode2A($i{name}, $attrs));
+						}
+					} else {
+						if (emptyAttrs) {
+							exprList.push(macro @:pos(pos.pos) ithril.Util.makeVnode2($i{name}, $children));
+						} else {
+							exprList.push(macro @:pos(pos.pos) ithril.Util.makeVnode3($i{name}, $attrs, $children));
+						}
+					}
 			}
 		}
+
+		return exprList;
+	}
+
+	static function createExpr(list: Array<BlockWithChildren>, root = false, ?prepend: Expr): Expr {
+		var exprList = createExprList(list, prepend);
 		var pos = exprList.length > 0 ? exprList[0].pos : Context.currentPos();
 
 		if (root) {
@@ -319,7 +320,7 @@ class IthrilBuilder {
 			return macro @:pos(pos) (@:ithril $final: Dynamic);
 		}
 
-		return macro @:pos(pos) ($a{exprList}: Dynamic);
+		return macro @:pos(pos) $a{exprList};
 	}
 
 	static function createAttrsExpr(pos: Position, data: Element): Expr {
@@ -384,8 +385,6 @@ class IthrilBuilder {
 				case Block.ElementBlock(_, pos) |
 					 Block.ExprBlock(_, pos) |
 					 Block.TrustedExprBlock(_, pos) |
-					 Block.VnodeExprBlock(_, pos) |
-					 Block.VnodesExprBlock(_, pos) |
 					 Block.CustomElement(_, _, pos) |
 					 Block.For(_, pos) |
 					 Block.If(_, pos) |

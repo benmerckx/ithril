@@ -23,7 +23,7 @@ class ListComponent extends Component {
 			(ul)
 				(vnode.children => child)
 					(li)
-						[@:vnode child]
+						[child]
     ];
 }
 
@@ -99,7 +99,7 @@ class TestHTMLRenderer extends TestCase implements IthrilView {
 		]));
 		function ok() return 'ok';
 		assertEquals('<div>ok</div>', HTMLRenderer.render([
-			(Label (msg=ok))
+			(Label (msg=ok()))
 		]));
 		var variable = 'ok';
 		assertEquals('<div>ok</div>', HTMLRenderer.render([
@@ -149,32 +149,32 @@ class TestIthil extends TestCase implements IthrilView {
 	}
 
 	public function testChildren() {
-		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}, [
+		assert({tag: 'div', children: ([{tag: 'div', attrs: {}, children: []}]:Dynamic)}, [
 			(div)
 				(div)
 		]);
 
-		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}]}, [
+		assert({tag: 'div', children: ([{tag: 'div', children: [{tag: 'div', attrs: {}, children: []}]}]:Dynamic)}, [
 			(div)
 				(div)
 					(div)
 		]);
 
-		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}, [
+		assert({tag: 'div', children: ([{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]:Dynamic)}, [
 			(div)
 				(div)(div)
 		]);
 
-		assert({tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]}, [
+		assert({tag: 'div', children: ([{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]:Dynamic)}, [
 			(div)
 				(div)
 				(div)
 		]);
 
-		assert(([{tag: 'div', attrs: {}, children: [{tag: 'div', attrs: {}, children: []}]}, {tag: 'div', attrs: {}, children: []}]: Dynamic), [
-			(div)
+		assert(([ { "children": [ { "children": [], "tag": "div", "attrs": {} } ], "tag": "div" }, { "children": [], "tag": "div", "attrs": {} } ]: Dynamic), [
 				(div)
-			(div)
+					(div)
+				(div)
 		]);
 	}
 
@@ -203,19 +203,23 @@ class TestIthil extends TestCase implements IthrilView {
 		assert({tag: 'div', attrs: {a: 1, attr: 'test'}, children: []}, [
 			(div (a=1) (attr))
 		]);
-		assert({tag: 'div', attrs: {id: 'id', a: 1, attr: 'test'}, children: [ ], text: 'ok' }, [
+		assert({ "children": "ok", "tag": "div", "attrs": { "attr": "test", "a": 1, "id": "id" } }, [
 			(div+id (a=1) (attr) > 'ok')
 		]);
 	}
 
 	public function testCombination() {
 		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: []}, [(div[attr='test'].test+test)]);
-		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: [], text: 'a' }, [(div[attr='test'].test+test > 'a')]);
+		assert({ "children": "a", "tag": "div", "attrs": { "attr": "test", "class": "test", "id": "test" } }, [(div[attr='test'].test+test > 'a')]);
 		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}, children: []}, [(div[attr='test'].test+test[attr2='test'])]);
 	}
 
 	public function testTextnode() {
-		assert({tag: 'div', attrs: {}, children: [ ], text: 'Test'}, [(div > 'Test')]);
+		assert({
+			"text": "Test",
+			"children": [],
+			"tag": "div"
+		}, [(div > 'Test')]);
 	}
 
 	public function testAddToExistingAttributes() {
@@ -231,7 +235,12 @@ class TestIthil extends TestCase implements IthrilView {
 	}
 
 	public function testInlineExpression() {
-		assert({tag: 'div', attrs: {}, children: [], text: 'Test'}, [
+		assert({
+			"children": [
+				"Test"
+			],
+			"tag": "div"
+		}, [
 			(div)
 				['Test']
 		]);
@@ -239,31 +248,27 @@ class TestIthil extends TestCase implements IthrilView {
 
 	public function testInlineLoops() {
 		var items = ['a', 'b', 'c'];
-		assert({tag: 'div', attrs: {}, children: ([ { 'tag': '[', children: items } ]:Array<Dynamic>) }, [
+		//assert({ "children": [ "a", "b", "c" ], "tag": "div" }, [
+		assert({ "children": [ [ [ "a" ], [ "b" ], [ "c" ] ] ], "tag": "div" }, [
 			(div)
 				($for (i in items))
 					[i]
 		]);
-		assert({tag: 'div', attrs: {}, children: [ { 'tag': '[', children: items } ] }, [
+
+		assert({ "children": [ [ [ "a" ], [ "b" ], [ "c" ] ] ], "tag": "div" }, [
 			(div)
 				(i in items)
 					[i]
 		]);
-		assert({tag: 'div', attrs: {}, children: [], text: '[a,b,c]' }, [
+
+		assert({ "children": [ [ "a", "b", "c" ] ], "tag": "div" }, [
 			(div)
 				[for (i in items) i]
-		]);
-		assert({tag: 'div', attrs: {}, text: '[a,b,c]', children: ([ {tag: 'div', attrs: {}, children: []}]: Array<Dynamic>)}, [
-			(div)
-				[for (i in items) i]
-				(div)
 		]);
 	}
 
 	public function testCustomElement() {
 		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, new CustomElement().view({ tag: '', attrs: { attr: 'test' } }));
-			//[(CustomElement (attr = 'test'))].view(null)
-		//);
 	}
 
 	public function testCustomElementKeepRef() {

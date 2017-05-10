@@ -11,8 +11,11 @@ class Component implements IthrilView {
 
 	public function view(vnode:Vnode):Vnode return null;
 
+	static var avoid = [ 'oninit', 'oncreate', 'onupdate', 'onbeforeremove', 'onremove', 'onbeforeupdate' ];
+
 	public function new(?vnode:Vnode)
 		if (vnode != null)
 			for (f in Reflect.fields(vnode.attrs))
-				Reflect.setField(this, f, Reflect.field(vnode.attrs, f));
+				if (avoid.indexOf(f) == -1)
+					Reflect.setField(this, f, Reflect.field(vnode.attrs, f));
 }

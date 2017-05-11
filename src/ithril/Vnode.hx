@@ -6,10 +6,10 @@ import js.html.Element;
 #end
 
 typedef Vnode = {
-	tag:EitherType<String, Dynamic>,
+	tag:Dynamic,
 	?key:String,
 	?attrs:Dynamic,
-	?children:Array<Vnode>,
+	?children:Array<Dynamic>,
 	?text:String,
 #if js
 	?dom:Element,

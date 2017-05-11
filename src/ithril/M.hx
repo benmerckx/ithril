@@ -23,8 +23,8 @@ typedef RouteResolver<T:Component> = {
 
 #if !nodejs @:native("m") extern #end
 class M {
-	public static function mount(element:Element, component:Null<Component>):Void #if nodejs {} #end;
-	public static function route(rootElement:Element, defaultRoute:String, routes:Dynamic<Either<Component, RouteResolver<Dynamic>>>):Void #if nodejs {} #end;
+	public static function mount(element:Element, component:Class<Component>):Void #if nodejs {} #end;
+	public static function route(rootElement:Element, defaultRoute:String, routes:Dynamic<Either<Class<Component>, RouteResolver<Dynamic>>>):Void #if nodejs {} #end;
 	public static function parseQueryString(querystring:String):DynamicAccess<String> #if nodejs { return null; } #end;
 	public static function buildQueryString(data:{}):String #if nodejs { return null; } #end;
 	public static function withAttr<T, T2:Event>(attrName:String, callback:T->Void):T2->Void #if nodejs { return null; } #end;

@@ -18,7 +18,7 @@ typedef Vnodes = Either<Vnode, Array<Vnode>>;
 
 typedef RouteResolver<T:Component> = {
 	@:optional function onmatch(args:DynamicAccess<String>, requestedPath:String):Either<T, Promise<T>>;
-	@:optional function render(vnode:Null<Vnode>):Vnodes;
+	@:optional function render(vnode:Vnode):Vnodes;
 }
 
 #if !nodejs @:native("m") extern #end

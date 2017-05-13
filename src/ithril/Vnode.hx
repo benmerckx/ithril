@@ -6,7 +6,7 @@ import js.html.Element;
 #end
 
 typedef Vnode = {
-	tag:Dynamic,
+	?tag:Dynamic,
 	?key:String,
 	?attrs:Dynamic,
 	?children:Array<Dynamic>,

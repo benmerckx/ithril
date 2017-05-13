@@ -66,16 +66,13 @@ class IthrilBuilder {
 	static public function buildComponent() {
 		// add @:keep metadata
 		var fields = Context.getBuildFields();
-		var keepFields = [ 'new', 'view', 'oninit', 'oncreate', 'onupdate', 'onbeforeremove', 'onremove', 'onbeforeupdate' ];
 		fields.map(function(field) {
-			if (keepFields.indexOf(field.name) > -1) {
-				field.meta = field.meta == null ? [] : field.meta;
-				field.meta.push({
-					pos: Context.currentPos(),
-					params: null,
-					name: ':keep'
-				});
-			}
+			field.meta = field.meta == null ? [] : field.meta;
+			field.meta.push({
+				pos: Context.currentPos(),
+				params: null,
+				name: ':keep'
+			});
 		});
 		return fields;
 	}

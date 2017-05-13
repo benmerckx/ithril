@@ -149,23 +149,23 @@ class TestIthil extends TestCase implements IthrilView {
 	}
 
 	public function testChildren() {
-		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}]:Dynamic)}, @m[
+		assert({tag: 'div', children: [{tag: 'div', attrs: {}}]}, @m[
 			(div)
 				(div)
 		]);
 
-		assert({tag: 'div', children: ([{tag: 'div', children: [{tag: 'div', attrs: {}}]}]:Dynamic)}, @m[
+		assert({tag: 'div', children: [{tag: 'div', children: [{tag: 'div', attrs: {}}]}]}, @m[
 			(div)
 				(div)
 					(div)
 		]);
 
-		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]:Dynamic)}, @m[
+		assert({tag: 'div', children: [{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]}, @m[
 			(div)
 				(div)(div)
 		]);
 
-		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]:Dynamic)}, @m[
+		assert({tag: 'div', children: [{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]}, @m[
 			(div)
 				(div)
 				(div)

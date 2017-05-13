@@ -52,10 +52,13 @@ class M {
 		#if !nodejs return untyped route.param(key); #else { return null; } #end
 
 	#if !nodejs
-	@:overload(function(selector:Either<String, Class<Component>>):Vnodes {})
-	@:overload(function(selector:Either<String, Class<Component>>, attributes:Dynamic):Vnodes {})
-	public static function m(selector:Either<String, Class<Component>>, attributes:Dynamic, children:Dynamic):Vnodes;
+	@:overload(function(selector:Dynamic):Vnodes {})
+	@:overload(function(selector:Dynamic, attributes:Dynamic):Vnodes {})
+	@:selfCall
+	#end
+	public static #if nodejs inline #end function m(selector:Dynamic, ?attributes:Dynamic, ?children:Dynamic):Dynamic #if nodejs return Util.makeVnode3(selector, attributes, children) #end;
 
+	#if !nodejs
 	@:overload(function<T, T2, T3>(url:String):Promise<T> {})
 	@:overload(function<T, T2, T3>(options:XHROptions<T, T2, T3>):Promise<T> {})
 	public static function request<T, T2, T3>(url:String, options:XHROptions<T, T2, T3>):Promise<T>;

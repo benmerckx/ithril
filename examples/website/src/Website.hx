@@ -4,7 +4,7 @@ using Reflect;
 // Website
 class Website implements IthrilView {
 	static public function view(href)
-		return function(vnode) [ (Base(vnode == null ? { } : vnode.attrs)(State.page(href))) ];
+		return function(vnode) @m[ (Base(vnode == null ? { } : vnode.attrs)(State.page(href))) ];
 }
 
 // Top level page wrapper wraps all pages
@@ -20,7 +20,7 @@ class Base extends Component {
 	}
 #end
 
-	override public function view(vnode:Vnode) [
+	override public function view(vnode:Vnode) @m[
 #if !browser
 		(!doctype)
 		(html(lang='en'))
@@ -31,7 +31,7 @@ class Base extends Component {
 			(title > vnode.attrs.title)
 			(link(type=vnode.attrs.faviconType, rel='icon', href=vnode.attrs.favicon))
 			(vnode.attrs.css => css)
-				(style > @:trust css)
+				(style > @trust css)
 		(body)
 #end
 			(Navigation(id='navigation')(vnode.attrs))
@@ -39,14 +39,14 @@ class Base extends Component {
 			(Footer(id='footer'))
 #if !browser
 			(vnode.attrs.javascript => javascript)
-				(script(type='text/javascript') > @:trust javascript)
+				(script(type='text/javascript') > @trust javascript)
 #end
 	];
 }
 
 // HomePage component
 class HomePage extends Component {
-	override public function view(vnode:Vnode) [
+	override public function view(vnode:Vnode) @m[
 		(Content(header=vnode.attrs.homeHeader, text=vnode.attrs.homeText))
 		(ContentPage(vnode.attrs))
 	];
@@ -54,7 +54,7 @@ class HomePage extends Component {
 
 // ContentPage component
 class ContentPage extends Component {
-	override public function view(vnode:Vnode) [
+	override public function view(vnode:Vnode) @m[
 		(vnode.attrs.content => content)
 			(Content(header=content.header, text=content.text))
 	];
@@ -64,7 +64,7 @@ class ContentPage extends Component {
 class Navigation extends Component {
 	function active(test) return test ? "active" : "";
 
-	override public function view(vnode:Vnode) [
+	override public function view(vnode:Vnode) @m[
 		(nav(id=vnode.attrs.id, style=vnode.attrs.style))
 			(a+brand(oncreate=routeLink, href=vnode.attrs.brandPage))
 				[vnode.attrs.brand]
@@ -72,17 +72,20 @@ class Navigation extends Component {
 				(vnode.attrs.pages.fields() => href)
 					[{
 						var page = vnode.attrs.pages.field(href);
-						if (page.nav != null) [
-							(li(className=active(href == vnode.attrs.href)))
-								(a(oncreate=routeLink, href=href, className=active(href == vnode.attrs.href)) > page.nav)
-						] else null;
+						if (page.nav != null)
+							@m[
+								(li(className=active(href == vnode.attrs.href)))
+									(a(oncreate=routeLink, href=href, className=active(href == vnode.attrs.href)) > page.nav)
+							]
+						else
+							@m[ ];
 					}]
 	];
 }
 
 // Footer component
 class Footer extends Component {
-	override public function view(vnode) [
+	override public function view(vnode) @m[
 		(div(id=vnode.attrs.id, style=vnode.attrs.style))
 			(hr)
 	];
@@ -90,7 +93,7 @@ class Footer extends Component {
 
 // Page component
 class Content extends Component {
-	override public function view(vnode) [
+	override public function view(vnode:Vnode) @m[
 		(div.content(id=vnode.attrs.id, style=vnode.attrs.style))
 			(div)
 				(h2 > vnode.attrs.header)

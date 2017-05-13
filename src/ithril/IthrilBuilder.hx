@@ -118,14 +118,22 @@ class IthrilBuilder {
 	@:allow(ithril.Ithril)
 	static function parseFunction(e: Expr) {
 		switch e.expr {
-			case ExprDef.EArrayDecl(values):
-				if (values.length > 0)
-					switch parseCalls(values[values.length - 1]) {
-						case Success(blocks):
-							isTemplate = true;
-							e.expr = createExpr(orderBlocks(blocks), true).expr;
+			case EMeta(s, me):
+				var nm = s.name.toLowerCase();
+				if (nm == ":m" || nm == "m") {
+					switch (me.expr) {
+						case ExprDef.EArrayDecl(values):
+							if (values.length > 0)
+								switch parseCalls(values[values.length - 1]) {
+									case Success(blocks):
+										isTemplate = true;
+										e.expr = createExpr(orderBlocks(blocks), true).expr;
+									default:
+								}
 						default:
 					}
+
+				}
 			default:
 		}
 		e.iter(parseFunction);

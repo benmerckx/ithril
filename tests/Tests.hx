@@ -7,19 +7,19 @@ import ithril.HTMLRenderer;
 import haxe.Json;
 
 class CustomElement extends Component {
-	override public function view(vnode:Vnode):Vnode [
+	override public function view(vnode:Vnode):Vnode @m[
 		(div (vnode.attrs))
 	];
 }
 
 class CombinedAttributes extends Component {
-	override public function view(vnode:Vnode):Vnode [
+	override public function view(vnode:Vnode):Vnode @m[
 		(div (vnode.attrs))
 	];
 }
 
 class ListComponent extends Component {
-    override public function view(vnode:Vnode):Vnode [
+    override public function view(vnode:Vnode):Vnode @m[
 			(ul)
 				(vnode.children => child)
 					(li)
@@ -33,7 +33,7 @@ class Label extends Component {
 		msg = vnode.attrs.msg;
 	}
 
-	override public function view(vnode:Vnode) [
+	override public function view(vnode:Vnode) @m[
 		(div > msg)
 	];
 }
@@ -41,22 +41,22 @@ class Label extends Component {
 class TestHTMLRenderer extends TestCase implements IthrilView {
 
 	public function testBasic() {
-		assertEquals('<div></div>', HTMLRenderer.render([(div)]));
+		assertEquals('<div></div>', HTMLRenderer.render(@m[(div)]));
 	}
 
 	public function testAttributes() {
-		assertEquals('<div attr="test"></div>', HTMLRenderer.render([(div (attr = 'test'))]));
-		assertEquals('<div attr="123"></div>', HTMLRenderer.render([(div (attr = 123))]));
+		assertEquals('<div attr="test"></div>', HTMLRenderer.render(@m[(div (attr = 'test'))]));
+		assertEquals('<div attr="123"></div>', HTMLRenderer.render(@m[(div (attr = 123))]));
 	}
 
 	public function testStyleAttribute() {
-		assertEquals('<div style="param2:test;param:value"></div>', HTMLRenderer.render([(div (style = {param: 'value', param2: 'test'}))]));
-		assertEquals('<div style="param:value"></div>', HTMLRenderer.render([(div (style = 'param:value'))]));
-		assertEquals('<div style="background-color:white"></div>', HTMLRenderer.render([(div (style = {backgroundColor: 'white'}))]));
+		assertEquals('<div style="param2:test;param:value"></div>', HTMLRenderer.render(@m[(div (style = {param: 'value', param2: 'test'}))]));
+		assertEquals('<div style="param:value"></div>', HTMLRenderer.render(@m[(div (style = 'param:value'))]));
+		assertEquals('<div style="background-color:white"></div>', HTMLRenderer.render(@m[(div (style = {backgroundColor: 'white'}))]));
 	}
 
 	public function testChildren() {
-		assertEquals('<div><div></div><div><div></div></div></div>', HTMLRenderer.render([
+		assertEquals('<div><div></div><div><div></div></div></div>', HTMLRenderer.render(@m[
 			(div)
 				(div)
 				(div)
@@ -66,7 +66,7 @@ class TestHTMLRenderer extends TestCase implements IthrilView {
 
 	public function testSvg() {
 		assertEquals('<svg xmlns="http://www.w3.org/2000/svg"><a xlink:href="http://example.com/link/"><text x="10" y="25">Link</text></a></svg>',
-			HTMLRenderer.render([
+			HTMLRenderer.render(@m[
 				(svg)
 					(a (href="http://example.com/link/"))
 						(text (x="10", y="25") > 'Link')
@@ -75,16 +75,16 @@ class TestHTMLRenderer extends TestCase implements IthrilView {
 	}
 
 	public function testTextnode() {
-		assertEquals('<div>Test</div>', HTMLRenderer.render([(div > 'Test')]));
+		assertEquals('<div>Test</div>', HTMLRenderer.render(@m[(div > 'Test')]));
 	}
 
 	public function testEscape() {
-		assertEquals('<div attr="&lt;" style="param:&lt;">&lt;</div>', HTMLRenderer.render([(div (attr = '<', style = {param: '<'}) > '<')]));
+		assertEquals('<div attr="&lt;" style="param:&lt;">&lt;</div>', HTMLRenderer.render(@m[(div (attr = '<', style = {param: '<'}) > '<')]));
 	}
 
 	public function testCustomList() {
 		var html =
-				HTMLRenderer.render([
+				HTMLRenderer.render(@m[
 						(ListComponent)
 							(span > 'A')
 							(span > 'B')
@@ -94,26 +94,26 @@ class TestHTMLRenderer extends TestCase implements IthrilView {
 	}
 
 	public function testCustomLabel() {
-		assertEquals('<div>ok</div>', HTMLRenderer.render([
+		assertEquals('<div>ok</div>', HTMLRenderer.render(@m[
 			(Label (msg='ok'))
 		]));
 		function ok() return 'ok';
-		assertEquals('<div>ok</div>', HTMLRenderer.render([
+		assertEquals('<div>ok</div>', HTMLRenderer.render(@m[
 			(Label (msg=ok()))
 		]));
 		var variable = 'ok';
-		assertEquals('<div>ok</div>', HTMLRenderer.render([
+		assertEquals('<div>ok</div>', HTMLRenderer.render(@m[
 			(Label (msg=variable))
 		]));
 	}
 
 	public function testTrusted() {
-		assertEquals('&lt;b&gt;ok&lt;/b&gt;', HTMLRenderer.render([
+		assertEquals('&lt;b&gt;ok&lt;/b&gt;', HTMLRenderer.render(@m[
 			['<b>ok</b>']
 		]));
-		assertEquals('<div><b>ok</b></div>', HTMLRenderer.render([
+		assertEquals('<div><b>ok</b></div>', HTMLRenderer.render(@m[
 			(div)
-				[@:trust '<b>ok</b>']
+				[@trust '<b>ok</b>']
 		]));
 	}
 }
@@ -121,14 +121,14 @@ class TestHTMLRenderer extends TestCase implements IthrilView {
 class TestIthil extends TestCase implements IthrilView {
 
 	public function testBasic() {
-		assert({tag: 'div', attrs: {}}, [(div)]);
+		assert({tag: 'div', attrs: {}}, @m[(div)]);
 	}
 
 	public function testClassname() {
-		assert({tag: 'div', attrs: {'class': 'test'}}, [(div.test)]);
-		assert({tag: 'div', attrs: {'class': 'test second'}}, [(div.test.second)]);
-		assert({tag: 'div', attrs: {'class': 'test-with-hyphen'}}, [(div.test-with-hyphen)]);
-		assert({tag: 'div', attrs: {'class': ['c1', 'c2']}}, [(div ('class' = ['c1', 'c2']))]);
+		assert({tag: 'div', attrs: {'class': 'test'}}, @m[(div.test)]);
+		assert({tag: 'div', attrs: {'class': 'test second'}}, @m[(div.test.second)]);
+		assert({tag: 'div', attrs: {'class': 'test-with-hyphen'}}, @m[(div.test-with-hyphen)]);
+		assert({tag: 'div', attrs: {'class': ['c1', 'c2']}}, @m[(div ('class' = ['c1', 'c2']))]);
 	}
 
 	/**
@@ -138,40 +138,40 @@ class TestIthil extends TestCase implements IthrilView {
 	 * It does not, however, de-dupe classes if the same class is declared twice.
 	 */
 	public function testClassnameCombine() {
-		assert({tag: 'div', attrs: {'class': 'test test2'}}, [(div.test ('class' = 'test2'))]);
-		assert({tag: 'div', attrs: {'class': 'test test2'}}, [(div.test ('class' = ['test2']))]);
-		assert({tag: 'div', attrs: {'class': 'test test2'}}, [(div ('class' = 'test') ('class' = 'test2'))]);
+		assert({tag: 'div', attrs: {'class': 'test test2'}}, @m[(div.test ('class' = 'test2'))]);
+		assert({tag: 'div', attrs: {'class': 'test test2'}}, @m[(div.test ('class' = ['test2']))]);
+		assert({tag: 'div', attrs: {'class': 'test test2'}}, @m[(div ('class' = 'test') ('class' = 'test2'))]);
 	}
 
 	public function testId() {
-		assert({tag: 'div', attrs: {'id': 'test'}}, [(div+test)]);
-		assert({tag: 'div', attrs: {'id': 'test-with-hyphen'}}, [(div+test-with-hyphen)]);
+		assert({tag: 'div', attrs: {'id': 'test'}}, @m[(div+test)]);
+		assert({tag: 'div', attrs: {'id': 'test-with-hyphen'}}, @m[(div+test-with-hyphen)]);
 	}
 
 	public function testChildren() {
-		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}]:Dynamic)}, [
+		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}]:Dynamic)}, @m[
 			(div)
 				(div)
 		]);
 
-		assert({tag: 'div', children: ([{tag: 'div', children: [{tag: 'div', attrs: {}}]}]:Dynamic)}, [
+		assert({tag: 'div', children: ([{tag: 'div', children: [{tag: 'div', attrs: {}}]}]:Dynamic)}, @m[
 			(div)
 				(div)
 					(div)
 		]);
 
-		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]:Dynamic)}, [
+		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]:Dynamic)}, @m[
 			(div)
 				(div)(div)
 		]);
 
-		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]:Dynamic)}, [
+		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]:Dynamic)}, @m[
 			(div)
 				(div)
 				(div)
 		]);
 
-		assert(([ { "children": [ { "tag": "div", "attrs": {} } ], "tag": "div" }, { "tag": "div", "attrs": {} } ]: Dynamic), [
+		assert(([ { "children": [ { "tag": "div", "attrs": {} } ], "tag": "div" }, { "tag": "div", "attrs": {} } ]: Dynamic), @m[
 				(div)
 					(div)
 				(div)
@@ -179,52 +179,52 @@ class TestIthil extends TestCase implements IthrilView {
 	}
 
 	public function testAttribute() {
-		assert({tag: 'div', attrs: {attr: 'test'}}, [(div[attr='test'])]);
-		assert({tag: 'div', attrs: {attr: 'test', second: 'test'}}, [(div[attr='test'][second='test'])]);
+		assert({tag: 'div', attrs: {attr: 'test'}}, @m[(div[attr='test'])]);
+		assert({tag: 'div', attrs: {attr: 'test', second: 'test'}}, @m[(div[attr='test'][second='test'])]);
 	}
 
 	public function testCallableAttribute() {
 		function attr(): {attr:String} return {
 			attr: 'test'
 		}
-		assert({tag: 'div', attrs: {attr: 'test'}}, [(div (attr))]);
+		assert({tag: 'div', attrs: {attr: 'test'}}, @m[(div (attr))]);
 	}
 
 	public function testCombineAttributes() {
-		assert({tag: 'div', attrs: {a: 1, b: 2}}, [
+		assert({tag: 'div', attrs: {a: 1, b: 2}}, @m[
 			(div (a=1) (b=2))
 		]);
-		assert({tag: 'div', attrs: {a: 1}}, [
+		assert({tag: 'div', attrs: {a: 1}}, @m[
 			(div (a=1) (a=2))
 		]);
 		function attr() return {
 			attr: 'test'
 		}
-		assert({tag: 'div', attrs: {a: 1, attr: 'test'}}, [
+		assert({tag: 'div', attrs: {a: 1, attr: 'test'}}, @m[
 			(div (a=1) (attr))
 		]);
-		assert({ "text": "ok", "tag": "div", "attrs": { "attr": "test", "a": 1, "id": "id" } }, [
+		assert({ "text": "ok", "tag": "div", "attrs": { "attr": "test", "a": 1, "id": "id" } }, @m[
 			(div+id (a=1) (attr) > 'ok')
 		]);
 	}
 
 	public function testCombination() {
-		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}}, [(div[attr='test'].test+test)]);
-		assert({ "text": "a", "tag": "div", "attrs": { "attr": "test", "class": "test", "id": "test" } }, [(div[attr='test'].test+test > 'a')]);
-		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}}, [(div[attr='test'].test+test[attr2='test'])]);
+		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}}, @m[(div[attr='test'].test+test)]);
+		assert({ "text": "a", "tag": "div", "attrs": { "attr": "test", "class": "test", "id": "test" } }, @m[(div[attr='test'].test+test > 'a')]);
+		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}}, @m[(div[attr='test'].test+test[attr2='test'])]);
 	}
 
 	public function testTextnode() {
 		assert({
 			"text": "Test",
 			"tag": "div"
-		}, [(div > 'Test')]);
+		}, @m[(div > 'Test')]);
 	}
 
 	public function testAddToExistingAttributes() {
 		var expected = {tag: 'div', attrs: {attr: 'test', id: 'test', 'class': 'test'}};
-		assert(expected, [(div.test+test (attr ='test'))]);
-		assert(expected, [(div.test+test
+		assert(expected, @m[(div.test+test (attr ='test'))]);
+		assert(expected, @m[(div.test+test
 			((function(): Dynamic {
 				return {
 					attr: 'test'
@@ -239,7 +239,7 @@ class TestIthil extends TestCase implements IthrilView {
 				"Test"
 			],
 			"tag": "div"
-		}, [
+		}, @m[
 			(div)
 				['Test']
 		]);
@@ -248,19 +248,19 @@ class TestIthil extends TestCase implements IthrilView {
 	public function testInlineLoops() {
 		var items = ['a', 'b', 'c'];
 		//assert({ "children": [ "a", "b", "c" ], "tag": "div" }, [
-		assert({ "children": [ [ [ "a" ], [ "b" ], [ "c" ] ] ], "tag": "div" }, [
+		assert({ "children": [ [ [ "a" ], [ "b" ], [ "c" ] ] ], "tag": "div" }, @m[
 			(div)
 				($for (i in items))
 					[i]
 		]);
 
-		assert({ "children": [ [ [ "a" ], [ "b" ], [ "c" ] ] ], "tag": "div" }, [
+		assert({ "children": [ [ [ "a" ], [ "b" ], [ "c" ] ] ], "tag": "div" }, @m[
 			(div)
 				(i in items)
 					[i]
 		]);
 
-		assert({ "children": [ [ "a", "b", "c" ] ], "tag": "div" }, [
+		assert({ "children": [ [ "a", "b", "c" ] ], "tag": "div" }, @m[
 			(div)
 				[for (i in items) i]
 		]);
@@ -272,12 +272,12 @@ class TestIthil extends TestCase implements IthrilView {
 
 	public function testCustomElementKeepRef() {
 		var test = null;
-		var html = HTMLRenderer.render([(test = CustomElement (attr = 'test'))]);
+		var html = HTMLRenderer.render(@m[(test = CustomElement (attr = 'test'))]);
 		assertEquals(true, test != null);
 	}
 
 	public function testCustomCombined() {
-		var html = HTMLRenderer.render([(CombinedAttributes (a=1) (b=2))]);
+		var html = HTMLRenderer.render(@m[(CombinedAttributes (a=1) (b=2))]);
 		assert('<div a="1" b="2"></div>', html);
 	}
 

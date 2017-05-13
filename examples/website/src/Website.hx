@@ -14,9 +14,9 @@ class Base extends Component {
 	override public function onupdate(vnode) setup(vnode);
 	function setup(vnode) {
 		js.Browser.document.title = vnode.attrs.title;
-		var favicon = js.Browser.document.head.querySelector('link[rel=icon]');
-		favicon.setAttribute('href', vnode.attrs.favicon);
-		favicon.setAttribute('type', vnode.attrs.faviconType);
+		var favicon = js.Browser.document.head.querySelector('link[rel=${vnode.attrs.favicon.rel}]');
+		favicon.setAttribute('href', vnode.attrs.favicon.href);
+		favicon.setAttribute('type', vnode.attrs.favicon.type);
 	}
 #end
 

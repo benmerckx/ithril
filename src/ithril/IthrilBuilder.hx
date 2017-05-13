@@ -148,7 +148,7 @@ class IthrilBuilder {
 				switch e2.expr {
 					case EMeta(s, e):
 						var nm = s.name.toLowerCase();
-						if (nm == ":trust")
+						if (nm == ":trust" || nm == "trust")
 							block = Block.TrustedExprBlock(preprocess(e2), posInfo(e2));
 					default:
 						block = Block.ExprBlock(preprocess(e2), posInfo(e2));
@@ -483,7 +483,7 @@ class IthrilBuilder {
 								switch e2.expr {
 									case EMeta(s, e3):
 										var nm = s.name.toLowerCase();
-										if (nm == ":trust")
+										if (nm == ":trust" || nm == "trust")
 											content = macro ithril.Util.makeTrust(${e3});
 									default:
 										content = e2;

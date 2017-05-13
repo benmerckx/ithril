@@ -2,11 +2,11 @@
   "name": "ithril",
   "url" : "https://github.com/benmerckx/ithril",
   "license": "MIT",
-  "tags": ["js", "html", "template", "web"],
+  "tags": ["js", "html", "template", "web", "mithril", "dsl"],
   "description": "Templates for haxe. Compiles to HTML or Mithril views.",
-  "version": "1.3.1",
-  "releasenote": "Updated redraw cycle",
-  "contributors": ["benmerckx"],
+  "version": "2.0.0",
+  "releasenote": "uses mithril 1.1.1 instead of 0.2.x",
+  "contributors": ["benmerckx", "dfadev"],
   "classPath": "src",
   "dependencies": {
     "tink_macro": ""

@@ -498,10 +498,20 @@ class IthrilBuilder {
 					case Binop.OpGt:
 						switch chainElement(e1) {
 							case Success(block):
+								var content = e2;
+								switch e2.expr {
+									case EMeta(s, e3):
+										var nm = s.name.toLowerCase();
+										if (nm == ":trust")
+											content = macro ithril.Util.makeTrust(${e3});
+									default:
+										content = e2;
+								}
+
 								switch block {
 									case Block.ElementBlock(el, _):
 										element = el;
-										element.content = e2;
+										element.content = content;
 									default:
 										return Failure(Noise);
 								}

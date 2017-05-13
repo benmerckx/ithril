@@ -29,7 +29,7 @@ class Base extends Component {
 			(vnode.attrs.meta => data)
 				(meta(data))
 			(title > vnode.attrs.title)
-			(link(type=vnode.attrs.faviconType, rel='icon', href=vnode.attrs.favicon))
+			(link(type=vnode.attrs.favicon.type, rel=vnode.attrs.favicon.rel, href=vnode.attrs.favicon.href))
 			(vnode.attrs.css => css)
 				(style > @trust css)
 		(body)

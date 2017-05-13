@@ -121,14 +121,14 @@ class TestHTMLRenderer extends TestCase implements IthrilView {
 class TestIthil extends TestCase implements IthrilView {
 
 	public function testBasic() {
-		assert({tag: 'div', attrs: {}, children: []}, [(div)]);
+		assert({tag: 'div', attrs: {}}, [(div)]);
 	}
 
 	public function testClassname() {
-		assert({tag: 'div', attrs: {'class': 'test'}, children: []}, [(div.test)]);
-		assert({tag: 'div', attrs: {'class': 'test second'}, children: []}, [(div.test.second)]);
-		assert({tag: 'div', attrs: {'class': 'test-with-hyphen'}, children: []}, [(div.test-with-hyphen)]);
-		assert({tag: 'div', attrs: {'class': ['c1', 'c2']}, children: []}, [(div ('class' = ['c1', 'c2']))]);
+		assert({tag: 'div', attrs: {'class': 'test'}}, [(div.test)]);
+		assert({tag: 'div', attrs: {'class': 'test second'}}, [(div.test.second)]);
+		assert({tag: 'div', attrs: {'class': 'test-with-hyphen'}}, [(div.test-with-hyphen)]);
+		assert({tag: 'div', attrs: {'class': ['c1', 'c2']}}, [(div ('class' = ['c1', 'c2']))]);
 	}
 
 	/**
@@ -138,40 +138,40 @@ class TestIthil extends TestCase implements IthrilView {
 	 * It does not, however, de-dupe classes if the same class is declared twice.
 	 */
 	public function testClassnameCombine() {
-		assert({tag: 'div', attrs: {'class': 'test test2'}, children: []}, [(div.test ('class' = 'test2'))]);
-		assert({tag: 'div', attrs: {'class': 'test test2'}, children: []}, [(div.test ('class' = ['test2']))]);
-		assert({tag: 'div', attrs: {'class': 'test test2'}, children: []}, [(div ('class' = 'test') ('class' = 'test2'))]);
+		assert({tag: 'div', attrs: {'class': 'test test2'}}, [(div.test ('class' = 'test2'))]);
+		assert({tag: 'div', attrs: {'class': 'test test2'}}, [(div.test ('class' = ['test2']))]);
+		assert({tag: 'div', attrs: {'class': 'test test2'}}, [(div ('class' = 'test') ('class' = 'test2'))]);
 	}
 
 	public function testId() {
-		assert({tag: 'div', attrs: {'id': 'test'}, children: []}, [(div+test)]);
-		assert({tag: 'div', attrs: {'id': 'test-with-hyphen'}, children: []}, [(div+test-with-hyphen)]);
+		assert({tag: 'div', attrs: {'id': 'test'}}, [(div+test)]);
+		assert({tag: 'div', attrs: {'id': 'test-with-hyphen'}}, [(div+test-with-hyphen)]);
 	}
 
 	public function testChildren() {
-		assert({tag: 'div', children: ([{tag: 'div', attrs: {}, children: []}]:Dynamic)}, [
+		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}]:Dynamic)}, [
 			(div)
 				(div)
 		]);
 
-		assert({tag: 'div', children: ([{tag: 'div', children: [{tag: 'div', attrs: {}, children: []}]}]:Dynamic)}, [
+		assert({tag: 'div', children: ([{tag: 'div', children: [{tag: 'div', attrs: {}}]}]:Dynamic)}, [
 			(div)
 				(div)
 					(div)
 		]);
 
-		assert({tag: 'div', children: ([{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]:Dynamic)}, [
+		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]:Dynamic)}, [
 			(div)
 				(div)(div)
 		]);
 
-		assert({tag: 'div', children: ([{tag: 'div', attrs: {}, children: []}, {tag: 'div', attrs: {}, children: []}]:Dynamic)}, [
+		assert({tag: 'div', children: ([{tag: 'div', attrs: {}}, {tag: 'div', attrs: {}}]:Dynamic)}, [
 			(div)
 				(div)
 				(div)
 		]);
 
-		assert(([ { "children": [ { "children": [], "tag": "div", "attrs": {} } ], "tag": "div" }, { "children": [], "tag": "div", "attrs": {} } ]: Dynamic), [
+		assert(([ { "children": [ { "tag": "div", "attrs": {} } ], "tag": "div" }, { "tag": "div", "attrs": {} } ]: Dynamic), [
 				(div)
 					(div)
 				(div)
@@ -179,51 +179,50 @@ class TestIthil extends TestCase implements IthrilView {
 	}
 
 	public function testAttribute() {
-		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, [(div[attr='test'])]);
-		assert({tag: 'div', attrs: {attr: 'test', second: 'test'}, children: []}, [(div[attr='test'][second='test'])]);
+		assert({tag: 'div', attrs: {attr: 'test'}}, [(div[attr='test'])]);
+		assert({tag: 'div', attrs: {attr: 'test', second: 'test'}}, [(div[attr='test'][second='test'])]);
 	}
 
 	public function testCallableAttribute() {
 		function attr(): {attr:String} return {
 			attr: 'test'
 		}
-		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, [(div (attr))]);
+		assert({tag: 'div', attrs: {attr: 'test'}}, [(div (attr))]);
 	}
 
 	public function testCombineAttributes() {
-		assert({tag: 'div', attrs: {a: 1, b: 2}, children: []}, [
+		assert({tag: 'div', attrs: {a: 1, b: 2}}, [
 			(div (a=1) (b=2))
 		]);
-		assert({tag: 'div', attrs: {a: 1}, children: []}, [
+		assert({tag: 'div', attrs: {a: 1}}, [
 			(div (a=1) (a=2))
 		]);
 		function attr() return {
 			attr: 'test'
 		}
-		assert({tag: 'div', attrs: {a: 1, attr: 'test'}, children: []}, [
+		assert({tag: 'div', attrs: {a: 1, attr: 'test'}}, [
 			(div (a=1) (attr))
 		]);
-		assert({ "children": "ok", "tag": "div", "attrs": { "attr": "test", "a": 1, "id": "id" } }, [
+		assert({ "text": "ok", "tag": "div", "attrs": { "attr": "test", "a": 1, "id": "id" } }, [
 			(div+id (a=1) (attr) > 'ok')
 		]);
 	}
 
 	public function testCombination() {
-		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}, children: []}, [(div[attr='test'].test+test)]);
-		assert({ "children": "a", "tag": "div", "attrs": { "attr": "test", "class": "test", "id": "test" } }, [(div[attr='test'].test+test > 'a')]);
-		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}, children: []}, [(div[attr='test'].test+test[attr2='test'])]);
+		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}}, [(div[attr='test'].test+test)]);
+		assert({ "text": "a", "tag": "div", "attrs": { "attr": "test", "class": "test", "id": "test" } }, [(div[attr='test'].test+test > 'a')]);
+		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}}, [(div[attr='test'].test+test[attr2='test'])]);
 	}
 
 	public function testTextnode() {
 		assert({
 			"text": "Test",
-			"children": [],
 			"tag": "div"
 		}, [(div > 'Test')]);
 	}
 
 	public function testAddToExistingAttributes() {
-		var expected = {tag: 'div', attrs: {attr: 'test', id: 'test', 'class': 'test'}, children: []};
+		var expected = {tag: 'div', attrs: {attr: 'test', id: 'test', 'class': 'test'}};
 		assert(expected, [(div.test+test (attr ='test'))]);
 		assert(expected, [(div.test+test
 			((function(): Dynamic {
@@ -268,7 +267,7 @@ class TestIthil extends TestCase implements IthrilView {
 	}
 
 	public function testCustomElement() {
-		assert({tag: 'div', attrs: {attr: 'test'}, children: []}, new CustomElement().view({ tag: '', attrs: { attr: 'test' } }));
+		assert({tag: 'div', attrs: {attr: 'test'}}, new CustomElement({ }).view({ tag: '', attrs: { attr: 'test' } }));
 	}
 
 	public function testCustomElementKeepRef() {

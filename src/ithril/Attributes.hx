@@ -15,11 +15,7 @@ class Attributes {
 	public static function attrs<T>(input: ValueOrCallable<T>): T
 		return input;
 
-#if neko
 	public static function combine(a: Dynamic, b: Dynamic): Dynamic {
-#else
-	public static function combine(b: Dynamic, a: Dynamic): Dynamic {
-#end
 		a = attrs(a);
 		b = attrs(b);
 		for (key in a.fields()) {
@@ -30,11 +26,8 @@ class Attributes {
 		}
 		return b;
 	}
-#if neko
+
 	public static function combineClassNames(a: Dynamic, b: Dynamic) {
-#else
-	public static function combineClassNames(b: Dynamic, a: Dynamic) {
-#end
 		if (Std.is(a, Array)) a = a.join(' ');
 		if (Std.is(b, Array)) b = b.join(' ');
 		return b+' '+a;

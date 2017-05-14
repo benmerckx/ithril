@@ -4,7 +4,7 @@
 
 # Mithril 1.1.1 for Haxe.  
 
-Ithril uses Haxe macros to transpiles Jade/Pug like templates into Mithril hyperscript.
+Ithril uses Haxe macros to transpile Jade/Pug like templates into Mithril hyperscript.
 
 ## Template Syntax
 

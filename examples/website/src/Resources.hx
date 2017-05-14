@@ -9,7 +9,7 @@ class Resources {
 				'--', 
 				'node_modules/mithril/mithril.min.js', 
 				'obj/browser.js',
-		])
+		]),
 		#else
 		From.file('node_modules/mithril/mithril.min.js'),
 		From.command('closure-compiler', [

@@ -2,11 +2,13 @@
 
 [![Build Status](https://travis-ci.org/benmerckx/ithril.svg?branch=master)](https://travis-ci.org/benmerckx/ithril)
 
-Mithril 1.1.1 template DSL for Haxe.  Transpiles Jade/Pug like templates into Mithril hyperscript.
+# Mithril 1.1.1 for Haxe.  
 
-## Syntax
+Ithril uses Haxe macros to transpiles Jade/Pug like templates into Mithril hyperscript.
 
-Mithril views can be declared inside classes that extend `ithril.Component` or implement `ithril.IthrilView`.  The declaration must be inside brackets marked with the `@m` meta.
+## Template Syntax
+
+Mithril views are declared in a class that extends `ithril.Component` or implements `ithril.IthrilView`.  The declaration must be inside `[`brackets`]` marked with the `@m` meta.
 
 ```haxe
 import ithril.*;
@@ -42,29 +44,40 @@ class Views implements IthrilView {
 #### Elements
 
 Any html element can be expressed in parentheses:  
-`(img)`
+```haxe
+(img)
+```
 
 CSS classes can be set using the `.` operator:  
-`(img.my-class-name.my-other-class-name)`
+```haxe
+(img.my-class-name.my-other-class-name)
+```
 
-An id can be added to the selector with the `+` operator (as # wouldn't be valid haxe syntax):  
-`(img+my-id)`
+An element id can be set with the `+` operator (as # wouldn't be valid haxe syntax):  
+```haxe
+(img+my-id)
+```
 
 Attributes can be used inside the selector:  
-`(img[src="img.jpg"])`
+```haxe
+(img[src="img.jpg"])
+```
 
 Attributes can also be expressed separately:  
-`(img (src="img.jpg", alt=""))`  
-`(img ({src: "img.jpg", alt: ""}))`  
-`(img (aFunctionCallReturningAttributes()))`
+```haxe
+(img (src="img.jpg", alt=""))
+(img ({src: "img.jpg", alt: ""}))
+(img (aFunctionCallReturningAttributes()))
+```
 
 #### Children
 
-A shortcut for defining one child:  
-`(h1 > 'My title')`
+A shortcut for defining one child:
+```haxe
+(h1 > 'My title')
+```
 
 More than one child can simply be nested by using indentation:
-
 ```haxe
     (nav)
     	(ul.links)
@@ -123,7 +136,7 @@ Following syntax can be used for any object (in this case `links`) with a map me
 #### Trusted HTML
 
 Embedding javascript or CSS assets requires marking content as trusted so it is not automatically escaped.  Use the `@trust` meta:
-```
+```haxe
 (style > @trust css)
 (script)
     [@trust javascript]
@@ -179,7 +192,7 @@ And would output:
 #### Lifecycle
 
 Mithril creates, reuses, and destroys components as specified by it's diffing algorithm.  The lifecycle of a `Component` can be observed by overriding these methods:
-```
+```haxe
 	public function oninit(vnode:Vnode) {}
 	public function oncreate(vnode:Vnode) {}
 	public function onupdate(vnode:Vnode) {}
@@ -188,16 +201,16 @@ Mithril creates, reuses, and destroys components as specified by it's diffing al
 	public function onbeforeupdate(vnode:Vnode) {}
 ```
 You can also specify these methods as attributes of both regular elements and components:
-```
+```haxe
     (div(oncreate=function() trace('oncreate')))
     (MyComponent(oncreate=function() trace('oncreate')))
 ```
 
 #### State
 
-Mithril manages a component state by cloning a component's fields post-constructor and storing them in `vnode.state`.  Because component instances can be cached and reused by Mithril, accessing state must be thru `vnode.state` unless the initial state is being set.
+Mithril manages component state by cloning a component's fields post-constructor and storing them in `vnode.state`.  Because component instances can be cached and reused by Mithril, accessing state must be thru `vnode.state` unless the initial state is being set.
 
-```
+```haxe
 class StatefulComponent extends Component {
     var someState = "my state"; // set initial state value here or in constructor
     var someMoreState:String;
@@ -216,17 +229,17 @@ class StatefulComponent extends Component {
 #### Rendering
 
 Components can be rendered by passing a Component class to Mithril:  
-```
+```haxe
 M.mount(js.Browser.document.body, MyComponent);
 ```
 
 Or may be rendered on the server as html (string):  
-```
+```haxe
 HTMLRenderer.render(@m[ (div > 'view') ]).then(function(html) Sys.print(html))
 ```
 
 Mithril routing is also supported:
-```
+```haxe
 M.route(js.Browser.document.body, "/", routes);
 ```
 
@@ -257,10 +270,10 @@ class Web extends Component {
 	public static function main() {
 		// On the server
 		#if !js
-		Sys.print(HTMLRenderer.render(new Web().layout()));
+		Sys.print(HTMLRenderer.render(new Web({ }).layout()));
 		#else
 		// On the client
-		M.mount(js.Browser.document.body, new Web());
+		M.mount(js.Browser.document.body, new Web({ }));
 		#end
 	}
 }
@@ -275,17 +288,17 @@ class Web extends Component {
 An example website can be found at `examples/website`.  You will need `node`, `npm`, `sass`, and either `closure` or `uglifyjs` installed in order to build and run it.
 
 Initial build: (this will run `npm install`)
-```
+```bash
 cd examples/website
 haxe build.hxml
 ```
 
 Start webserver: (listens on localhost:4200, and restarts when webserver.js changes)
-```
+```bash
 npm run start
 ```
 
 Auto-build: (rebuilds on file changes)
-```
+```bash
 npm run autobuild
 ```

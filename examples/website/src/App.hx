@@ -9,7 +9,7 @@ class App {
 #elseif webserver
 	static function main() WebServer.execute();
 #elseif renderview
-	static function main() View.render({ path: App.config.path }, { send: Sys.println });
+	static function main() View.render({ path: App.config.path }, { send: Sys.println, status: Sys.println });
 #end
 }
 
@@ -40,12 +40,12 @@ class View {
 		route(js.Browser.document.body, "/", App.config.routes);
 	}
 
-	public static function render(request, response) {
-		App.config.path = request.path;
+#if !browser
+	public static function render(request, response:Dynamic)
 		HTMLRenderer.render(App.config.routes.field(request.path).render())
 			.then(function(rslt) { response.send(rslt); },
-				  function(err) { trace('ERR: $err'); });
-	}
+				  function(err) { Sys.println('ERR: $err'); response.status(500).end(); });
+#end
 }
 
 // A node+express webserver

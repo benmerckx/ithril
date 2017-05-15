@@ -96,7 +96,7 @@ class HTMLRenderer {
 			if (Std.is(view.children, Array) && view.children.length == 0)
 				resolve(txt);
 			else
-				_render(view.children, options, hooks, level, namespace).then(function(rslt) resolve(txt + rslt));
+				_render(view.children, options, hooks, level, namespace).then(function(rslt) resolve(txt + rslt), reject);
 		});
 #end
 	}
@@ -107,7 +107,7 @@ class HTMLRenderer {
 #if js
 		return new js.Promise(function (resolve, reject) {
 			if (Std.is(view, Class)) {
-				render({ tag: view, attrs: attrs }, attrs, options).then(function (rslt) resolve(rslt));
+				render({ tag: view, attrs: attrs }, attrs, options).then(resolve, reject);
 				return;
 			}
 #else
@@ -134,13 +134,10 @@ class HTMLRenderer {
 			return result;
 #else
 			_render(view, options, hooks)
-				.then(function (rslt) {
-					js.Promise.all([for (h in hooks) h()]) // { var prom = h(); if (prom != null) (prom:js.Promise); }])
-					.then(function (r) resolve(rslt));
+				.then(function (html) {
+					js.Promise.all([for (h in hooks) h()]) 
+					.then(function (rslt) { resolve(html); }, reject);
 				});
-				//hooks.map(function (hook) { hook(); });
-				//resolve(result);
-			//});
 		});
 #end
 	}
@@ -189,7 +186,7 @@ class HTMLRenderer {
 				return result;
 #else
 				js.Promise.all([for (v in (view:Array<Dynamic>)) _render(v, options, hooks, level + 1, namespace)])
-					.then(function (result) resolve('' + result.join('')));
+					.then(function (result) resolve('' + result.join('')), reject);
 				return;
 #end
 			}
@@ -213,8 +210,7 @@ class HTMLRenderer {
 					return _render(component.view(vnode), options, hooks, level, namespace);
 #else
 					setHooks(component, vnode, hooks)
-						.then(function (z) _render(component.view(vnode), options, hooks, level, namespace)
-							.then(function (rslt) resolve(rslt)));
+						.then(function (z) _render(component.view(vnode), options, hooks, level, namespace).then(resolve, reject), reject);
 					return;
 #end
 				}
@@ -283,8 +279,9 @@ class HTMLRenderer {
 #end
 
 #if js
-				});
-			});
+				}, reject);
+			},
+			reject);
 		});
 #end
 	}

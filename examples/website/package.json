@@ -1,0 +1,20 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "main": "obj/webserver.js",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "4.0.0-alpha.6",
+    "compression": "^1.6.2",
+    "express": "^4.15.2",
+    "mithril": "^1.1.1",
+    "morgan": "^1.8.1",
+    "nodemon": "^1.11.0"
+  },
+  "scripts": {
+    "build": "haxe build.hxml",
+    "start": "node_modules/nodemon/bin/nodemon.js -w obj/webserver.js -x obj/webserver.js -c config/webserver-config.json",
+    "autobuild": "node_modules/nodemon/bin/nodemon.js -x \"haxe build.hxml\" -e \"hx hxml json scss\"",
+	"clean": "rm -r htdocs obj node_modules .sass-cache"
+  }
+}

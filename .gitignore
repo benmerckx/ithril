@@ -4,3 +4,6 @@
 !/.travis.yml
 modd.conf
 /bin
+obj/
+node_modules/
+htdocs/

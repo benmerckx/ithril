@@ -1,86 +1,15 @@
 package ithril;
 
-import haxe.DynamicAccess;
-import ithril.component.ComponentCache;
+@:autoBuild(ithril.IthrilBuilder.buildComponent())
+class Component implements IthrilView {
+	public function oninit(vnode:Vnode) {}
+	public function oncreate(vnode:Vnode) {}
+	public function onupdate(vnode:Vnode) {}
+	public function onbeforeremove(vnode:Vnode) {}
+	public function onremove(vnode:Vnode) {}
+	public function onbeforeupdate(vnode:Vnode) {}
 
-@:genericBuild(ithril.component.ComponentBuilder.buildGeneric())
-class Component<Rest> {}
+	public function view(vnode:Vnode):Vnode return null;
 
-@:autoBuild(ithril.component.ComponentBuilder.build())
-@:allow(ithril.component.ComponentCache)
-class ComponentAbstract<State, Child: VirtualElement, Parent: Component> implements IthrilView {
-	public var state(default, null): State;
-	public var stateFields: Array<String> = [];
-	var children: Array<Child>;
-	var parent: Parent;
-	var dirty = false;
-	var isMounted = false;
-
-	public function new() {}
-
-	public function setState(state: State) {
-		this.state = state;
-	}
-	
-	public function mount() {}
-	
-	public function unmount() {}
-
-	public function setChildren(children: Array<Child>) {
-		if (children.length == 1 && Std.is(children[0], Array)) {
-			children = untyped children[0];
-		}
-		this.children = children;
-		if (Std.is(children, Array)) {
-			children.map(function(child) {
-				if (Std.is(child, ComponentAbstract)) {
-					(cast child).parent = this;
-				}
-			});
-		}
-	}
-
-	public function asHTML(space = ''): String {
-		return HTMLRenderer.render(this, space);
-	}
-	
-	@:keep
-	public static function __init__() {
-		#if (!nodejs && js)
-		trace('patched');
-		// JS client has to be monkey patched, because mithril has no hooks
-		function patch(obj, method: String, impl: Dynamic) untyped {
-			var store = {}, previous = obj[method];
-			Object.keys(previous).map(function(key) store[key] = previous[key]);
-			obj[method] = impl.bind(__js__('this'), obj[method]);
-			Object.keys(store).map(function (key) obj[method][key] = store[key]);
-		}
-		
-		var window: DynamicAccess<Dynamic> = cast js.Browser.window,
-			m: Dynamic = window.get('m'),
-			redrawing = false, 
-			queue = false, 
-			counted = 0,
-			next = window.exists('requestAnimationFrame') ? window['requestAnimationFrame'] : window['setTimeout'];
-		
-			patch(m, 'redraw', function(original, force) {
-				if (queue) return;
-				if (!redrawing) {
-					redrawing = true;
-					ComponentCache.invalidate();
-					original(force);
-					next(function() {
-						ComponentCache.collect();
-						redrawing = false;
-						if (queue) {
-							queue = false;
-							m.redraw(force);
-						}
-					}, 16);
-				} else {
-					queue = true;
-				}
-			});
-		#end
-	}
+	public function new(vnode:Vnode) { }
 }

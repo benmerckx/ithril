@@ -1,0 +1,19 @@
+{
+	">>>": "Webserver Configuration File",
+
+	"html": {
+		"path": "htdocs",  				"//":"Path to static HTML files",
+		"render": true,					"//":"Should rendered HTML be served",
+		"charset": "utf-8",				"//":"Default charset meta",
+		"javascript": true,				"//":"Include javascript",
+		"css": true,					"//":"Include css"
+	},
+
+	"listen": {
+		"port": "4200", 				"//":"Port to listen on",
+		"host": "localhost", 			"//":"IP address to bind to",
+		"httpLogFormat": "dev", 		"//":"Morgan HTTP format string",
+		"compression": true, 			"//":"Enable gzip compression",
+		"backlog": 511, 				"//":"Maximum queued connections"
+	}
+}

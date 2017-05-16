@@ -1,0 +1,100 @@
+### COMMON
+
+# Full dead code elimination
+-dce full
+# Enable the analyzer optimizations
+-D analyzer-optimize
+# Compress javascript and css
+-D compress
+# Use uglifyJS instead of closure to compress javascript
+-D uglifyjs
+# https://haxe.org/manual/target-javascript-expose.html
+-D shallow-expose
+# Ithril provides templating and mithril:
+-lib ithril
+# Classpaths:
+# primary source files
+-cp src
+# Haxe externs
+-cp extern
+# Utility classes
+-cp util
+
+--each
+
+### NPM DEPENDENCIES __________________________________________/`
+-cmd bash -c "if [ ! -d node_modules ]; then echo Running npm install && npm install; fi"
+--next
+
+### CLIENT
+
+-cmd echo Building browser.js
+--next
+# browser define
+-D browser
+# Main class
+-main App
+# Target output filename
+-js obj/browser.js
+--next
+
+### WEBSERVER
+
+-cmd echo Building webserver.js
+--next
+# js-kit provides js externs
+-lib js-kit
+# hxnodejs provides nodejs externs
+-lib hxnodejs
+# webserver define
+-D webserver
+# Main class
+-main App
+# Target output filename
+-js obj/webserver.out.js
+--next
+# Insert interpreter reference into output
+-cmd sed -i '1s/^/#!\/usr\/bin\/env node\n/' obj/webserver.out.js
+# Make output executable
+-cmd chmod a+x obj/webserver.out.js
+# Replace executable
+-cmd cp obj/webserver.out.js obj/webserver.js
+# Remove temporary output
+-cmd rm obj/webserver.out.js
+--next
+
+### RENDERVIEW
+
+-cmd echo Building renderview.js
+--next
+# nodejs define
+-D nodejs
+# js-kit provides js externs
+-lib js-kit
+# hxnodejs provides nodejs externs
+-lib hxnodejs
+# render view define
+-D renderview
+# Main class
+-main App
+# Target output filename
+-js obj/renderview.js
+--next
+
+# Insert interpreter reference into output
+-cmd sed -i '1s/^/#!\/usr\/bin\/env node\n/' obj/renderview.js
+# Make output executable
+-cmd chmod a+x obj/renderview.js
+--next
+
+# STATIC HTML
+-cmd echo Generating static html
+--next
+
+# Output directory
+-cmd mkdir -p htdocs
+# Render static pages
+-cmd obj/renderview.js -c config/webserver-config.json -p / > htdocs/index.html
+-cmd obj/renderview.js -c config/webserver-config.json -p /page1.html > htdocs/page1.html
+-cmd obj/renderview.js -c config/webserver-config.json -p /page2.html > htdocs/page2.html
+-cmd obj/renderview.js -c config/webserver-config.json -p /page3.html > htdocs/page3.html

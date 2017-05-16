@@ -2,60 +2,89 @@
 
 [![Build Status](https://travis-ci.org/benmerckx/ithril.svg?branch=master)](https://travis-ci.org/benmerckx/ithril)
 
-Templates for haxe. Compiles to HTML or [Mithril](https://github.com/ciscoheat/mithril-hx) views.
+# Mithril 1.1.1 for Haxe.  
+
+Ithril uses Haxe macros to transpile Jade/Pug like templates into Mithril hyperscript.
+
+## Template Syntax
+
+Mithril views are declared in a class that extends `ithril.Component` or implements `ithril.IthrilView`.  The declaration must be inside `[`brackets`]` marked with the `@m` meta.
 
 ```haxe
-function () [
-	(div.intro)
-		(ul)
-			(li > 'Some')
-			(li > 'List items')
-		(ul.another-list)
-			(list => item)
-				(li > item.title)
-		(form)
-			(input[type="text"] (value = "Text value", onfocus = focus))
-			(input[type="checkbox"][required]) ['Check this']
-];
+import ithril.*;
+
+class MyComponent extends Component {
+    public override function view (vnode:Vnode) @m[
+    	(div.intro)
+    		(ul)
+    			(li > 'Some')
+    			(li > 'List items')
+    		(ul.another-list)
+    			(vnode.attrs.list => item)
+    				(li > item)
+    		(form)
+    			(input[type="text"] (value = "Text value", onfocus = focus))
+    			(input[type="checkbox"][required]) ['Check this']
+    ];
+}
+
+class Views implements IthrilView {
+    public function view1(vnode:Vnode) @m[
+        (div > 'view one')
+            (MyComponent(list=['item one', 'item two', 'item three']))
+    ]
+    
+    public function view2(vnode:Vnode) @m[
+        (div > 'view two')
+            (MyComponent(list=['apples', 'oranges', 'bananas']))
+    ]}
+}
 ```
-
-## Syntax
-
-Ithril views must be declared inside brackets. If used in a method they will always return.
 
 #### Elements
 
 Any html element can be expressed in parentheses:  
-`(img)`
+```haxe
+(img)
+```
 
-The class can be set as in a css selector:  
-`(img.my-class-name)`
+CSS classes can be set using the `.` operator:  
+```haxe
+(img.my-class-name.my-other-class-name)
+```
 
-An id can be added to the selector with + (as # wouldn't be valid haxe syntax):  
-`(img+my-id)`
+An element id can be set with the `+` operator (as # wouldn't be valid haxe syntax):  
+```haxe
+(img+my-id)
+```
 
 Attributes can be used inside the selector:  
-`(img[src="img.jpg"])`
+```haxe
+(img[src="img.jpg"])
+```
 
 Attributes can also be expressed separately:  
-`(img (src="img.jpg", alt=""))`  
-`(img ({src: "img.jpg", alt: ""}))`  
-`(img (aFunctionCallReturningAttributes()))`
+```haxe
+(img (src="img.jpg", alt=""))
+(img ({src: "img.jpg", alt: ""}))
+(img (aFunctionCallReturningAttributes()))
+```
 
 #### Children
 
-A shortcut for defining one child:  
-`(h1 > 'My title')`
+A shortcut for defining one child:
+```haxe
+(h1 > 'My title')
+```
 
 More than one child can simply be nested by using indentation:
-
 ```haxe
-(nav)
-	(ul.links)
-		(li)
-			(a[href="http://haxe.org"] > 'Haxe')
-		(li)
-			(a[href="http://github.com"] > 'Github')
+    (nav)
+    	(ul.links)
+    		(li)
+    			(a[href="http://haxe.org"] > 'Haxe')
+    		(li)
+    			(a[href="http://github.com"] > 'Github')
 ```
 
 #### Inline expressions
@@ -66,11 +95,22 @@ Any expression can be used inside brackets:
 	['A string for example']
 (button)
 	[this.buttonLabel]
+(div)
+    [{
+        var blockExpression = "is Ok";
+        return blockExpression;
+    }]
+(div)
+    [{
+        return true ? @m[
+            (div > 'this works too')
+        ] : @m [ ]
+    }]
 ```
 
 #### Conditionals
 
-If/else can be used inside templates (`$elseif` is on the todo list):
+If/else can be used inside templates:
 ```haxe
 ($if (bigTitle))
 	(h1 > 'Big')
@@ -93,44 +133,40 @@ Following syntax can be used for any object (in this case `links`) with a map me
 	(a (href=link.url, target='_blank') > link.title)
 ```
 
+#### Trusted HTML
+
+Embedding javascript or CSS assets requires marking content as trusted so it is not automatically escaped.  Use the `@trust` meta:
+```haxe
+(style > @trust css)
+(script)
+    [@trust javascript]
+```
+
 ## Components
 
-Custom components can be created by extending `ithril.Component`.  
-A component can then be used in your view like any other element:  
-`(MyComponent (attr1=1, attr2=2))`
-
-#### State
-
-A component's attributes are type checked, so the example above would have to be defined like this:  
-`class MyComponent extends Component<{attr1: Int, attr2: Int}>`
-
-If no attributes are needed, you don't have to define a type parameter:  
-`class MyComponent extends Component`
-
-You can also require an instance:  
-`class Label extends Component<String>`  
-Usage would be:  
-`(Label ('My text'))`
-
-State can be accessed inside the component:
+Custom components can be created by extending `ithril.Component`.  A component can then be used in a view like any other element:  
 ```haxe
-class MyComponent extends Component<{attr1: Int, attr2: Int}> {
-	public function view() [
-		(div.my-comp)
-			(span.attr > 'Attribute 1'+state.attr1)
-			(span.attr > 'Attribute 2'+state.attr2)
-	];
+class Hello extends Component {
+    public override function view (vnode:Vnode) @m[
+    	(div.component > 'Hello ' + vnode.attrs.name)
+    ];
+}
+
+class World implements IthrilView {
+    public function helloView(vnode:Vnode) @m[
+            (Hello(name='World'))
+    ]
 }
 ```
 
 #### Children
 
-Children of a Component can be used however you like (`children => child` is [map syntax](#map)):
+Children of a Component can be accessed via `vnode.children`:
 ```haxe
 class List extends Component {
-	public function view() [
+	public function view(vnode:Vnode) [
 		(ul)
-			(children => child)
+			(vnode.children => child)
 				(li > child)
 	];
 }
@@ -155,36 +191,67 @@ And would output:
 
 #### Lifecycle
 
-A component is cached while it's in view. You can perform an action the moment it's created or destroyed (no longer in view) by using `mount` and `unmount`. This can be useful to, for example, set/unset listeners. These methods are only called on the client side.
+Mithril creates, reuses, and destroys components as specified by it's diffing algorithm.  The lifecycle of a `Component` can be observed by overriding these methods:
+```haxe
+	public function oninit(vnode:Vnode) {}
+	public function oncreate(vnode:Vnode) {}
+	public function onupdate(vnode:Vnode) {}
+	public function onbeforeremove(vnode:Vnode) {}
+	public function onremove(vnode:Vnode) {}
+	public function onbeforeupdate(vnode:Vnode) {}
+```
+You can also specify these methods as attributes of both regular elements and components:
+```haxe
+    (div(oncreate=function() trace('oncreate')))
+    (MyComponent(oncreate=function() trace('oncreate')))
+```
+
+#### State
+
+Mithril manages component state by cloning a component's fields post-constructor and storing them in `vnode.state`.  Because component instances can be cached and reused by Mithril, accessing state must be thru `vnode.state` unless the initial state is being set.
 
 ```haxe
-class Container extends Component {
-	override public function mount()
-		js.Browser.window.addEventListener('resize', resize);
-
-	override public function unmount()
-		js.Browser.window.removeEventListener('resize', resize);
-
-	function resize(e)
-		trace('Resize event!');
+class StatefulComponent extends Component {
+    var someState = "my state"; // set initial state value here or in constructor
+    var someMoreState:String;
+    
+    override public function new(vnode:Vnode) {
+        someMoreState = "other state"; // can also set initial component state here
+    }
+    
+    override public function view(vnode:Vnode) @m[
+        (div > vnode.state.someState) // access it via vnode.state
+            [vnode.state.someMoreState]
+    ]
 }
 ```
 
 #### Rendering
 
-Components can be rendered by passing an instance to mithril:  
-`M.mount(js.Browser.document.body, component);`
+Components can be rendered by passing a Component class to Mithril:  
+```haxe
+M.mount(js.Browser.document.body, MyComponent);
+```
 
-Or may be rendered as html (string):  
-`Sys.print(component.asHTML());`
+Or may be rendered on the server as html (string):  
+```haxe
+HTMLRenderer.render(@m[ (div > 'view') ]).then(function(html) Sys.print(html))
+```
+
+Mithril routing is also supported:
+```haxe
+M.route(js.Browser.document.body, "/", routes);
+```
 
 ## Usage
 
 Any of your class methods can use ithril syntax if you either implement `ithril.IthrilView` or extend `ithril.Component`.
 
 ```haxe
-class Web extends ithril.Component {
-	public function layout() [
+import ithril.*;
+
+class Web extends Component {
+	public function layout() @m[
 		(!doctype)
 		(meta[charset="utf-8"])
 		(link[href="layout.css"][rel="stylesheet"])
@@ -194,7 +261,7 @@ class Web extends ithril.Component {
 		(script[src="main.js"])
 	];
 
-	public function view() [
+	override public function view(vnode) @m[
 		(div.intro)
 			(h1 > 'Ithril example')
 			(p > 'Hello world')
@@ -203,10 +270,10 @@ class Web extends ithril.Component {
 	public static function main() {
 		// On the server
 		#if !js
-		Sys.print(ithril.HTMLRenderer.render(new Web().layout()));
+		Sys.print(HTMLRenderer.render(new Web({ }).layout()));
 		#else
 		// On the client
-		mithril.M.mount(js.Browser.document.body, new Web());
+		M.mount(js.Browser.document.body, new Web({ }));
 		#end
 	}
 }
@@ -214,4 +281,24 @@ class Web extends ithril.Component {
 
 ## Output
 
-Everything gets compiled to simple objects, using [this notation](http://lhorie.github.io/mithril/optimizing-performance.html#compiling-templates) so the output can be used directly with Mithril. Use `ithril.HTMLRenderer.render` to render the output to a string.
+`@m[ (div(attrs)) ]` is transpiled to Mithril hyperscript `m('div', attrs)`.  On the browser end, it's passed directly to Mithril.  In server instances `ithril.HTMLRenderer` can be is used to render HTML.
+
+## Sample Website
+
+An example website can be found at `examples/website`.  You will need `node`, `npm`, `sass`, and either `closure` or `uglifyjs` installed in order to build and run it.
+
+Initial build: (this will run `npm install`)
+```bash
+cd examples/website
+haxe build.hxml
+```
+
+Start webserver: (listens on localhost:4200, and restarts when webserver.js changes)
+```bash
+npm run start
+```
+
+Auto-build: (rebuilds on file changes)
+```bash
+npm run autobuild
+```

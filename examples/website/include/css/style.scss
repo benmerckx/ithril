@@ -1,0 +1,31 @@
+@import "../../node_modules/bootstrap/scss/bootstrap.scss";
+
+#header {
+	@extend .navbar-brand;
+}
+
+#navigation {
+	@extend .navbar;
+	@extend .navbar-toggleable-md;
+	@extend .navbar-inverse;
+	@extend .bg-primary;
+
+	#brand {
+		@extend .navbar-brand;
+	}
+
+	ul {
+		@extend .navbar-nav;
+		@extend .mr-auto;
+		li {
+			@extend .nav-item;
+			a {
+				@extend .nav-link;
+			}
+		}
+	}
+}
+
+.content {
+	margin-top: 0.42em;
+}

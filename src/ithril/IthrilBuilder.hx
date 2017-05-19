@@ -125,6 +125,7 @@ class IthrilBuilder {
 										isTemplate = true;
 										e.expr = createExpr(orderBlocks(blocks), true).expr;
 									default:
+										throw("ithril couldnt parse:\n" + values[values.length - 1].toString());
 								}
 						default:
 					}

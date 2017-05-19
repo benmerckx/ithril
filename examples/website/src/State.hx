@@ -66,6 +66,8 @@ class State {
 						]},
 
 				},
+
+				streamVal: #if browser new Stream("stream test") #else null #end,
 			};
 		}
 		return current;

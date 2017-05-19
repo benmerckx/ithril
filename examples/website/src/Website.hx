@@ -48,6 +48,7 @@ class Base extends Component {
 class HomePage extends Component {
 	override public function view(vnode:Vnode) @m[
 		(Content(header=vnode.attrs.homeHeader, text=vnode.attrs.homeText))
+		(input(type='text', value=vnode.attrs.streamVal, onchange=withAttr("value", vnode.attrs.streamVal)))
 		(ContentPage(vnode.attrs))
 	];
 }

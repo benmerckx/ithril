@@ -8,10 +8,12 @@ class Resources {
 				'--mangle', 
 				'--', 
 				'node_modules/mithril/mithril.min.js', 
+				'node_modules/mithril/stream/stream.js',
 				'obj/browser.js',
 		]),
 		#else
 		From.file('node_modules/mithril/mithril.min.js'),
+		From.file('node_modules/mithril/stream/stream.js'),
 		From.command('closure-compiler', [
 				'-O', 'SIMPLE', 
 				'obj/browser.js',
@@ -28,6 +30,7 @@ class Resources {
 #else
 	public static var javascript = [
 		From.file('node_modules/mithril/mithril.js'),
+		From.file('node_modules/mithril/stream/stream.js'),
 		From.file('obj/browser.js'),
 	];
 	public static var css = [

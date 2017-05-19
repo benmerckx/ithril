@@ -112,7 +112,6 @@ class IthrilBuilder {
 			}
 		});
 
-	@:allow(ithril.Ithril)
 	static function parseFunction(e: Expr) {
 		switch e.expr {
 			case EMeta(s, me):

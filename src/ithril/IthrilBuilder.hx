@@ -175,7 +175,7 @@ class IthrilBuilder {
 						if (nm == ":trust" || nm == "trust")
 							Success([Block.TrustedExprBlock(preprocess(e1), posInfo(e1))]);
 						else
-							throw("metadata not allowed here:\n" + e1.toString());
+							Success([Block.ExprBlock(preprocess(e1), posInfo(e1))]);
 					default:
 						Success([Block.ExprBlock(preprocess(e1), posInfo(e1))]);
 				}

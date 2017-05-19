@@ -23,34 +23,7 @@ typedef RouteResolver<T:Component> = {
 
 #if !nodejs @:native("m") extern #end
 class M {
-	public static function mount(element:Element, component:Class<Component>):Void #if nodejs {} #end;
-	public static function route(rootElement:Element, defaultRoute:String, routes:Dynamic<Either<Class<Component>, RouteResolver<Dynamic>>>):Void #if nodejs {} #end;
-	public static function parseQueryString(querystring:String):DynamicAccess<String> #if nodejs { return null; } #end;
-	public static function buildQueryString(data:{}):String #if nodejs { return null; } #end;
-	public static function withAttr<T, T2:Event>(attrName:String, callback:T->Void):T2->Void #if nodejs { return null; } #end;
-	public static function trust(html:String):Vnode #if nodejs { return null; } #end;
-	public static function fragment(attrs:{}, children:Array<Vnodes>):Vnode #if nodejs { return null; } #end;
-	public static function redraw():Void #if nodejs {} #end;
-	public static var version:String #if nodejs = "1.1.1" #end;
-
-	public static inline function routeSet(route:String, ?data:{ }, ?options:{ ?replace: Bool, ?state: { }, ?title: String }):Void
-		return untyped __js__("m.route.set({0}, {1}, {2})", route, data, options);
-
-	public static inline function routeGet():String
-		#if !nodejs return untyped route.get(); #else { return null; } #end
-
-	public static inline function routePrefix(prefix:String):Void
-		#if !nodejs return untyped route.prefix(prefix); #else {} #end
-
-	public static inline function routeLink(vnode:Vnode):Event->Void
-		#if !nodejs return untyped route.link(vnode); #else { return null; } #end
-
-	public static inline function routeAttrs(vnode:Vnode):DynamicAccess<String>
-		#if !nodejs return untyped __js__('{0}.attrs', vnode); #else { return null; } #end
-
-	public static inline function routeParam(?key:String):Dynamic
-		#if !nodejs return untyped route.param(key); #else { return null; } #end
-
+	// m
 	#if !nodejs
 	@:overload(function(selector:Dynamic):Vnodes {})
 	@:overload(function(selector:Dynamic, attributes:Dynamic):Vnodes {})
@@ -58,15 +31,67 @@ class M {
 	#end
 	public static #if nodejs inline #end function m(selector:Dynamic, ?attributes:Dynamic, ?children:Dynamic):Dynamic #if nodejs return Util.makeVnode3(selector, attributes, children) #end;
 
+	// m.render
+	public static function render(element:Element, vnodes:Dynamic):Void #if nodejs {} #end;
+
+	// m.mount
+	public static function mount(element:Element, component:Class<Component>):Void #if nodejs {} #end;
+
+	// m.route
+	public static function route(rootElement:Element, defaultRoute:String, routes:Dynamic<Either<Class<Component>, RouteResolver<Dynamic>>>):Void #if nodejs {} #end;
+
+	// m.route.set
+	public static inline function routeSet(route:String, ?data:{ }, ?options:{ ?replace: Bool, ?state: { }, ?title: String }):Void
+		return untyped __js__("m.route.set({0}, {1}, {2})", route, data, options);
+
+	// m.route.get
+	public static inline function routeGet():String
+		#if !nodejs return untyped route.get(); #else { return null; } #end
+
+	// m.route.prefix
+	public static inline function routePrefix(prefix:String):Void
+		#if !nodejs return untyped route.prefix(prefix); #else {} #end
+
+	// m.route.link
+	public static inline function routeLink(vnode:Vnode):Event->Void
+		#if !nodejs return untyped route.link(vnode); #else { return null; } #end
+
+	// m.route.param
+	public static inline function routeParam(?key:String):Dynamic
+		#if !nodejs return untyped route.param(key); #else { return null; } #end
+
+	// m.request
 	#if !nodejs
 	@:overload(function<T, T2, T3>(url:String):Promise<T> {})
 	@:overload(function<T, T2, T3>(options:XHROptions<T, T2, T3>):Promise<T> {})
 	public static function request<T, T2, T3>(url:String, options:XHROptions<T, T2, T3>):Promise<T>;
 
+	// m.jsonp
 	@:overload(function<T>(url:String):Promise<T> {})
 	@:overload(function<T, T2>(options:JSONPOptions<T, T2>):Promise<T> {})
 	public static function jsonp<T, T2>(url:String, options:JSONPOptions<T, T2>):Promise<T>;
 	#end
+
+	// m.parseQueryString
+	public static function parseQueryString(querystring:String):DynamicAccess<String> #if nodejs { return null; } #end;
+
+	// m.buildQueryString
+	public static function buildQueryString(data:{}):String #if nodejs { return null; } #end;
+
+	// m.withAttr
+	public static function withAttr<T, T2:Event>(attrName:String, callback:T->Void):T2->Void #if nodejs { return null; } #end;
+
+	// m.trust
+	public static function trust(html:String):Vnode #if nodejs { return null; } #end;
+
+	// m.fragment
+	public static function fragment(attrs:{}, children:Array<Vnodes>):Vnode #if nodejs { return null; } #end;
+
+	// m.redraw
+	public static function redraw():Void #if nodejs {} #end;
+
+	// m.version
+	public static var version:String #if nodejs = "1.1.1" #end;
 }
 
 typedef XHROptions<T, T2, T3> = {
@@ -93,5 +118,6 @@ typedef JSONPOptions<T, T2> = {
 	@:optional var type:T->Dynamic;
 	@:optional var callbackName:String;
 	@:optional var callbackKey:String;
+	@:optional var background:Bool;
 };
 

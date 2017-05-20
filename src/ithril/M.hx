@@ -29,7 +29,7 @@ class M {
 	@:overload(function(selector:Dynamic, attributes:Dynamic):Vnodes {})
 	@:selfCall
 	#end
-	public static #if nodejs inline #end function m(selector:Dynamic, ?attributes:Dynamic, ?children:Dynamic):Dynamic #if nodejs return Util.makeVnode3(selector, attributes, children) #end;
+	public static #if nodejs inline #end function m(selector:Dynamic, ?attributes:Dynamic, ?children:Dynamic):Dynamic #if nodejs return Factory.makeVnode3(selector, attributes, children) #end;
 
 	// m.render
 	public static function render(element:Element, vnodes:Dynamic):Void #if nodejs {} #end;

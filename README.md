@@ -2,13 +2,13 @@
 
 [![Build Status](https://travis-ci.org/benmerckx/ithril.svg?branch=master)](https://travis-ci.org/benmerckx/ithril)
 
-# Mithril 1.1.1 for Haxe.  
+# Mithril 1.1.1 for Haxe.
 
 Ithril uses Haxe macros to transpile Jade/Pug like templates into Mithril hyperscript.
 
 ## Template Syntax
 
-Mithril views are declared in a class that extends `ithril.Component` or implements `ithril.IthrilView`.  The declaration must be inside `[`brackets`]` marked with the `@m` meta.
+Mithril views are declared in a class that extends `ithril.Component` or implements `ithril.View`.  The declaration must be inside `[`brackets`]` marked with a `@m` meta.
 
 ```haxe
 import ithril.*;
@@ -28,12 +28,12 @@ class MyComponent extends Component {
     ];
 }
 
-class Views implements IthrilView {
+class Views implements View {
     public function view1(vnode:Vnode) @m[
         (div > 'view one')
             (MyComponent(list=['item one', 'item two', 'item three']))
     ]
-    
+
     public function view2(vnode:Vnode) @m[
         (div > 'view two')
             (MyComponent(list=['apples', 'oranges', 'bananas']))
@@ -43,27 +43,27 @@ class Views implements IthrilView {
 
 #### Elements
 
-Any html element can be expressed in parentheses:  
+Any html element can be expressed in parentheses:
 ```haxe
 (img)
 ```
 
-CSS classes can be set using the `.` operator:  
+CSS classes can be set using the `.` operator:
 ```haxe
 (img.my-class-name.my-other-class-name)
 ```
 
-An element id can be set with the `+` operator (as # wouldn't be valid haxe syntax):  
+An element id can be set with the `+` operator (as # wouldn't be valid haxe syntax):
 ```haxe
 (img+my-id)
 ```
 
-Attributes can be used inside the selector:  
+Attributes can be used inside the selector:
 ```haxe
 (img[src="img.jpg"])
 ```
 
-Attributes can also be expressed separately:  
+Attributes can also be expressed separately:
 ```haxe
 (img (src="img.jpg", alt=""))
 (img ({src: "img.jpg", alt: ""}))
@@ -144,7 +144,7 @@ Embedding javascript or CSS assets requires marking content as trusted so it is 
 
 ## Components
 
-Custom components can be created by extending `ithril.Component`.  A component can then be used in a view like any other element:  
+Custom components can be created by extending `ithril.Component`.  A component can then be used in a view like any other element:
 ```haxe
 class Hello extends Component {
     public override function view (vnode:Vnode) @m[
@@ -152,7 +152,7 @@ class Hello extends Component {
     ];
 }
 
-class World implements IthrilView {
+class World implements View {
     public function helloView(vnode:Vnode) @m[
             (Hello(name='World'))
     ]
@@ -214,11 +214,11 @@ Mithril manages component state by cloning a component's fields post-constructor
 class StatefulComponent extends Component {
     var someState = "my state"; // set initial state value here or in constructor
     var someMoreState:String;
-    
+
     override public function new(vnode:Vnode) {
         someMoreState = "other state"; // can also set initial component state here
     }
-    
+
     override public function view(vnode:Vnode) @m[
         (div > vnode.state.someState) // access it via vnode.state
             [vnode.state.someMoreState]
@@ -228,12 +228,12 @@ class StatefulComponent extends Component {
 
 #### Rendering
 
-Components can be rendered by passing a Component class to Mithril:  
+Components can be rendered by passing a Component class to Mithril:
 ```haxe
 M.mount(js.Browser.document.body, MyComponent);
 ```
 
-Or may be rendered on the server as html (string):  
+Or may be rendered on the server as html (string):
 ```haxe
 HTMLRenderer.render(@m[ (div > 'view') ]).then(function(html) Sys.print(html))
 ```
@@ -245,7 +245,7 @@ M.route(js.Browser.document.body, "/", routes);
 
 ## Usage
 
-Any of your class methods can use ithril syntax if you either implement `ithril.IthrilView` or extend `ithril.Component`.
+Any of your class methods can use ithril syntax if you either implement `ithril.View` or extend `ithril.Component`.
 
 ```haxe
 import ithril.*;

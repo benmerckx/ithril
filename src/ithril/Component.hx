@@ -1,7 +1,7 @@
 package ithril;
 
-@:autoBuild(ithril.IthrilBuilder.buildComponent())
-class Component implements IthrilView {
+@:autoBuild(ithril.Parser.buildComponent())
+class Component implements View {
 	public function oninit(vnode:Vnode) {}
 	public function oncreate(vnode:Vnode) {}
 	public function onupdate(vnode:Vnode) {}

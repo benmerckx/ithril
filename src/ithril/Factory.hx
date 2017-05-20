@@ -1,6 +1,6 @@
 package ithril;
 
-class Util {
+class Factory {
 	public static inline function makeVnode1(tag:Dynamic):Vnode
 		return #if (js && !nodejs) untyped m(tag); #else makeVnode3(tag, null, null); #end
 

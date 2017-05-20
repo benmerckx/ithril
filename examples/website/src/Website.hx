@@ -1,14 +1,9 @@
 import ithril.*;
 import ithril.M.*;
 using Reflect;
-// Website
-class Website implements IthrilView {
-	static public function view(href)
-		return function(vnode) @m[ (Base(vnode == null ? { } : vnode.attrs)(State.page(href))) ];
-}
 
-// Top level page wrapper wraps all pages
-class Base extends Component {
+// Website top level page wrapper wraps all pages
+class Website extends Component {
 #if browser
 	override public function oncreate(vnode) setup(vnode);
 	override public function onupdate(vnode) setup(vnode);

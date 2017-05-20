@@ -6,8 +6,9 @@ class Ithril {
 	macro static public inline function view(func:haxe.macro.Expr) { }
 #else
 	macro static public inline function view(func:haxe.macro.Expr) {
-		IthrilBuilder.parseFunction(func);
+		Parser.parseFunction(func);
 		return func;
 	}
 #end
+
 }

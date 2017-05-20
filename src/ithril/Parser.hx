@@ -58,7 +58,7 @@ typedef ObjField = {field : String, expr : Expr};
 
 typedef Lines = Map<Int, Int>;
 
-class IthrilBuilder {
+class Parser {
 
 	static var lines: Lines;
 	static var isTemplate: Bool;
@@ -248,30 +248,30 @@ class IthrilBuilder {
 					if (data.content != null) {
 						if (emptyChildren) {
 							if (emptyAttrs)
-								vnode = macro ithril.Util.makeVnode2(${tag}, ${data.content});
+								vnode = macro ithril.Factory.makeVnode2(${tag}, ${data.content});
 							else
-								vnode = macro ithril.Util.makeVnode3(${tag}, ${attrs}, ${data.content});
+								vnode = macro ithril.Factory.makeVnode3(${tag}, ${attrs}, ${data.content});
 						} else {
 							if (emptyAttrs)
-								vnode = macro ithril.Util.makeVnode2(${tag}, ([${data.content}]:Array<Dynamic>).concat(${children}));
+								vnode = macro ithril.Factory.makeVnode2(${tag}, ([${data.content}]:Array<Dynamic>).concat(${children}));
 							else
-								vnode = macro ithril.Util.makeVnode3(${tag}, ${attrs}, ([${data.content}]:Array<Dynamic>).concat(${children}));
+								vnode = macro ithril.Factory.makeVnode3(${tag}, ${attrs}, ([${data.content}]:Array<Dynamic>).concat(${children}));
 						}
 					} else {
 						if (emptyChildren) {
-							vnode = macro ithril.Util.makeVnode2A(${tag}, ${attrs});
+							vnode = macro ithril.Factory.makeVnode2A(${tag}, ${attrs});
 						} else {
 							if (emptyAttrs)
-								vnode = macro ithril.Util.makeVnode2(${tag}, ${children});
+								vnode = macro ithril.Factory.makeVnode2(${tag}, ${children});
 							else
-								vnode = macro ithril.Util.makeVnode3(${tag}, ${attrs}, ${children});
+								vnode = macro ithril.Factory.makeVnode3(${tag}, ${attrs}, ${children});
 						}
 					}
 
 					exprList.push(vnode);
 
 				case Block.TrustedExprBlock(e, _):
-					exprList.push(macro ithril.Util.makeTrust(${e}));
+					exprList.push(macro ithril.Factory.makeTrust(${e}));
 
 				case Block.ExprBlock(e, _):
 					exprList.push(e);
@@ -294,15 +294,15 @@ class IthrilBuilder {
 
 					if (emptyChildren) {
 						if (emptyAttrs) {
-							exprList.push(macro @:pos(pos.pos) ithril.Util.makeVnode1($i{name}));
+							exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode1($i{name}));
 						} else {
-							exprList.push(macro @:pos(pos.pos) ithril.Util.makeVnode2A($i{name}, $attrs));
+							exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2A($i{name}, $attrs));
 						}
 					} else {
 						if (emptyAttrs) {
-							exprList.push(macro @:pos(pos.pos) ithril.Util.makeVnode2($i{name}, $children));
+							exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2($i{name}, $children));
 						} else {
-							exprList.push(macro @:pos(pos.pos) ithril.Util.makeVnode3($i{name}, $attrs, $children));
+							exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode3($i{name}, $attrs, $children));
 						}
 					}
 			}
@@ -503,7 +503,7 @@ class IthrilBuilder {
 									case EMeta(s, e3):
 										var nm = s.name.toLowerCase();
 										if (nm == ":trust" || nm == "trust")
-											content = macro ithril.Util.makeTrust(${e3});
+											content = macro ithril.Factory.makeTrust(${e3});
 									default:
 										content = e2;
 								}

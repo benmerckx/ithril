@@ -1,15 +1,16 @@
 import ithril.*;
 import ithril.M.*;
 using Reflect;
+
 // Main application entry point
 class App {
 	public static var config:Dynamic = Config.load();
 #if browser
-	static function main() View.execute();
+	static function main() Views.execute();
 #elseif webserver
 	static function main() WebServer.execute();
 #elseif renderview
-	static function main() View.render({ path: App.config.path }, { send: Sys.println, status: Sys.println });
+	static function main() Views.render({ path: App.config.path }, { send: Sys.println, status: Sys.println });
 #end
 }
 
@@ -28,13 +29,16 @@ class Config {
 		if (args.length < 2) help('Missing arguments\n' + argHandler.getDoc()); else argHandler.parse(args);
 #end
 		App.config.routes = { };
-		for (href in State.current.pages.fields()) App.config.routes.setField(href, { render: Website.view(href) });
+
+		for (href in State.current.pages.fields()) 
+			App.config.routes.setField(href, { render: function (vnode) return m(Website, State.page(href)) });
+
 		return App.config;
 	}
 }
 
 // Execute and render views
-class View {
+class Views {
 	public static function execute() {
 		routePrefix("");
 		route(js.Browser.document.body, "/", App.config.routes);
@@ -57,7 +61,7 @@ class WebServer {
 		if (App.config.listen.httpLogFormat != null) srv.use(new js.npm.express.Morgan(App.config.listen.httpLogFormat));
 		srv.get('/favicon.ico', function (req, res:Dynamic) res.status(404).end());
 		if (App.config.html.render)
-			srv.get("*", View.render);
+			srv.get("*", Views.render);
 		else
 			srv.use('/', new js.npm.express.Static(App.config.html.path));
 		srv.use(function(req, res:Dynamic) res.status(404).end());

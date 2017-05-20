@@ -7,3 +7,4 @@ modd.conf
 obj/
 node_modules/
 htdocs/
+yarn.lock

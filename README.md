@@ -110,12 +110,15 @@ Any expression can be used inside brackets:
 
 #### Conditionals
 
-If/else can be used inside templates:
+`$if`, `$elseif`, and `$else` can be used inside templates:
+
 ```haxe
-($if (bigTitle))
+($if (headerSize == 1))
 	(h1 > 'Big')
-($else)
+($elseif (headerSize == 2))
 	(h2 > 'Not that big')
+($else)
+	(p > 'Paragraph')
 ```
 
 #### For loop

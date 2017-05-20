@@ -247,7 +247,6 @@ class TestIthil extends TestCase implements View {
 
 	public function testInlineLoops() {
 		var items = ['a', 'b', 'c'];
-		//assert({ "children": [ "a", "b", "c" ], "tag": "div" }, [
 		assert({ "children": [ [ [ "a" ], [ "b" ], [ "c" ] ] ], "tag": "div" }, @m[
 			(div)
 				($for (i in items))
@@ -279,6 +278,69 @@ class TestIthil extends TestCase implements View {
 	public function testCustomCombined() {
 		var html = HTMLRenderer.render(@m[(CombinedAttributes (a=1) (b=2))]);
 		assert('<div a="1" b="2"></div>', html);
+	}
+
+	public function testIf() {
+		var value = 1;
+		var rslt = @m[
+			($if (value == 1))
+				['ok']
+			];
+		assert(['ok'], rslt);
+	}
+
+	public function testIfElse() {
+		var value = 1;
+		var rslt = @m[
+			($if (value == 1))
+				['ok']
+			($else)
+				['not ok']
+			];
+		assert(['ok'], rslt);
+	}
+
+	public function testChainedIfElse() {
+		var value = 3;
+		var rslt = @m[
+			($if (value == 1))
+				['ok']
+			($elseif (value == 2))
+				['2']
+			($elseif (value == 3))
+				['3']
+			($elseif (value == 4))
+				['4']
+			($else)
+				['not ok']
+			];
+		assert(['3'], rslt);
+	}
+
+	public function testNestedChainedIfElse() {
+		var value = 4;
+		var rslt = @m[
+			($if (value == 1))
+				['not ok']
+			($elseif (value == 2))
+				['not ok']
+			($elseif (value == 3))
+				($if (value == 500))
+					['not ok']
+				($else)
+					['not ok']
+			($elseif (value == 4))
+				($if (value > 3))
+					($if (value > 2))
+						['4']
+				($elseif (value < 1))
+					['not ok']
+				($else)
+					['not ok']
+			($else)
+				['not ok']
+			];
+		assert([[['4']]], rslt);
 	}
 
 	inline function assert<T>(o1: T, o2: T) {

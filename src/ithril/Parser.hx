@@ -16,6 +16,7 @@ enum Block {
 	For(e: Expr, pos: PosInfo);
 	If(e: Expr, pos: PosInfo);
 	Else(pos: PosInfo);
+	ElseIf(e: Expr, pos: PosInfo);
 	Map(a: Expr, b: Expr, pos: PosInfo);
 	Assignment(ident: String, block: Block, pos: PosInfo);
 }
@@ -193,6 +194,22 @@ class Parser {
 		default: e;
 	}
 
+    private static function generateIfChain(conditions:Array<{ cond: Expr, child: Expr }>):Expr { // thx Gama11
+        // get the next condition
+        var condition = conditions.shift();
+
+		// check for no more conditions, or final else
+        if (condition == null) return null;
+		if (condition.cond == null) return condition.child;
+
+        // recurse deeper to generate the next if
+        var nextIf = generateIfChain(conditions);
+        return {
+            expr: EIf(condition.cond, condition.child, nextIf),
+            pos: Context.currentPos()
+        };
+    }
+
 	static function createExprList(list:Array<BlockWithChildren>, ?prepend:Expr):Array<Expr> {
 		var exprList: Array<Expr> = [];
 		if (prepend != null)
@@ -206,16 +223,37 @@ class Parser {
 					exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, false)}]);
 
 				case Block.If(e, pos):
-					var elseCond = macro @:pos(pos.pos) [];
+					var conditions = new Array<{ cond: Expr, child: Expr }>();
+					var hasElse;
+					conditions.push({ cond: e, child: createExpr(item.children) });
+
 					if (list.length > i+1) {
-						var next: BlockWithChildren = list[i+1];
-						switch next.block {
-							case Block.Else(_):
-								if (next.indent == item.indent) elseCond = createExpr(next.children);
-							default:
+						for (y in i+1...list.length) {
+							var next: BlockWithChildren = list[y];
+							switch next.block {
+								case Block.Else(_):
+									if (next.indent == item.indent) {
+										conditions.push({ cond: null, child: createExpr(next.children) });
+										hasElse = true;
+										break;
+									}
+								case Block.ElseIf(cond, pos):
+									if (next.indent == item.indent)
+										conditions.push({ cond: cond, child: createExpr(next.children) });
+									else
+										break;
+
+								default:
+									if (next.indent == item.indent) break;
+							}
 						}
 					}
-					exprList.push(macro @:pos(pos.pos) (($e) ? ${createExpr(item.children)} : $elseCond));
+
+					if (!hasElse) conditions.push({ cond: null, child: macro @:pos(pos.pos) [] });
+
+					exprList.push(generateIfChain(conditions));
+
+				case Block.ElseIf(_, _): continue;
 
 				case Block.Else(_): continue;
 
@@ -390,7 +428,8 @@ class Parser {
 					 Block.If(_, pos) |
 					 Block.Map(_, _, pos) |
 					 Block.Assignment(_, _, pos) |
-					 Block.Else(pos):
+					 Block.Else(pos) |
+					 Block.ElseIf(_, pos):
 					pos.line;
 			}
 			var indent = lines.get(line);
@@ -455,6 +494,8 @@ class Parser {
 				return Success(Block.If(a, posInfo(e)));
 			case macro $f if (f.getIdent().equals("$else")):
 				return Success(Block.Else(posInfo(e)));
+			case macro $f ($a) if (f.getIdent().equals("$elseif")):
+				return Success(Block.ElseIf(a, posInfo(e)));
 			case macro $a => $b:
 				return Success(Block.Map(a, b, posInfo(e)));
 			case macro !doctype:

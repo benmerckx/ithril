@@ -22,7 +22,7 @@
 
 --each
 
-### NPM DEPENDENCIES __________________________________________/`
+### NPM DEPENDENCIES
 -cmd bash -c "if [ ! -d node_modules ]; then echo Running npm install && npm install; fi"
 --next
 

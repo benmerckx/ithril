@@ -126,6 +126,12 @@ Any expression can be used inside brackets:
 ```haxe
 (link in links)
 	(a (href=link.url, target='_blank') > link.title)
+
+// or:
+
+($for (link in links))
+	(a (href=link.url, target='_blank') > link.title)
+
 ```
 
 #### While loop
@@ -142,6 +148,32 @@ The following syntax can be used for any object (in this case `links`) with a ma
 ```haxe
 (links => link)
 	(a (href=link.url, target='_blank') > link.title)
+```
+
+#### Map with null check
+
+Using the `>>` or `<<` operator adds a null check prior to map execution.
+
+```haxe
+// using >>:
+
+(links >> link)
+	(a (href=link.url, target='_blank') > link.title)
+
+// or using <<:
+
+(link << links)
+	(a (href=link.url, target='_blank') > link.title)
+
+```
+
+Translates to:
+
+```haxe
+if (links != null)
+	[links.map(function(link) m('a', { href: link.url, target: '_blank' }, [ link.title ])];
+else
+	[];
 ```
 
 #### Try/Catch

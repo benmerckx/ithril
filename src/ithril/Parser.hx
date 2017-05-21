@@ -14,10 +14,12 @@ enum Block {
 	TrustedExprBlock(e: Expr, pos: PosInfo);
 	CustomElement(type: String, arguments: Array<Expr>, pos: PosInfo);
 	For(e: Expr, pos: PosInfo);
+	NullFor(field: Expr, e: Expr, pos: PosInfo);
 	If(e: Expr, pos: PosInfo);
 	Else(pos: PosInfo);
 	ElseIf(e: Expr, pos: PosInfo);
 	Map(a: Expr, b: Expr, pos: PosInfo);
+	NullMap(a: Expr, b: Expr, pos: PosInfo);
 	Assignment(ident: String, block: Block, pos: PosInfo);
 	While(a: Expr, pos: PosInfo);
 	Try(pos: PosInfo);
@@ -225,6 +227,20 @@ class Parser {
 				case Block.For(e, pos):
 					exprList.push(macro @:pos(pos.pos) [for ($e) ${createExpr(item.children, false)}]);
 
+				case Block.NullFor(field, e, pos):
+					switch (field.getIdent()) {
+						case Success(i):
+							exprList.push(macro @:pos(pos.pos) {
+								var t = $e;
+								if (t != null) {
+									t.map(function($i) ${createExpr(item.children, true)});
+								}
+								else 
+									[];
+							});
+						default:
+					}
+
 				case Block.If(e, pos):
 					var conditions = new Array<{ cond: Expr, child: Expr }>();
 					var hasElse;
@@ -264,6 +280,20 @@ class Parser {
 					switch b.getIdent() {
 						case Success(i):
 							exprList.push(macro @:pos(pos.pos) $a.map(function($i) ${createExpr(item.children, true)}));
+						default: continue;
+					}
+
+				case Block.NullMap(a, b, pos):
+					switch b.getIdent() {
+						case Success(i):
+							exprList.push(macro @:pos(pos.pos) {
+								var t = $a;
+								if (t != null) {
+									t.map(function($i) ${createExpr(item.children, true)});
+								}
+								else 
+									[];
+							});
 						default: continue;
 					}
 
@@ -462,8 +492,10 @@ class Parser {
 					 Block.TrustedExprBlock(_, pos) |
 					 Block.CustomElement(_, _, pos) |
 					 Block.For(_, pos) |
+					 Block.NullFor(_, _, pos) |
 					 Block.If(_, pos) |
 					 Block.Map(_, _, pos) |
+					 Block.NullMap(_, _, pos) |
 					 Block.Assignment(_, _, pos) |
 					 Block.Else(pos) |
 					 Block.ElseIf(_, pos) |
@@ -530,6 +562,8 @@ class Parser {
 				return Success(Block.For(a, posInfo(e)));
 			case macro $a in $b:
 				return Success(Block.For(e, posInfo(e)));
+			case macro $a << $b:
+				return Success(Block.NullFor(a, b, posInfo(e)));
 			case macro $f ($a) if (f.getIdent().equals("$if")):
 				return Success(Block.If(a, posInfo(e)));
 			case macro $f if (f.getIdent().equals("$else")):
@@ -538,6 +572,8 @@ class Parser {
 				return Success(Block.ElseIf(a, posInfo(e)));
 			case macro $a => $b:
 				return Success(Block.Map(a, b, posInfo(e)));
+			case macro $a >> $b:
+				return Success(Block.NullMap(a, b, posInfo(e)));
 			case macro $f ($a) if (f.getIdent().equals("$while")):
 				return Success(Block.While(a, posInfo(e)));
 			case macro $f if (f.getIdent().equals("$try")):

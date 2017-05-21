@@ -284,7 +284,7 @@ class Web extends Component {
 
 ## Output
 
-`@m[ (div(attrs)) ]` is transpiled to Mithril hyperscript `m('div', attrs)`.  On the browser end, it's passed directly to Mithril.  In server instances `ithril.HTMLRenderer` can be is used to render HTML.
+`@m[ (div(attrs)) ]` is transpiled to Mithril hyperscript `m('div', attrs)`.  On the browser end, it's passed directly to Mithril.  In server instances `ithril.HTMLRenderer` can be used to render HTML.
 
 ## Sample Website
 

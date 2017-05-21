@@ -19,6 +19,7 @@ enum Block {
 	ElseIf(e: Expr, pos: PosInfo);
 	Map(a: Expr, b: Expr, pos: PosInfo);
 	Assignment(ident: String, block: Block, pos: PosInfo);
+	While(a: Expr, pos:PosInfo);
 }
 
 typedef BlockWithChildren = {
@@ -264,6 +265,9 @@ class Parser {
 						default: continue;
 					}
 
+				case Block.While(e, pos):
+					exprList.push(macro @:pos(pos.pos) [while ($e) ${createExpr(item.children, true)}]);
+
 				case Block.ElementBlock(data, pos):
 					var tag = Context.makeExpr(data.selector.tag, Context.currentPos());
 					var attrs = createAttrsExpr(pos.pos, data);
@@ -429,7 +433,8 @@ class Parser {
 					 Block.Map(_, _, pos) |
 					 Block.Assignment(_, _, pos) |
 					 Block.Else(pos) |
-					 Block.ElseIf(_, pos):
+					 Block.ElseIf(_, pos) |
+					 Block.While(_, pos):
 					pos.line;
 			}
 			var indent = lines.get(line);
@@ -498,6 +503,8 @@ class Parser {
 				return Success(Block.ElseIf(a, posInfo(e)));
 			case macro $a => $b:
 				return Success(Block.Map(a, b, posInfo(e)));
+			case macro $f ($a) if (f.getIdent().equals("$while")):
+				return Success(Block.While(a, posInfo(e)));
 			case macro !doctype:
 				element.selector.tag = '!doctype';
 				element.attributes = macro {html: true};

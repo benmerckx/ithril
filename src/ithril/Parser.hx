@@ -19,7 +19,9 @@ enum Block {
 	ElseIf(e: Expr, pos: PosInfo);
 	Map(a: Expr, b: Expr, pos: PosInfo);
 	Assignment(ident: String, block: Block, pos: PosInfo);
-	While(a: Expr, pos:PosInfo);
+	While(a: Expr, pos: PosInfo);
+	Try(pos: PosInfo);
+	Catch(a: Expr, pos: PosInfo);
 }
 
 typedef BlockWithChildren = {
@@ -268,6 +270,37 @@ class Parser {
 				case Block.While(e, pos):
 					exprList.push(macro @:pos(pos.pos) [while ($e) ${createExpr(item.children, true)}]);
 
+				case Block.Try(pos):
+					var catchExpr = macro @:pos(pos,pos) [];
+					var catchVar = macro err;
+
+					if (list.length > i+1) {
+						for (y in i+1...list.length) {
+							var next: BlockWithChildren = list[y];
+							switch next.block {
+								case Block.Catch(variable, pos):
+									if (next.indent == item.indent) {
+										catchExpr = createExpr(next.children, true);
+										catchVar = variable;
+										break;
+									}
+									else
+										break;
+
+								default:
+									if (next.indent == item.indent) break;
+							}
+						}
+					}
+
+					exprList.push({
+						expr: ETry(createExpr(item.children, true), [ { expr: catchExpr, name: catchVar.toString(), type: "Dynamic".asComplexType() } ]),
+						pos: Context.currentPos()
+					});
+
+				case Block.Catch(e, pos):
+					continue;
+
 				case Block.ElementBlock(data, pos):
 					var tag = Context.makeExpr(data.selector.tag, Context.currentPos());
 					var attrs = createAttrsExpr(pos.pos, data);
@@ -434,7 +467,9 @@ class Parser {
 					 Block.Assignment(_, _, pos) |
 					 Block.Else(pos) |
 					 Block.ElseIf(_, pos) |
-					 Block.While(_, pos):
+					 Block.While(_, pos) |
+					 Block.Try(pos) |
+					 Block.Catch(_, pos):
 					pos.line;
 			}
 			var indent = lines.get(line);
@@ -505,6 +540,10 @@ class Parser {
 				return Success(Block.Map(a, b, posInfo(e)));
 			case macro $f ($a) if (f.getIdent().equals("$while")):
 				return Success(Block.While(a, posInfo(e)));
+			case macro $f if (f.getIdent().equals("$try")):
+				return Success(Block.Try(posInfo(e)));
+			case macro $f ($a) if (f.getIdent().equals("$catch")):
+				return Success(Block.Catch(a, posInfo(e)));
 			case macro !doctype:
 				element.selector.tag = '!doctype';
 				element.attributes = macro {html: true};

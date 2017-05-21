@@ -128,12 +128,31 @@ Any expression can be used inside brackets:
 	(a (href=link.url, target='_blank') > link.title)
 ```
 
+#### While loop
+
+```haxe
+($while (expr))
+	(div > 'text')
+```
+
 #### Map
 
-Following syntax can be used for any object (in this case `links`) with a map method:
+The following syntax can be used for any object (in this case `links`) with a map method:
+
 ```haxe
 (links => link)
 	(a (href=link.url, target='_blank') > link.title)
+```
+
+#### Try/Catch
+
+Try/Catch is limited to a single catch of the Dynamic type.
+
+```haxe
+($try)
+	(div > functionThatThrows())
+($catch (err))
+	(div > err)
 ```
 
 #### Trusted HTML

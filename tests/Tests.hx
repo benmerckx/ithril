@@ -343,6 +343,22 @@ class TestIthil extends TestCase implements View {
 		assert([[['4']]], rslt);
 	}
 
+	public function testTryCatch() {
+		var badFunc = function() {
+			throw "i'm an error";
+			return "silly";
+		};
+
+		var rslt = @m[
+			($try)
+				['not ok']
+				[badFunc()]
+			($catch (err))
+				['ok']
+		];
+		assert('ok', rslt);
+	}
+
 	inline function assert<T>(o1: T, o2: T) {
 		assertEquals(Json.stringify(o1, null, ' '), Json.stringify(o2, null, ' '));
 	}

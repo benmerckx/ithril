@@ -255,9 +255,9 @@ Components can be rendered by passing a Component class to Mithril:
 M.mount(js.Browser.document.body, MyComponent);
 ```
 
-Or may be rendered on the server as html (string):
+Or may be rendered in nodejs as html:
 ```haxe
-HTMLRenderer.render(@m[ (div > 'view') ]).then(function(html) Sys.print(html))
+HTMLRenderer.render(Ithril.view(@m[ (div > 'view') ])).then(function(html) Sys.print(html))
 ```
 
 Mithril routing is also supported:
@@ -267,39 +267,45 @@ M.route(js.Browser.document.body, "/", routes);
 
 ## Usage
 
-Any of your class methods can use ithril syntax if you either implement `ithril.View` or extend `ithril.Component`.
+Any of your class methods can use ithril syntax if you either implement `ithril.View` or extend `ithril.Component`.  Additionally you can use the static function `ithril.Ithril.view` to parse an ithril view.
 
 ```haxe
 import ithril.*;
+import ithril.M.*;
 
 class Web extends Component {
-	public function layout() @m[
+	override public function view(vnode) @m[
+#if nodejs
 		(!doctype)
 		(meta[charset="utf-8"])
 		(link[href="layout.css"][rel="stylesheet"])
 		(body)
-			[view()]
-		(script[src="https://cdnjs.cloudflare.com/ajax/libs/mithril/0.2.0/mithril.min.js"])
+#end
+			(div.intro)
+				(h1 > 'Ithril example')
+				(p > 'Hello world')
+#if nodejs
+		(script[src="https://cdnjs.cloudflare.com/ajax/libs/mithril/1.1.1/mithril.min.js"])
 		(script[src="main.js"])
+#end
 	];
 
-	override public function view(vnode) @m[
-		(div.intro)
-			(h1 > 'Ithril example')
-			(p > 'Hello world')
-	];
+}
 
+class Main {
 	public static function main() {
 		// On the server
-		#if !js
-		Sys.print(HTMLRenderer.render(new Web({ }).layout()));
+		#if nodejs 
+		HTMLRenderer.render(Web).then(function(html) Sys.print(html));
 		#else
 		// On the client
-		M.mount(js.Browser.document.body, new Web({ }));
+		M.mount(js.Browser.document.body, Web);
 		#end
 	}
 }
 ```
+
+You can find this usage example in `examples/simple`.
 
 ## Output
 

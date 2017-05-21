@@ -1,0 +1,33 @@
+### COMMON
+
+# Full dead code elimination
+-dce full
+# Enable the analyzer optimizations
+-D analyzer-optimize
+# Ithril provides templating and mithril:
+-lib ithril
+
+--each
+
+### CLIENT
+
+-cmd echo Building browser.js
+--next
+# Main class
+-main Main
+# Target output filename
+-js obj/main.js
+--next
+
+### RENDER
+
+-cmd echo Building webserver.js
+--next
+# js-kit provides js externs
+-lib js-kit
+# hxnodejs provides nodejs externs
+-lib hxnodejs
+# Main class
+-main Main
+# Target output filename
+-js obj/renderhtml.js

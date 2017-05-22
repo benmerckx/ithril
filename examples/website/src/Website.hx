@@ -5,13 +5,20 @@ using Reflect;
 // Website top level page wrapper wraps all pages
 class Website extends Component {
 #if browser
+	// when component is created or updated, update favicon and title
 	override public function oncreate(vnode) setup(vnode);
 	override public function onupdate(vnode) setup(vnode);
 	function setup(vnode) {
 		js.Browser.document.title = vnode.attrs.title;
-		var favicon = js.Browser.document.head.querySelector('link[rel=${vnode.attrs.favicon.rel}]');
-		favicon.setAttribute('href', vnode.attrs.favicon.href);
-		favicon.setAttribute('type', vnode.attrs.favicon.type);
+		if (vnode.attrs.link == null) return;
+		for (link in (vnode.attrs.links:Array<Dynamic>)) {
+			if (link.rel == "icon") {
+				var icon = js.Browser.document.head.querySelector('link[rel=icon]');
+				icon.setAttribute('href', link.href);
+				icon.setAttribute('type', link.type);
+				break;
+			}
+		}
 	}
 #end
 
@@ -21,20 +28,21 @@ class Website extends Component {
 		(html(lang='en'))
 
 		(head)
-			(vnode.attrs.meta => data)
-				(meta(data))
 			(title > vnode.attrs.title)
-			(link(type=vnode.attrs.favicon.type, rel=vnode.attrs.favicon.rel, href=vnode.attrs.favicon.href))
-			(vnode.attrs.css => css)
-				(style > @trust css)
+			(vnode.attrs.meta >> data)
+				(meta(data))
+			(vnode.attrs.link => attributes)
+				(link(attributes))
+			(vnode.attrs.css >> css)
+				(style(css.attributes) > @trust css.content)
 		(body)
 #end
 			(Navigation(id='navigation')(vnode.attrs))
 			[m(Type.resolveClass(vnode.attrs.component), vnode.attrs)]
 			(Footer(id='footer'))
 #if !browser
-			(vnode.attrs.javascript => javascript)
-				(script(type='text/javascript') > @trust javascript)
+			(vnode.attrs.script >> script)
+				(script(script.attributes) > @trust script.content)
 #end
 	];
 }
@@ -65,7 +73,7 @@ class Navigation extends Component {
 			(a+brand(oncreate=routeLink, href=vnode.attrs.brandPage))
 				[vnode.attrs.brand]
 			(ul)
-				(vnode.attrs.pages.fields() => href)
+				(vnode.attrs.pages.fields() >> href)
 					[{
 						var page = vnode.attrs.pages.field(href);
 						if (page.nav != null)

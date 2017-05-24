@@ -91,10 +91,12 @@ class Parser {
 			case FieldType.FFun(func):
 				lines = new Lines();
 				isTemplate = false;
-				parseFunction(func.expr);
-				if (isTemplate) {
-					func.expr = yieldExpr(func.expr);
-					yieldSubExpr(func.expr);
+				if (func.expr != null) {
+					parseFunction(func.expr);
+					if (isTemplate) {
+						func.expr = yieldExpr(func.expr);
+						yieldSubExpr(func.expr);
+					}
 				}
 				field;
 			default: field;
@@ -387,7 +389,7 @@ class Parser {
 					exprList.push(macro @:pos(pos.pos) $i{ident} = $el);
 
 				case Block.CustomElement(name, arguments, pos):
-					var attrs = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) {};
+					var attrs = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) ({ }:Dynamic);
 					var children = createExpr(item.children, false);
 					var emptyChildren = false;
 					switch children.expr {

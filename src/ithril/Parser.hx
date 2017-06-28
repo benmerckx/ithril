@@ -452,6 +452,7 @@ class Parser {
 			switch (data.attributes) {
 				case _.expr => ExprDef.EObjectDecl(f):
 					fields = f;
+					for (field in fields) if (field.field == "className") field.field = "class";
 				case macro {}:
 				default:
 					// concat objects

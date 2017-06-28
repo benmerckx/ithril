@@ -12,7 +12,7 @@ enum Block {
 	ElementBlock(data: Element, pos: PosInfo);
 	ExprBlock(e: Expr, pos: PosInfo);
 	TrustedExprBlock(e: Expr, pos: PosInfo);
-	CustomElement(type: String, arguments: Array<Expr>, pos: PosInfo);
+	CustomElement(type: String, arguments: Array<Expr>, content: Null<Expr>, pos: PosInfo);
 	For(e: Expr, pos: PosInfo);
 	NullFor(field: Expr, e: Expr, pos: PosInfo);
 	If(e: Expr, pos: PosInfo);
@@ -388,7 +388,7 @@ class Parser {
 					var el = createExpr([item], true);
 					exprList.push(macro @:pos(pos.pos) $i{ident} = $el);
 
-				case Block.CustomElement(name, arguments, pos):
+				case Block.CustomElement(name, arguments, content, pos):
 					var attrs = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) ({ }:Dynamic);
 					var children = createExpr(item.children, false);
 					var emptyChildren = false;
@@ -399,17 +399,33 @@ class Parser {
 					}
 					var emptyAttrs = arguments.length == 0;
 
-					if (emptyChildren) {
-						if (emptyAttrs) {
-							exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode1($i{name}));
+					if (content == null) {
+						if (emptyChildren) {
+							if (emptyAttrs) {
+								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode1($i{name}));
+							} else {
+								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2A($i{name}, $attrs));
+							}
 						} else {
-							exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2A($i{name}, $attrs));
+							if (emptyAttrs) {
+								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2($i{name}, $children));
+							} else {
+								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode3($i{name}, $attrs, $children));
+							}
 						}
 					} else {
-						if (emptyAttrs) {
-							exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2($i{name}, $children));
+						if (emptyChildren) {
+							if (emptyAttrs) {
+								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2($i{name}, $content));
+							} else {
+								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode3($i{name}, $attrs, $content));
+							}
 						} else {
-							exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode3($i{name}, $attrs, $children));
+							if (emptyAttrs) {
+								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2($i{name}, ([$content]:Array<Dynamic>).concat($children)));
+							} else {
+								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode3($i{name}, $attrs, ([$content]:Array<Dynamic>).concat($children)));
+							}
 						}
 					}
 			}
@@ -492,7 +508,7 @@ class Parser {
 				case Block.ElementBlock(_, pos) |
 					 Block.ExprBlock(_, pos) |
 					 Block.TrustedExprBlock(_, pos) |
-					 Block.CustomElement(_, _, pos) |
+					 Block.CustomElement(_, _, _, pos) |
 					 Block.For(_, pos) |
 					 Block.NullFor(_, _, pos) |
 					 Block.If(_, pos) |
@@ -589,7 +605,7 @@ class Parser {
 				switch chainElement(el) {
 					case Success(block):
 						switch block {
-							case Block.CustomElement(_, _, pos):
+							case Block.CustomElement(_, _, _, pos):
 								switch v.getIdent() {
 									case Success(ident):
 										return Success(Block.Assignment(ident, block, posInfo(v)));
@@ -605,7 +621,7 @@ class Parser {
 					case Constant.CIdent(s):
 						if (s.charAt(0) == s.charAt(0).toUpperCase()) {
 							// Custom element
-							return Success(Block.CustomElement(s, [], posInfo(e)));
+							return Success(Block.CustomElement(s, [], null, posInfo(e)));
 						} else {
 							element.selector.tag = s;
 						}
@@ -637,6 +653,10 @@ class Parser {
 									case Block.ElementBlock(el, _):
 										element = el;
 										element.content = content;
+
+									case Block.CustomElement(type, prevAttr, contentVal, pos):
+										return Success(Block.CustomElement(type, prevAttr, content, pos));
+
 									default:
 										return Failure(Noise);
 								}
@@ -660,13 +680,13 @@ class Parser {
 											el.attributes = a;
 									case Failure(Noise): return Failure(Noise);
 								}
-							case Block.CustomElement(type, prevAttr, pos):
+							case Block.CustomElement(type, prevAttr, content, pos):
 								switch extractAttributes(attrs) {
 									case Success(a): {
 										if (prevAttr != null && prevAttr.length != 0) {
 											a = macro @:pos(a.pos) ithril.Attributes.combine(${prevAttr[0]}, $a);
 										}
-										return Success(Block.CustomElement(type, [a], pos));
+										return Success(Block.CustomElement(type, [a], null, pos));
 									}
 									case Failure(Noise): return Failure(Noise);
 								}

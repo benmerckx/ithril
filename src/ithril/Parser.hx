@@ -707,7 +707,7 @@ class Parser {
 				return Success(Block.CustomElement(element.selector.tag, element.attributes == null ? [] : [element.attributes], null, posInfo(e)));
 			} else {
 				if (element.attributes == null) {
-					var classAttrs = macro { 'class': $v{' ' + element.selector.classes.join(' ')} };
+					var classAttrs = macro { 'class': $v{element.selector.classes.join(' ')} };
 					return Success(Block.CustomElement(element.selector.tag, [classAttrs], element.content, posInfo(e)));
 				} else {
 					switch element.attributes.expr {

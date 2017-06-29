@@ -672,13 +672,25 @@ class Parser {
 				switch chainElement(e1) {
 					case Success(block):
 						switch block {
-							case Block.ElementBlock(el, _):
+							case Block.ElementBlock(el, pos):
 								switch extractAttributes(attrs) {
 									case Success(a):
-										if (el.attributes != null)
-											el.attributes = macro @:pos(a.pos) ithril.Attributes.combine(${el.attributes}, $a);
-										else
-											el.attributes = a;
+
+										// handle customElement
+										var firstChar = el.selector.tag.charAt(0);
+										var firstCharUpper = firstChar.toUpperCase();
+										if (firstChar == firstCharUpper) {
+											var dotAttrs = createAttrsExpr(pos.pos, el);
+											var comb = macro @:pos(a.pos) ithril.Attributes.combine($dotAttrs, $a);
+
+											return Success(Block.CustomElement(el.selector.tag, [comb], null, pos));
+										} else {
+											if (el.attributes != null)
+												el.attributes = macro @:pos(a.pos) ithril.Attributes.combine(${el.attributes}, $a);
+											else
+												el.attributes = a;
+										}
+
 									case Failure(Noise): return Failure(Noise);
 								}
 							case Block.CustomElement(type, prevAttr, content, pos):
@@ -741,6 +753,7 @@ class Parser {
 	static function assignToField(a: Expr, b: Expr): Outcome<ObjField, Noise>
 		return switch a.getName() {
 			case Success(name):
+				if (name == 'className') name = 'class';
 				Success({field: name, expr: b});
 			default: Failure(Noise);
 		}

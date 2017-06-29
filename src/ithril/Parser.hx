@@ -675,21 +675,10 @@ class Parser {
 							case Block.ElementBlock(el, pos):
 								switch extractAttributes(attrs) {
 									case Success(a):
-
-										// handle customElement
-										var firstChar = el.selector.tag.charAt(0);
-										var firstCharUpper = firstChar.toUpperCase();
-										if (firstChar == firstCharUpper) {
-											var dotAttrs = createAttrsExpr(pos.pos, el);
-											var comb = macro @:pos(a.pos) ithril.Attributes.combine($dotAttrs, $a);
-
-											return Success(Block.CustomElement(el.selector.tag, [comb], null, pos));
-										} else {
-											if (el.attributes != null)
-												el.attributes = macro @:pos(a.pos) ithril.Attributes.combine(${el.attributes}, $a);
-											else
-												el.attributes = a;
-										}
+										if (el.attributes != null)
+											el.attributes = macro @:pos(a.pos) ithril.Attributes.combine(${el.attributes}, $a);
+										else
+											el.attributes = a;
 
 									case Failure(Noise): return Failure(Noise);
 								}
@@ -711,6 +700,42 @@ class Parser {
 			default: return Failure(Noise);
 		}
 
+		var firstChar = element.selector.tag.charAt(0);
+		var firstCharUpper = firstChar.toUpperCase();
+		if (firstChar == firstCharUpper && firstChar != "!") {
+			if (element.selector.classes == null || element.selector.classes.length == 0) {
+				return Success(Block.CustomElement(element.selector.tag, element.attributes == null ? [] : [element.attributes], null, posInfo(e)));
+			} else {
+				if (element.attributes == null) {
+					var classAttrs = macro { 'class': $v{' ' + element.selector.classes.join(' ')} };
+					return Success(Block.CustomElement(element.selector.tag, [classAttrs], element.content, posInfo(e)));
+				} else {
+					switch element.attributes.expr {
+						case EObjectDecl(fields):
+							var foundIt = false;
+							for (field in fields) {
+								if (field.field == 'class' || field.field == 'className') {
+									field.expr = { expr: ExprDef.EBinop(OpAdd, field.expr, macro $v{' ' + element.selector.classes.join(' ')}), pos: element.attributes.pos };
+									foundIt = true;
+									break;
+								}
+							}
+							if (!foundIt) {
+								fields.push({ field: 'class', expr: macro $v{element.selector.classes.join(' ')} });
+								element.attributes = { expr: EObjectDecl(fields), pos: element.attributes.pos };
+							}
+
+							return Success(Block.CustomElement(element.selector.tag, [element.attributes], element.content, posInfo(e)));
+
+						default:
+							return Failure(Noise);
+
+					}
+
+
+				}
+			}
+		}
 		return Success(Block.ElementBlock(element, posInfo(e)));
 	}
 

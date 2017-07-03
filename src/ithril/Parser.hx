@@ -12,7 +12,6 @@ enum Block {
 	ElementBlock(data: Element, pos: PosInfo);
 	ExprBlock(e: Expr, pos: PosInfo);
 	TrustedExprBlock(e: Expr, pos: PosInfo);
-	CustomElement(type: String, arguments: Array<Expr>, content: Null<Expr>, pos: PosInfo);
 	For(e: Expr, pos: PosInfo);
 	NullFor(field: Expr, e: Expr, pos: PosInfo);
 	If(e: Expr, pos: PosInfo);
@@ -37,7 +36,8 @@ typedef BlockWithChildren = {
 typedef Selector = {
 	tag: String,
 	classes: Array<String>,
-	id: String
+	id: String,
+	isComponent: Bool
 }
 
 typedef Element = {
@@ -334,7 +334,7 @@ class Parser {
 					continue;
 
 				case Block.ElementBlock(data, pos):
-					var tag = Context.makeExpr(data.selector.tag, Context.currentPos());
+					var tag = data.selector.isComponent ? macro $i{data.selector.tag} : Context.makeExpr(data.selector.tag, pos.pos);
 					var attrs = createAttrsExpr(pos.pos, data);
 					var emptyAttrs = false;
 					switch attrs.expr {
@@ -387,47 +387,6 @@ class Parser {
 					item.block = block;
 					var el = createExpr([item], true);
 					exprList.push(macro @:pos(pos.pos) $i{ident} = $el);
-
-				case Block.CustomElement(name, arguments, content, pos):
-					var attrs = arguments.length > 0 ? arguments[0] : macro @:pos(pos.pos) ({ }:Dynamic);
-					var children = createExpr(item.children, false);
-					var emptyChildren = false;
-					switch children.expr {
-						case EArrayDecl([]):
-							emptyChildren = true;
-						default:
-					}
-					var emptyAttrs = arguments.length == 0;
-
-					if (content == null) {
-						if (emptyChildren) {
-							if (emptyAttrs) {
-								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode1($i{name}));
-							} else {
-								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2A($i{name}, $attrs));
-							}
-						} else {
-							if (emptyAttrs) {
-								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2($i{name}, $children));
-							} else {
-								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode3($i{name}, $attrs, $children));
-							}
-						}
-					} else {
-						if (emptyChildren) {
-							if (emptyAttrs) {
-								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2($i{name}, $content));
-							} else {
-								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode3($i{name}, $attrs, $content));
-							}
-						} else {
-							if (emptyAttrs) {
-								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode2($i{name}, ([$content]:Array<Dynamic>).concat($children)));
-							} else {
-								exprList.push(macro @:pos(pos.pos) ithril.Factory.makeVnode3($i{name}, $attrs, ([$content]:Array<Dynamic>).concat($children)));
-							}
-						}
-					}
 			}
 		}
 
@@ -509,7 +468,6 @@ class Parser {
 				case Block.ElementBlock(_, pos) |
 					 Block.ExprBlock(_, pos) |
 					 Block.TrustedExprBlock(_, pos) |
-					 Block.CustomElement(_, _, _, pos) |
 					 Block.For(_, pos) |
 					 Block.NullFor(_, _, pos) |
 					 Block.If(_, pos) |
@@ -567,6 +525,7 @@ class Parser {
 				tag: '',
 				classes: [],
 				id: '',
+				isComponent: false
 			},
 			attributes: null,
 			inlineAttributes: [],
@@ -606,11 +565,13 @@ class Parser {
 				switch chainElement(el) {
 					case Success(block):
 						switch block {
-							case Block.CustomElement(_, _, _, pos):
-								switch v.getIdent() {
-									case Success(ident):
-										return Success(Block.Assignment(ident, block, posInfo(v)));
-									default:
+							case Block.ElementBlock(data, pos):
+								if (data.selector.isComponent) {
+									switch v.getIdent() {
+										case Success(ident):
+											return Success(Block.Assignment(ident, block, posInfo(v)));
+										default:
+									}
 								}
 							default:
 						}
@@ -620,12 +581,7 @@ class Parser {
 			case _.expr => ExprDef.EConst(c):
 				switch (c) {
 					case Constant.CIdent(s):
-						if (s.charAt(0) == s.charAt(0).toUpperCase()) {
-							// Custom element
-							return Success(Block.CustomElement(s, [], null, posInfo(e)));
-						} else {
-							element.selector.tag = s;
-						}
+						element.selector = parseSelector(s);
 					default: return Failure(Noise);
 				}
 			case _.expr => ExprDef.EBinop(op, e1, e2):
@@ -655,9 +611,6 @@ class Parser {
 										element = el;
 										element.content = content;
 
-									case Block.CustomElement(type, prevAttr, contentVal, pos):
-										return Success(Block.CustomElement(type, prevAttr, content, pos));
-
 									default:
 										return Failure(Noise);
 								}
@@ -682,16 +635,6 @@ class Parser {
 
 									case Failure(Noise): return Failure(Noise);
 								}
-							case Block.CustomElement(type, prevAttr, content, pos):
-								switch extractAttributes(attrs) {
-									case Success(a): {
-										if (prevAttr != null && prevAttr.length != 0) {
-											a = macro @:pos(a.pos) ithril.Attributes.combine(${prevAttr[0]}, $a);
-										}
-										return Success(Block.CustomElement(type, [a], null, pos));
-									}
-									case Failure(Noise): return Failure(Noise);
-								}
 							default:
 						}
 						return Success(block);
@@ -700,42 +643,6 @@ class Parser {
 			default: return Failure(Noise);
 		}
 
-		var firstChar = element.selector.tag.charAt(0);
-		var firstCharUpper = firstChar.toUpperCase();
-		if (firstChar == firstCharUpper && firstChar != "!") {
-			if (element.selector.classes == null || element.selector.classes.length == 0) {
-				return Success(Block.CustomElement(element.selector.tag, element.attributes == null ? [] : [element.attributes], null, posInfo(e)));
-			} else {
-				if (element.attributes == null) {
-					var classAttrs = macro { 'class': $v{element.selector.classes.join(' ')} };
-					return Success(Block.CustomElement(element.selector.tag, [classAttrs], element.content, posInfo(e)));
-				} else {
-					switch element.attributes.expr {
-						case EObjectDecl(fields):
-							var foundIt = false;
-							for (field in fields) {
-								if (field.field == 'class' || field.field == 'className') {
-									field.expr = { expr: ExprDef.EBinop(OpAdd, field.expr, macro $v{' ' + element.selector.classes.join(' ')}), pos: element.attributes.pos };
-									foundIt = true;
-									break;
-								}
-							}
-							if (!foundIt) {
-								fields.push({ field: 'class', expr: macro $v{element.selector.classes.join(' ')} });
-								element.attributes = { expr: EObjectDecl(fields), pos: element.attributes.pos };
-							}
-
-							return Success(Block.CustomElement(element.selector.tag, [element.attributes], element.content, posInfo(e)));
-
-						default:
-							return Failure(Noise);
-
-					}
-
-
-				}
-			}
-		}
 		return Success(Block.ElementBlock(element, posInfo(e)));
 	}
 
@@ -837,11 +744,15 @@ class Parser {
 				default: tag = part;
 			}
 		}
+		var firstChar = tag.charAt(0);
+		var firstCharUpper = firstChar.toUpperCase();
+		var isComponent = (firstChar == firstCharUpper && firstChar != "!");
 
 		return {
 			tag: tag,
 			classes: classes,
-			id: id
+			id: id,
+			isComponent: isComponent
 		};
 	}
 

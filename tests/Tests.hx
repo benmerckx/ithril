@@ -9,6 +9,8 @@ import haxe.Json;
 class CustomElement extends Component {
 	override public function view(vnode:Vnode):Vnode @m[
 		(div (vnode.attrs))
+			($if (vnode.children != null))
+				[vnode.children]
 	];
 }
 
@@ -203,20 +205,20 @@ class TestIthil extends TestCase implements View {
 		assert({tag: 'div', attrs: {a: 1, attr: 'test'}}, @m[
 			(div (a=1) (attr))
 		]);
-		assert({ "text": "ok", "tag": "div", "attrs": { "attr": "test", "a": 1, "id": "id" } }, @m[
+		assert({ "children": "ok", "tag": "div", "attrs": { "attr": "test", "a": 1, "id": "id" } }, @m[
 			(div+id (a=1) (attr) > 'ok')
 		]);
 	}
 
 	public function testCombination() {
 		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test'}}, @m[(div[attr='test'].test+test)]);
-		assert({ "text": "a", "tag": "div", "attrs": { "attr": "test", "class": "test", "id": "test" } }, @m[(div[attr='test'].test+test > 'a')]);
+		assert({ "children": "a", "tag": "div", "attrs": { "attr": "test", "class": "test", "id": "test" } }, @m[(div[attr='test'].test+test > 'a')]);
 		assert({tag: 'div', attrs: {'class': 'test', id: 'test', attr: 'test', attr2: 'test'}}, @m[(div[attr='test'].test+test[attr2='test'])]);
 	}
 
 	public function testTextnode() {
 		assert({
-			"text": "Test",
+			"children": "Test",
 			"tag": "div"
 		}, @m[(div > 'Test')]);
 	}
@@ -266,7 +268,16 @@ class TestIthil extends TestCase implements View {
 	}
 
 	public function testCustomElement() {
-		assert({tag: 'div', attrs: {attr: 'test'}}, new CustomElement({ }).view({ tag: '', attrs: { attr: 'test' } }));
+		var view = new CustomElement({ }).view({ tag: '', attrs: { attr: 'test' } });
+		assert({tag: 'div', attrs: {attr: 'test'}, children: [[]]}, view);
+
+		var html = HTMLRenderer.render(@m[ (CustomElement > 'text') ]);
+		assert('<div>text</div>', html);
+
+		html = HTMLRenderer.render(@m[
+				(CustomElement+elementID.elementClassName > 'ElementText')
+				]);
+		assert('<div class="elementClassName" id="elementID">ElementText</div>', html);
 	}
 
 	public function testCustomElementKeepRef() {

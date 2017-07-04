@@ -85,18 +85,16 @@ class HTMLRenderer {
 #if js
 		return new js.Promise(function (resolve, reject) {
 #end
-			var txt = (view.text == null || view.text == '') ? '' : spacer(options, level) + options.escapeString(view.text, true) + lineEnd(options);
-
 #if !js
 			if (Std.is(view.children, Array) && view.children.length == 0)
-				return txt;
+				return '';
 			else
-				return txt + Std.string(_render(view.children, options, hooks, level, namespace));
+				return Std.string(_render(view.children, options, hooks, level, namespace));
 #else
 			if (Std.is(view.children, Array) && view.children.length == 0)
-				resolve(txt);
+				resolve('');
 			else
-				_render(view.children, options, hooks, level, namespace).then(function(rslt) resolve(txt + rslt), reject);
+				_render(view.children, options, hooks, level, namespace).then(function(rslt) resolve(rslt), reject);
 		});
 #end
 	}

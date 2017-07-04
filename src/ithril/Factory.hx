@@ -21,16 +21,7 @@ class Factory {
 			if (Reflect.hasField(v.attrs, "key") && v.attrs.key != null) v.key = attrs.key;
 		}
 
-		if (nodes != null) {
-			if (tag == '<')
-				v.children = nodes;
-			else if (Std.is(nodes, String) || Std.is(nodes, Bool) || Std.is(nodes, Int) || Std.is(nodes, Float)) {
-				v.text = ithril.Attributes.attrs(nodes);
-			}
-			else
-				v.children = nodes;
-		}
-
+		if (nodes != null) v.children = nodes;
 		return v;
 #end
 	}

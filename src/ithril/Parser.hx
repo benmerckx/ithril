@@ -571,18 +571,24 @@ class Parser {
 										case Success(ident):
 											return Success(Block.Assignment(ident, block, posInfo(v)));
 										default:
+											return Failure(Noise);
 									}
 								}
 							default:
+								return Failure(Noise);
 						}
 					default:
+						return Failure(Noise);
 				}
 				return Failure(Noise);
 			case _.expr => ExprDef.EConst(c):
 				switch (c) {
 					case Constant.CIdent(s):
 						element.selector = parseSelector(s);
-					default: return Failure(Noise);
+					case Constant.CInt(s):
+						element.selector = parseSelector(s);
+					default: 
+						return Failure(Noise);
 				}
 			case _.expr => ExprDef.EBinop(op, e1, e2):
 				switch op {
@@ -591,6 +597,7 @@ class Parser {
 							case Success(Block.ElementBlock(el, _)):
 								element.attributes = el.attributes;
 							default:
+								return Failure(Noise);
 						}
 						parseEndBlock(e, element);
 					case Binop.OpGt:
@@ -632,12 +639,12 @@ class Parser {
 											el.attributes = macro @:pos(a.pos) ithril.Attributes.combine(${el.attributes}, $a);
 										else
 											el.attributes = a;
+										return Success(block);
 
 									case Failure(Noise): return Failure(Noise);
 								}
-							default:
+							default: return Failure(Noise);
 						}
-						return Success(block);
 					case Failure(Noise): return Failure(Noise);
 				}
 			default: return Failure(Noise);

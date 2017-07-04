@@ -131,6 +131,7 @@ class TestIthil extends TestCase implements View {
 		assert({tag: 'div', attrs: {'class': 'test second'}}, @m[(div.test.second)]);
 		assert({tag: 'div', attrs: {'class': 'test-with-hyphen'}}, @m[(div.test-with-hyphen)]);
 		assert({tag: 'div', attrs: {'class': ['c1', 'c2']}}, @m[(div ('class' = ['c1', 'c2']))]);
+		assert({tag: 'h1', attrs: {'class': 'test-4', 'abc': 123}}, @m[(h1.test-4(abc=123))]);
 	}
 
 	/**

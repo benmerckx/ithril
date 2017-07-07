@@ -561,6 +561,7 @@ class Parser {
 			case macro !doctype:
 				element.selector.tag = '!doctype';
 				element.attributes = macro {html: true};
+				return Success(Block.ElementBlock(element, posInfo(e)));
 			case macro $v = $el:
 				switch chainElement(el) {
 					case Success(block):
@@ -590,16 +591,19 @@ class Parser {
 					default: 
 						return Failure(Noise);
 				}
+				return Success(Block.ElementBlock(element, posInfo(e)));
 			case _.expr => ExprDef.EBinop(op, e1, e2):
 				switch op {
 					case Binop.OpAdd | Binop.OpSub:
 						switch chainElement(e2) {
-							case Success(Block.ElementBlock(el, _)):
+							case Success(Block.ElementBlock(el, p)):
 								element.attributes = el.attributes;
+								parseEndBlock(e, element);
+								return Success(Block.ElementBlock(element, posInfo(e1)));
 							default:
 								return Failure(Noise);
 						}
-						parseEndBlock(e, element);
+
 					case Binop.OpGt:
 						switch chainElement(e1) {
 							case Success(block):
@@ -617,6 +621,7 @@ class Parser {
 									case Block.ElementBlock(el, _):
 										element = el;
 										element.content = content;
+										return Success(Block.ElementBlock(element, posInfo(e)));
 
 									default:
 										return Failure(Noise);
@@ -628,6 +633,7 @@ class Parser {
 				}
 			case _.expr => ExprDef.EField(_, _) | ExprDef.EArray(_, _):
 				parseEndBlock(e, element);
+				return Success(Block.ElementBlock(element, posInfo(e)));
 			case _.expr => ExprDef.ECall(e1, attrs):
 				switch chainElement(e1) {
 					case Success(block):
@@ -649,8 +655,6 @@ class Parser {
 				}
 			default: return Failure(Noise);
 		}
-
-		return Success(Block.ElementBlock(element, posInfo(e)));
 	}
 
 	static function parseEndBlock(e, element) {

@@ -42,6 +42,16 @@ class Label extends Component {
 
 class TestHTMLRenderer extends TestCase implements View {
 
+	public function testLineBreaks() {
+		var rslt = HTMLRenderer.render(@m[
+			(div.cls-y(
+					   linebreak=1))
+				(div.inner > 'ok')
+		]);
+		var expect = '<div class="cls-y" linebreak="1"><div class="inner">ok</div></div>';
+		assertEquals(expect, rslt);
+	}
+
 	public function testBasic() {
 		assertEquals('<div></div>', HTMLRenderer.render(@m[(div)]));
 	}

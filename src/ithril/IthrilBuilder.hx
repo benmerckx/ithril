@@ -60,7 +60,9 @@ typedef InlineAttribute = {
 	value: Expr
 }
 
-typedef ObjField = {field : String, expr : Expr};
+typedef ObjField = 
+	#if (haxe_ver >= 4) haxe.macro.ObjectField;
+	#else {field : String, expr : Expr} #end
 
 typedef Lines = Map<Int, Int>;
 
@@ -219,8 +221,8 @@ class IthrilBuilder {
 		var pos = exprList.length > 0 ? exprList[0].pos : Context.currentPos();
 		
 		if (root) {
-			var final = exprList.length == 1 ? macro ${exprList[0]} : macro $a{exprList};
-			return macro @:pos(pos) (@:ithril $final: Dynamic);
+			var res = exprList.length == 1 ? macro ${exprList[0]} : macro $a{exprList};
+			return macro @:pos(pos) (@:ithril $res: Dynamic);
 		}
 		
 		return macro @:pos(pos) ($a{exprList}: Dynamic);

@@ -13,7 +13,7 @@ class Web extends Component {
 				(h1 > 'Ithril example')
 				(p > 'Hello world')
 #if nodejs
-		(script[src="https://cdnjs.cloudflare.com/ajax/libs/mithril/1.1.1/mithril.min.js"])
+		(script[src="https://cdnjs.cloudflare.com/ajax/libs/mithril/1.1.6/mithril.min.js"])
 		(script[src="main.js"])
 #end
 	];

@@ -7,7 +7,7 @@ import haxe.macro.Expr;
 
 class From
 {
-    macro public static inline function file(path:String) return toExpr(loadFileAsString(path));
+	macro public static inline function file(path:String) return toExpr(loadFileAsString(path));
 
 	macro public static inline function command(cmd:String, ?args:Array<String>) return toExpr(getCommandOutputAsString(cmd, args));
 
@@ -18,7 +18,7 @@ class From
 		return macro $v{value};
 	}
 
-    #if macro
+	#if macro
 	static function toExpr(v:Dynamic) return Context.makeExpr(v, Context.currentPos());
 
 	static public function loadFileAsString(path:String) return sys.io.File.getContent(Context.resolvePath(path));

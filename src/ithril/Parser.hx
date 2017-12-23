@@ -60,7 +60,11 @@ typedef InlineAttribute = {
 	value: Expr
 }
 
+#if (haxe_ver >= 4.0)
+typedef ObjField = ObjectField;
+#else
 typedef ObjField = {field : String, expr : Expr};
+#end
 
 typedef Lines = Map<Int, Int>;
 
@@ -398,8 +402,8 @@ class Parser {
 		var pos = exprList.length > 0 ? exprList[0].pos : Context.currentPos();
 
 		if (root) {
-			var final = exprList.length == 1 ? macro ${exprList[0]} : exprList.length > 1 ? macro $a{exprList} : null;
-			return macro @:pos(pos) (@:ithril $final: Dynamic);
+			var finalExpr = exprList.length == 1 ? macro ${exprList[0]} : exprList.length > 1 ? macro $a{exprList} : null;
+			return macro @:pos(pos) (@:ithril $finalExpr: Dynamic);
 		}
 
 		return macro @:pos(pos) $a{exprList};
